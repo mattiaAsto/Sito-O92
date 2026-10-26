@@ -1,0 +1,8 @@
+.auth-form {
+  max-width: 24rem;
+}
+
+.auth-form input:not([type="checkbox"]) {
+  box-sizing: border-box;
+  width: 100%;
+}

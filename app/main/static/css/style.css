@@ -1,0 +1,50 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0 auto;
+  max-width: 60rem;
+  padding: 1rem;
+}
+
+header,
+nav {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+nav form {
+  margin: 0;
+}
+
+main {
+  margin-top: 2rem;
+}
+
+form > div {
+  margin-bottom: 1rem;
+}
+
+input {
+  display: block;
+  max-width: 24rem;
+  padding: 0.4rem;
+}
+
+input[type="checkbox"] {
+  display: inline;
+}
+
+.messages,
+.error {
+  color: #a00;
+}
+
+.success {
+  color: #075d25;
+}

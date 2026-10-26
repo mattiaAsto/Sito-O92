@@ -1,0 +1,12 @@
+{% extends "main/base.html" %}
+
+{% block title %}Home | Application{% endblock %}
+
+{% block content %}
+  <h1>Welcome</h1>
+  {% if user.is_authenticated %}
+    <p>You are signed in as {{ user.email }}.</p>
+  {% else %}
+    <p>Your application starts here.</p>
+  {% endif %}
+{% endblock %}
