@@ -1,0 +1,79 @@
+{% extends "main/base.html" %}
+
+{% block title %}Contatti | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% macro field(f, autocomplete=None) %}
+  <div class="contact-field">
+    {{ f.label(class="form-label") }}<span class="contact-required">*</span>
+    {% if f.type == 'TextAreaField' %}
+      {{ f(class="contact-input" ~ (" is-invalid" if f.errors else ""), rows=1) }}
+    {% else %}
+      {{ f(class="contact-input" ~ (" is-invalid" if f.errors else ""), autocomplete=autocomplete) }}
+    {% endif %}
+    {% for error in f.errors %}<div class="contact-error">{{ error }}</div>{% endfor %}
+  </div>
+{% endmacro %}
+
+{% block content %}
+  <section class="contact-section">
+    <div class="contact-form-col">
+      <h1 class="contact-title">scrivici qui:</h1>
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        {{ field(form.name, "name") }}
+        {{ field(form.email, "email") }}
+        {{ field(form.message) }}
+        {{ form.submit(class="btn btn-brand contact-submit") }}
+      </form>
+    </div>
+
+    <ul class="contact-info">
+      <li>
+        <i class="fa-solid fa-location-dot"></i>
+        <div>
+          <p class="contact-info-strong">Associazione Orientisti 92 Piano di Magadino</p>
+          <p>6593 Cadenazzo</p>
+        </div>
+      </li>
+      <li>
+        <i class="fa-regular fa-envelope"></i>
+        <a class="contact-mail" href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+      </li>
+      <li>
+        <i class="fa-regular fa-credit-card"></i>
+        <p>CH35 0900 0000 6500 5132 1</p>
+      </li>
+    </ul>
+  </section>
+
+  {% set referenti = [
+    ("Responsabile attività", "Alessandro Bolis", "alessandro.bolis3(at)gmail.com", None),
+    ("Noleggio furgoni", "Alain Astori", None, None),
+    ("Ordinazione materiale", "Roberta De Maria", "roberta.demaria(at)gmail.com", None),
+    ("Info e password iscrizioni gare", "Stefano Maddalena", "stemadda(at)bluewin.ch", None),
+    ("Responsabile all. cartine", "Alain Astori", None, "079 337 42 65"),
+    ("Membro CTCO", "Tiziano Boiani", None, None),
+    ("Responsabile finanze", "Elio Derighetti", "leliodivo(at)bluewin.ch", None),
+    ("Responsabile sito internet", "Mattia Astori", "webmaster(at)o-92.ch", None),
+  ] %}
+  <section class="contact-people">
+    <h2 class="contact-title">responsabili:</h2>
+    <div class="contact-people-grid">
+      {% for role, name, mail, phone in referenti %}
+        <div class="contact-person">
+          <p class="contact-person-role">{{ role }}</p>
+          <p class="contact-person-name">{{ name }}</p>
+          {% if mail %}
+            <a class="contact-mail" href="mailto:{{ mail | replace('(at)', '@') }}">{{ mail | replace('(at)', '@') }}</a>
+          {% endif %}
+          {% if phone %}
+            <a class="contact-phone" href="tel:{{ phone | replace(' ', '') }}">{{ phone }}</a>
+          {% endif %}
+          {% if role == "Noleggio furgoni" %}
+            <a class="contact-mail" href="{{ url_for('main.furgoni') }}">Vai alla pagina furgoni</a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

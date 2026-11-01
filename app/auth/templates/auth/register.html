@@ -1,30 +1,50 @@
 {% extends "main/base.html" %}
 
-{% block title %}Create account | Application{% endblock %}
+{% block title %}Registrati | Orientisti 92 Piano di Magadino{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{{ url_for('auth.static', filename='css/forms.css') }}">
 {% endblock %}
 
 {% block content %}
-  <h1>Create account</h1>
-  <form class="auth-form" method="post">
-    {{ form.hidden_tag() }}
-    <div>
-      {{ form.email.label }}
-      {{ form.email(autocomplete="email") }}
-      {% for error in form.email.errors %}<p class="error">{{ error }}</p>{% endfor %}
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-5">
+      <div class="auth-card">
+        <h1 class="auth-title">Crea il tuo account</h1>
+        <form class="auth-form" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+          {{ form.first_name.label(class="form-label") }}
+          {{ form.first_name(class="form-control" ~ (" is-invalid" if form.first_name.errors else ""), autocomplete="given-name") }}
+          {% for error in form.first_name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+          {{ form.last_name.label(class="form-label") }}
+          {{ form.last_name(class="form-control" ~ (" is-invalid" if form.last_name.errors else ""), autocomplete="family-name") }}
+          {% for error in form.last_name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+          {{ form.email.label(class="form-label") }}
+          {{ form.email(class="form-control" ~ (" is-invalid" if form.email.errors else ""), autocomplete="email") }}
+          {% for error in form.email.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+          {{ form.password.label(class="form-label") }}
+          {{ form.password(class="form-control" ~ (" is-invalid" if form.password.errors else ""), autocomplete="new-password") }}
+          {% for error in form.password.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+          {{ form.confirm_password.label(class="form-label") }}
+          {{ form.confirm_password(class="form-control" ~ (" is-invalid" if form.confirm_password.errors else ""), autocomplete="new-password") }}
+          {% for error in form.confirm_password.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        </div>
+        {{ form.submit(class="btn btn-brand w-100") }}
+        </form>
+        <div class="auth-alt">
+          <p class="text-muted">Hai già un account?</p>
+          <a class="btn btn-brand-outline w-100" href="{{ url_for('auth.login') }}">Accedi</a>
+        </div>
+      </div>
     </div>
-    <div>
-      {{ form.password.label }}
-      {{ form.password(autocomplete="new-password") }}
-      {% for error in form.password.errors %}<p class="error">{{ error }}</p>{% endfor %}
-    </div>
-    <div>
-      {{ form.confirm_password.label }}
-      {{ form.confirm_password(autocomplete="new-password") }}
-      {% for error in form.confirm_password.errors %}<p class="error">{{ error }}</p>{% endfor %}
-    </div>
-    {{ form.submit() }}
-  </form>
+  </div>
 {% endblock %}

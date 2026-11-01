@@ -19,7 +19,7 @@ def login():
         if user is not None and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect(url_for("main.index"))
-        flash("Invalid email or password.", "error")
+        flash("Email o password non valide.", "error")
 
     return render_template("auth/login.html", form=form)
 
@@ -31,16 +31,20 @@ def register():
 
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(email=form.email.data.strip().lower())
+        user = User(
+            first_name=form.first_name.data.strip(),
+            last_name=form.last_name.data.strip(),
+            email=form.email.data.strip().lower(),
+        )
         user.set_password(form.password.data)
         db.session.add(user)
         try:
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            flash("An account with that email already exists.", "error")
+            flash("Esiste già un account con questa email.", "error")
         else:
-            flash("Your account has been created. Please sign in.", "success")
+            flash("Il tuo account è stato creato. Ora puoi accedere.", "success")
             return redirect(url_for("auth.login"))
 
     return render_template("auth/register.html", form=form)

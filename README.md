@@ -17,7 +17,7 @@ Set `SECRET_KEY` in `.env` to a unique random value before starting the app. For
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-Start the development server with `python run.py`, or use `wsgi:app` with a WSGI server. The default database is SQLite at `instance/app.db`; set `DATABASE_URL` to use another SQLAlchemy-supported database and install its driver.
+Start the development server with `python run.py`, or use `wsgi:app` with a WSGI server. The default database is SQLite at `instance/app.db`; set `DB_COMPLETE_URL` (or `DATABASE_URL`) to use another SQLAlchemy-supported database and install its driver (PyMySQL is included). `python run.py` drops and recreates all tables on every start (early development only).
 
 ## Project structure
 
@@ -32,7 +32,7 @@ app/
   templates/errors/  App-level HTTP error page
   config.py          Environment-based configuration
   extensions.py
-  models.py   Starter User model
+  models.py   User and shop Product models
   email.py    Reusable Flask-Mail helper
 tests/        Standard-library unittest coverage
 ```

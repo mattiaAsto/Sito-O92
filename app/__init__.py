@@ -32,11 +32,19 @@ def create_app(test_config=None):
 
     from app.auth import auth
     from app.main import main
+    from app.news import news
+    from app.shop import shop
 
     app.register_blueprint(main)
+    app.register_blueprint(news, url_prefix="/news")
+    app.register_blueprint(shop)
     app.register_blueprint(auth, url_prefix="/auth")
 
     from app.models import User
+
+    from app.markdown_render import render_news_markdown
+
+    app.jinja_env.filters["news_markdown"] = render_news_markdown
 
     @login_manager.user_loader
     def load_user(user_id):

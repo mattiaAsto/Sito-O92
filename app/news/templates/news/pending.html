@@ -1,0 +1,19 @@
+{% extends "main/base.html" %}
+{% from "news/_card.html" import news_card %}
+
+{% block title %}News da verificare | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+  <section class="page-section">
+    <h1 class="page-title">News da verificare</h1>
+    {% if articles %}
+      <div class="news-grid">
+        {% for article in articles %}
+          {{ news_card(article) }}
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-center text-muted">Nessuna news in attesa di verifica.</p>
+    {% endif %}
+  </section>
+{% endblock %}

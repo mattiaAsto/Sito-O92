@@ -1,0 +1,45 @@
+{% extends "main/base.html" %}
+{% from "news/_card.html" import news_card %}
+
+{% block title %}Home | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="hero-text">
+      <h1 class="hero-title">L'avventura inizia da una cartina!</h1>
+      <div class="hero-actions">
+        <a class="btn btn-brand hero-btn" href="{{ url_for('main.whats_orienteering') }}">cos'è la CO</a>
+        <a class="btn btn-brand-outline hero-btn" href="{{ url_for('main.calendario') }}">calendario</a>
+      </div>
+      <p class="hero-join">vuoi aggiungerti anche tu? <a href="{{ url_for('main.contatti') }}">clicca qui</a></p>
+    </div>
+    <div class="hero-art">
+      <img src="{{ url_for('main.static', filename='pictures/home/people_noBG.jpg') }}" alt="Due orientisti in corsa lungo un percorso di orienteering">
+    </div>
+  </section>
+
+  <section class="activity-cards">
+    {% for label, endpoint in [("Allenamenti", "main.allenamenti"), ("Gare", "main.gare"), ("Attività", "main.attivita")] %}
+      <div class="activity-card">
+        <a class="activity-card-box" href="{{ url_for(endpoint) }}" tabindex="-1" aria-hidden="true"></a>
+        <a class="btn btn-brand activity-card-btn" href="{{ url_for(endpoint) }}">{{ label }}</a>
+      </div>
+    {% endfor %}
+  </section>
+
+  <section class="news-section">
+    <h2 class="news-section-title">o-novanta news</h2>
+    {% if latest_news %}
+      <div class="news-grid">
+        {% for article in latest_news %}
+          {{ news_card(article) }}
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-center">Nessuna news al momento.</p>
+    {% endif %}
+    <div class="text-center">
+      <a class="news-all-btn" href="{{ url_for('news.index') }}">vedi tutte le news</a>
+    </div>
+  </section>
+{% endblock %}

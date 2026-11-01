@@ -3,8 +3,11 @@ import os
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///app.db")
+    SQLALCHEMY_DATABASE_URI = (
+        os.getenv("DB_COMPLETE_URL") or os.getenv("DATABASE_URL") or "sqlite:///app.db"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MAX_CONTENT_LENGTH = 32 * 1024 * 1024  # uploaded photos
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
 
     MAIL_SERVER = os.getenv("MAIL_SERVER")

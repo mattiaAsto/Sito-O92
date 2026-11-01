@@ -1,0 +1,11 @@
+--color-50: #FEF5E6;
+--color-100: #FDE3B9;
+--color-200: #FCD18D;
+--color-300: #FBBF60;
+--color-400: #F9A825; BASE COLOR
+--color-500: #F99C06;
+--color-600: #CC8005;
+--color-700: #9F6404;
+--color-800: #724803;
+--color-900: #462C02;
+--color-950: #191001;

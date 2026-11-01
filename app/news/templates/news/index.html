@@ -1,0 +1,32 @@
+{% extends "main/base.html" %}
+{% from "news/_card.html" import news_card %}
+
+{% block title %}News | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+  <section class="page-section">
+    <h1 class="page-title">o-novanta news</h1>
+    {% if current_user.is_authenticated and (current_user.is_news_manager or current_user.is_admin) %}
+      <p class="text-center">
+        {% if current_user.is_news_manager %}<a class="btn btn-brand" href="{{ url_for('news.create') }}">Nuova news</a>{% endif %}
+        {% if current_user.is_admin %}<a class="btn btn-brand-outline" href="{{ url_for('news.pending') }}">Da verificare</a>{% endif %}
+      </p>
+    {% endif %}
+    {% if page.items %}
+      <div class="news-grid">
+        {% for article in page.items %}
+          {{ news_card(article) }}
+        {% endfor %}
+      </div>
+      {% if page.pages > 1 %}
+        <nav class="news-pager" aria-label="Pagine news">
+          {% if page.has_prev %}<a href="{{ url_for('news.index', page=page.prev_num) }}">&laquo; più recenti</a>{% endif %}
+          <span>{{ page.page }} / {{ page.pages }}</span>
+          {% if page.has_next %}<a href="{{ url_for('news.index', page=page.next_num) }}">meno recenti &raquo;</a>{% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <p class="text-center text-muted">Nessuna news al momento.</p>
+    {% endif %}
+  </section>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ article.title }} | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+  <article class="page-section news-article">
+    <a class="news-back" href="{{ url_for('news.index') }}">&laquo; tutte le news</a>
+    {% if not article.is_verified %}
+      <div class="alert alert-warning">
+        Questa news non è ancora stata verificata e non è visibile al pubblico.
+        {% if current_user.is_admin %}
+          <form method="post" action="{{ url_for('news.verify', news_id=article.id) }}" class="mt-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-brand btn-sm" type="submit">Verifica e pubblica</button>
+          </form>
+        {% endif %}
+      </div>
+    {% endif %}
+    <p class="news-date text-muted mb-1">{{ article.created_at.strftime("%d.%m.%Y") }}</p>
+    <h1>{{ article.title }}</h1>
+    {% if article.summary %}<p class="lead">{{ article.summary }}</p>{% endif %}
+    {{ article.text | news_markdown(article.id) }}
+  </article>
+{% endblock %}
