@@ -17,7 +17,7 @@ class LoginForm(ItalianForm):
     email = StringField(
         "Email",
         filters=[lambda value: value.strip() if value else value],
-        validators=[DataRequired(), Email(), Length(max=255)],
+        validators=[DataRequired(), Email(), Length(max=120)],
     )
     password = PasswordField("Password", validators=[DataRequired()])
     remember_me = BooleanField("Ricordami")

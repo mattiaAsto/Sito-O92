@@ -54,3 +54,7 @@ Import shared extensions from `app.extensions`. SQLAlchemy and Flask-Migrate man
 Configure SMTP with `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USE_TLS` or `MAIL_USE_SSL`, `MAIL_USERNAME`, `MAIL_PASSWORD`, and `MAIL_DEFAULT_SENDER`. The `send_email` helper sends mail through the configured Flask-Mail extension.
 
 Registration and login are intentionally small examples. Replace or extend them with the account lifecycle and authorization rules your application requires.
+
+## Uploaded images
+
+Uploads go through `app/storage.py`. Every image is validated by its real content, re-encoded (metadata removed, max 1600 px) and saved under `<feature>/<owner id>/<random name>`, for example `news/12/3f2a….jpg`, so files can never overwrite each other. Locally they live in `instance/uploads/` (`UPLOAD_FOLDER`) and are served by `app/media.py`; photos of unverified news are only visible to admins and news managers, photos of unverified shop listings (`shop/<product id>`) only to the seller and admins. The storage interface (`save`, `delete_prefix`, `url`) is backend-agnostic: for deployment on a host with an ephemeral disk, add an S3/Cloudflare R2 backend in `app/storage.py` and select it with `STORAGE_BACKEND`. Use the same `prefix/<id>` convention for new features, e.g. `shop/<product id>`.

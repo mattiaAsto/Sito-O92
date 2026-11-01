@@ -1,3 +1,5 @@
+import shutil
+
 from app import create_app
 from app.extensions import db
 from app.models import User
@@ -23,10 +25,12 @@ def create_test_user():
 
 
 def reset_database():
-    # Early development only: wipe and rebuild every table on each start.
+    # Early development only: wipe and rebuild every table (and local uploads) on each start.
     with app.app_context():
         db.drop_all()
         db.create_all()
+        if app.config["STORAGE_BACKEND"] == "local":
+            shutil.rmtree(app.config["UPLOAD_FOLDER"], ignore_errors=True)
         create_test_user()
 
 

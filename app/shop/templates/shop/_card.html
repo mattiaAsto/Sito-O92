@@ -1,0 +1,33 @@
+{% macro product_card(product, show_status=False) %}
+  <a class="shop-item" href="{{ url_for('shop.detail', product_id=product.id) }}">
+    <span class="shop-item-media">
+      {% if product.cover_key %}
+        <img src="{{ media_url(product.cover_key) }}" alt="{{ product.name }}" loading="lazy">
+      {% else %}
+        <span class="shop-item-placeholder" aria-hidden="true"><i class="fas fa-shirt"></i></span>
+      {% endif %}
+      {% if not product.is_available %}<span class="shop-ribbon shop-ribbon-sold">Venduto</span>{% endif %}
+      {% if product.is_official_clothing %}<span class="shop-ribbon shop-ribbon-official">Team</span>{% endif %}
+    </span>
+    <span class="shop-item-body">
+      <span class="shop-item-category">{{ product.category }}{% if product.size %} · taglia {{ product.size }}{% endif %}</span>
+      <span class="shop-item-name">{{ product.name }}</span>
+      <span class="shop-item-footer">
+        <span class="shop-price">CHF {{ "%.2f"|format(product.price) }}</span>
+        {% if show_status and not product.is_verified %}
+          <span class="badge text-bg-warning">In attesa di verifica</span>
+        {% endif %}
+      </span>
+    </span>
+  </a>
+{% endmacro %}
+
+{% macro product_grid(products, empty_message, show_status=False) %}
+  {% if products %}
+    <div class="shop-grid">
+      {% for product in products %}{{ product_card(product, show_status) }}{% endfor %}
+    </div>
+  {% else %}
+    <p class="shop-section-empty text-muted mb-0">{{ empty_message }}</p>
+  {% endif %}
+{% endmacro %}

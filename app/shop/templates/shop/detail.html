@@ -1,0 +1,97 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ product.name }} | Shop | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+<article class="shop-detail">
+  <a class="news-back" href="{{ url_for('shop.index') }}">&laquo; shop</a>
+
+  {% if not product.is_verified %}
+    <div class="alert alert-warning">
+      Questo annuncio non è ancora stato verificato e non è visibile al pubblico.
+      {% if current_user.is_admin %}
+        <form method="post" action="{{ url_for('shop.verify', product_id=product.id) }}" class="mt-2">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-brand btn-sm" type="submit">Verifica e pubblica</button>
+        </form>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="shop-detail-grid">
+    <div class="shop-gallery">
+      <div class="shop-gallery-main">
+        {% if product.cover_key %}
+          <img id="shopMainImage" src="{{ media_url(product.cover_key) }}" alt="{{ product.name }}">
+        {% else %}
+          <span class="shop-item-placeholder" aria-hidden="true"><i class="fas fa-shirt"></i></span>
+        {% endif %}
+        {% if not product.is_available %}<span class="shop-ribbon shop-ribbon-sold">Venduto</span>{% endif %}
+      </div>
+      {% if product.image_keys | length > 1 %}
+        <div class="shop-gallery-thumbs">
+          {% for key in product.image_keys %}
+            <button type="button" class="shop-thumb{% if loop.first %} active{% endif %}" data-src="{{ media_url(key) }}" aria-label="Foto {{ loop.index }}">
+              <img src="{{ media_url(key) }}" alt="" loading="lazy">
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="shop-detail-info">
+      <p class="shop-eyebrow mb-1">
+        {% if product.is_official_clothing %}Abbigliamento del team{% else %}Abbigliamento usato{% endif %}
+        · {{ product.category }}
+      </p>
+      <h1 class="h2">{{ product.name }}</h1>
+      <p class="shop-price shop-price-lg">CHF {{ "%.2f"|format(product.price) }}</p>
+      {% if product.size %}<p class="mb-2"><strong>Taglia:</strong> {{ product.size }}</p>{% endif %}
+      <p class="shop-description">{{ product.description }}</p>
+      <p class="text-muted small">Pubblicato il {{ product.created_at.strftime("%d.%m.%Y") }}</p>
+
+      <div class="shop-seller">
+        {% if product.is_official_clothing %}
+          <h2 class="h6">Interessato?</h2>
+          <p class="mb-2">Contatta il club per ordinare o provare questo articolo.</p>
+          <a class="btn btn-brand btn-sm" href="{{ url_for('main.contatti') }}">Contattaci</a>
+        {% else %}
+          <h2 class="h6">Venditore</h2>
+          <p class="mb-1"><i class="fas fa-user"></i> {{ product.seller.first_name }} {{ product.seller.last_name }}</p>
+          <p class="mb-1"><i class="fas fa-envelope"></i> <a href="mailto:{{ product.seller.email }}">{{ product.seller.email }}</a></p>
+          {% if product.contact_phone %}
+            <p class="mb-0"><i class="fas fa-phone"></i> <a href="tel:{{ product.contact_phone }}">{{ product.contact_phone }}</a></p>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      {% if can_manage %}
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <form method="post" action="{{ url_for('shop.toggle_sold', product_id=product.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-brand-outline btn-sm" type="submit">
+              {% if product.is_available %}Segna come venduto{% else %}Rimetti in vendita{% endif %}
+            </button>
+          </form>
+          <form method="post" action="{{ url_for('shop.delete', product_id=product.id) }}" onsubmit="return confirm('Eliminare questo annuncio e le sue foto?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-outline-danger btn-sm" type="submit">Elimina</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    document.querySelectorAll(".shop-thumb").forEach(function (button) {
+      button.addEventListener("click", function () {
+        document.getElementById("shopMainImage").src = button.dataset.src;
+        document.querySelectorAll(".shop-thumb").forEach(function (b) { b.classList.remove("active"); });
+        button.classList.add("active");
+      });
+    });
+  </script>
+{% endblock %}

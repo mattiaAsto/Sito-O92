@@ -8,6 +8,7 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAX_CONTENT_LENGTH = 32 * 1024 * 1024  # uploaded photos
+    STORAGE_BACKEND = os.getenv("STORAGE_BACKEND", "local")
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
 
     MAIL_SERVER = os.getenv("MAIL_SERVER")

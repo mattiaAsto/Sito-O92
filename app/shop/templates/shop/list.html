@@ -1,0 +1,12 @@
+{% extends "main/base.html" %}
+{% from "shop/_card.html" import product_grid %}
+
+{% block title %}{{ title }} | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+<section class="page-section">
+  <a class="news-back" href="{{ url_for('shop.index') }}">&laquo; shop</a>
+  <h1 class="h2 mb-4">{{ title }}</h1>
+  {{ product_grid(products, empty_message or "Non hai ancora pubblicato nessun annuncio.", show_status) }}
+</section>
+{% endblock %}

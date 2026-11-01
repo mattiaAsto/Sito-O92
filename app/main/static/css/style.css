@@ -828,3 +828,152 @@ body {
 .contact-mail:hover {
   color: var(--accent);
 }
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.shop-item {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.shop-item:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  color: inherit;
+}
+
+.shop-item-media,
+.shop-gallery-main {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  background: #f1f1f1;
+  overflow: hidden;
+}
+
+.shop-item-media img,
+.shop-gallery-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shop-item-placeholder {
+  font-size: 3rem;
+  color: #b5b5b5;
+}
+
+.shop-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem 1rem;
+}
+
+.shop-item-category {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.shop-item-name {
+  font-weight: 600;
+}
+
+.shop-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shop-ribbon {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.shop-ribbon-sold {
+  background: #6c757d;
+}
+
+.shop-ribbon-official {
+  left: auto;
+  right: 0.6rem;
+  background: #e8710a;
+}
+
+.shop-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+}
+
+@media (max-width: 767px) {
+  .shop-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.shop-gallery-main {
+  border-radius: 12px;
+}
+
+.shop-gallery-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.shop-thumb {
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  background: none;
+}
+
+.shop-thumb.active {
+  border-color: #e8710a;
+}
+
+.shop-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shop-price-lg {
+  font-size: 1.6rem;
+}
+
+.shop-description {
+  white-space: pre-line;
+}
+
+.shop-seller {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: #f7f7f7;
+}

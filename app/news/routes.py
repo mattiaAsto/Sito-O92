@@ -1,14 +1,14 @@
 from functools import wraps
-from pathlib import Path
 
 from flask import abort, current_app, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
-from werkzeug.utils import secure_filename
 
 from app.extensions import db
-from app.models import News
+from app.markdown_render import missing_photo_names
+from app.models import News, NewsImage
 from app.news import news
 from app.news.forms import NewsForm
+from app.storage import InvalidImage, get_storage, prepare_image, save_image
 
 PER_PAGE = 12
 
@@ -33,19 +33,6 @@ def admin_required(view):
         return view(*args, **kwargs)
 
     return wrapped
-
-def save_article_images(article, files):
-    """Store uploads in app/news/static/<id>/ and return the saved filenames."""
-    folder = Path(news.static_folder) / str(article.id)
-    saved = []
-    for storage in files:
-        filename = secure_filename(storage.filename or "")
-        if not filename:
-            continue
-        folder.mkdir(parents=True, exist_ok=True)
-        storage.save(folder / filename)
-        saved.append(filename)
-    return saved
 
 
 @news.route("/")
@@ -81,11 +68,34 @@ def verify(news_id):
     return redirect(url_for("news.detail", news_id=article.id))
 
 
+@news.route("/<int:news_id>/delete", methods=["POST"])
+@admin_required
+def delete(news_id):
+    article = db.get_or_404(News, news_id)
+    prefix = article.storage_prefix
+    db.session.delete(article)
+    db.session.commit()
+    get_storage().delete_prefix(prefix)
+    flash("News eliminata.", "success")
+    return redirect(url_for("news.index"))
+
+
 @news.route("/create", methods=["GET", "POST"])
 @news_manager_required
 def create():
     form = NewsForm()
     if form.validate_on_submit():
+        photo_files = [f for f in form.photos.data or [] if f and f.filename]
+        thumbnail_file = form.thumbnail.data if form.thumbnail.data and form.thumbnail.data.filename else None
+
+        # Validate every image before anything is written.
+        try:
+            photos = [(f.filename, prepare_image(f)) for f in photo_files]
+            thumbnail = prepare_image(thumbnail_file) if thumbnail_file else None
+        except InvalidImage as exc:
+            flash(str(exc), "error")
+            return render_template("news/create.html", form=form)
+
         article = News(
             title=form.title.data,
             summary=form.summary.data or None,
@@ -93,21 +103,28 @@ def create():
         )
         db.session.add(article)
         db.session.flush()  # the id names the article's photo folder
+        prefix = article.storage_prefix
         try:
-            saved = save_article_images(article, form.photos.data or [])
-            thumbnail = form.thumbnail.data
-            if thumbnail and thumbnail.filename:
-                thumb_saved = save_article_images(article, [thumbnail])
-                article.thumbnail_filename = thumb_saved[0] if thumb_saved else None
+            for original_name, prepared in photos:
+                article.images.append(
+                    NewsImage(filename=save_image(prefix, prepared), original_name=original_name[:255])
+                )
+            if thumbnail:
+                article.thumbnail_filename = save_image(prefix, thumbnail)
             db.session.commit()
         except Exception:
             db.session.rollback()
+            get_storage().delete_prefix(prefix)
             current_app.logger.exception("News creation failed")
             flash("Non è stato possibile salvare la news.", "error")
         else:
             flash("News salvata: sarà pubblicata dopo la verifica di un amministratore.", "success")
-            if saved:
-                flash("Foto salvate come: " + ", ".join(saved), "message")
+            missing = missing_photo_names(article.text, [name for name, _ in photos])
+            if missing:
+                flash(
+                    "Nel testo ci sono immagini senza una foto caricata: " + ", ".join(missing),
+                    "warning",
+                )
             return redirect(url_for("news.detail", news_id=article.id))
     return render_template("news/create.html", form=form)
 

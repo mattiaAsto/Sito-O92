@@ -28,6 +28,13 @@
         <li><a class="dropdown-item" href="{{ url_for('news.pending') }}"><i class="fas fa-check-double"></i> News da verificare</a></li>
       {% endif %}
       {% if current_user.is_authenticated %}
+        <li><a class="dropdown-item" href="{{ url_for('shop.create') }}"><i class="fas fa-tag"></i> Vendi un articolo</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('shop.mine') }}"><i class="fas fa-list"></i> I miei annunci</a></li>
+      {% endif %}
+      {% if current_user.is_authenticated and current_user.is_admin %}
+        <li><a class="dropdown-item" href="{{ url_for('shop.pending') }}"><i class="fas fa-check-double"></i> Annunci da verificare</a></li>
+      {% endif %}
+      {% if current_user.is_authenticated %}
         <li>
           <form action="{{ url_for('auth.logout') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

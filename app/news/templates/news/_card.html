@@ -1,8 +1,8 @@
 {% macro news_card(article) %}
   <a class="news-card" href="{{ url_for('news.detail', news_id=article.id) }}">
     <span class="news-thumb">
-      {% if article.thumbnail_filename %}
-        <img src="{{ url_for('news.static', filename=article.id ~ '/' ~ article.thumbnail_filename) }}" alt="" loading="lazy">
+      {% if article.thumbnail_key %}
+        <img src="{{ media_url(article.thumbnail_key) }}" alt="" loading="lazy">
       {% else %}
         <i class="far fa-newspaper"></i>
       {% endif %}

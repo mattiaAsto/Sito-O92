@@ -47,17 +47,25 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertIn(b"Abbigliamento del team", empty_response.data)
         self.assertIn(b"Abbigliamento usato", empty_response.data)
 
+        seller = User(email="s@x.ch", first_name="Sara", last_name="Rossi")
+        seller.set_password("12345678")
+        db.session.add(seller)
+        db.session.flush()
         product = Product(
+            seller_id=seller.id,
             name="Maglia da orientamento",
             description="Maglia tecnica della squadra.",
-            category="Abbigliamento",
+            category="Maglie",
+            is_official_clothing=True,
+            is_verified=True,
             price=Decimal("49.90"),
         )
         used_product = Product(
+            seller_id=seller.id,
             name="Giacca da gara usata",
             description="Giacca in buone condizioni.",
-            category="Abbigliamento",
-            listing_type="used",
+            category="Giacche",
+            is_verified=True,
             price=Decimal("20.00"),
         )
         db.session.add_all([product, used_product])

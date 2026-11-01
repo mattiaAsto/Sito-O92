@@ -1,0 +1,42 @@
+{% extends "main/base.html" %}
+
+{% block title %}Vendi un articolo | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% macro field_block(field, help=None) %}
+  <div class="mb-3">
+    {{ field.label(class="form-label") }}
+    {{ field(class="form-control" ~ (" is-invalid" if field.errors else "")) }}
+    {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
+    {% for error in field.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+  </div>
+{% endmacro %}
+
+{% block content %}
+  <section class="page-section">
+    <a class="news-back" href="{{ url_for('shop.index') }}">&laquo; shop</a>
+    <h1 class="h2 mb-3">Vendi un articolo</h1>
+    <form method="post" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      {{ field_block(form.name) }}
+      <div class="row">
+        <div class="col-sm-6">{{ field_block(form.category) }}</div>
+        <div class="col-sm-6">{{ field_block(form.size, "Ad esempio S, M, 42.") }}</div>
+      </div>
+      {{ field_block(form.price) }}
+      {{ field_block(form.description, "Condizioni, marca, difetti, ritiro o spedizione.") }}
+      {{ field_block(form.contact_phone, "Facoltativo. Se lo inserisci sarà visibile pubblicamente.") }}
+      {{ field_block(form.photos, "Fino a 6 foto; la prima è quella mostrata nell'elenco.") }}
+
+      {% if current_user.is_admin %}
+        <div class="form-check mb-3">
+          {{ form.is_official_clothing(class="form-check-input") }}
+          {{ form.is_official_clothing.label(class="form-check-label") }}
+          <div class="form-text">Compare nella sezione "Abbigliamento del team" invece che tra i capi usati.</div>
+        </div>
+      {% else %}
+        <p class="text-muted small">Il tuo nome e la tua email saranno visibili a tutti nell'annuncio. L'annuncio verrà pubblicato dopo la verifica di un amministratore.</p>
+      {% endif %}
+      {{ form.submit(class="btn btn-brand") }}
+    </form>
+  </section>
+{% endblock %}

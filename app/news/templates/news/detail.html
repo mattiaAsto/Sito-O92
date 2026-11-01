@@ -16,9 +16,15 @@
         {% endif %}
       </div>
     {% endif %}
+    {% if current_user.is_authenticated and current_user.is_admin %}
+      <form method="post" action="{{ url_for('news.delete', news_id=article.id) }}" class="mb-3" onsubmit="return confirm('Eliminare questa news e le sue foto?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-outline-danger btn-sm" type="submit">Elimina news</button>
+      </form>
+    {% endif %}
     <p class="news-date text-muted mb-1">{{ article.created_at.strftime("%d.%m.%Y") }}</p>
     <h1>{{ article.title }}</h1>
     {% if article.summary %}<p class="lead">{{ article.summary }}</p>{% endif %}
-    {{ article.text | news_markdown(article.id) }}
+    {{ article.text | news_markdown(article) }}
   </article>
 {% endblock %}

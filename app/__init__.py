@@ -32,10 +32,16 @@ def create_app(test_config=None):
 
     from app.auth import auth
     from app.main import main
+    from app.media import media
     from app.news import news
     from app.shop import shop
+    from app.storage import init_storage, media_url
+
+    init_storage(app)
+    app.jinja_env.globals["media_url"] = media_url
 
     app.register_blueprint(main)
+    app.register_blueprint(media)
     app.register_blueprint(news, url_prefix="/news")
     app.register_blueprint(shop)
     app.register_blueprint(auth, url_prefix="/auth")
@@ -57,6 +63,7 @@ def create_app(test_config=None):
     @app.errorhandler(403)
     @app.errorhandler(404)
     @app.errorhandler(405)
+    @app.errorhandler(413)
     @app.errorhandler(500)
     def handle_http_error(error):
         if error.code == 500:
