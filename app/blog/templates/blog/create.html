@@ -1,0 +1,59 @@
+{% extends "main/base.html" %}
+
+{% block title %}Scrivi un racconto | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% macro field_block(field, help=None) %}
+  <div class="mb-3">
+    {{ field.label(class="form-label") }}
+    {{ field(class="form-control" ~ (" is-invalid" if field.errors else "")) }}
+    {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
+    {% for error in field.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+  </div>
+{% endmacro %}
+
+{% block content %}
+  <section class="page-section">
+    <a class="news-back" href="{{ url_for('blog.index') }}">&laquo; blog</a>
+    <h1 class="page-title">Scrivi un racconto</h1>
+    <form method="post" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+
+      {{ field_block(form.title) }}
+      {{ field_block(form.summary, "Breve frase mostrata sotto il titolo, anche nell'elenco del blog.") }}
+      {{ field_block(form.text) }}
+
+      <details class="md-guide mb-4">
+        <summary>Come formattare il testo (markdown)</summary>
+        <table class="table table-sm mt-2">
+          <thead><tr><th>Scrivi</th><th>Risultato</th></tr></thead>
+          <tbody>
+            <tr><td><code>## Titolo di sezione</code></td><td>Titolo di sezione (usa <code>###</code> per uno più piccolo)</td></tr>
+            <tr><td><code>**grassetto**</code></td><td><strong>grassetto</strong></td></tr>
+            <tr><td><code>*corsivo*</code></td><td><em>corsivo</em></td></tr>
+            <tr><td><code>[testo del link](https://esempio.ch)</code></td><td>Link cliccabile</td></tr>
+            <tr><td><code>- primo<br>- secondo</code></td><td>Elenco puntato (con una riga vuota prima)</td></tr>
+            <tr><td><code>&gt; citazione</code></td><td>Citazione</td></tr>
+            <tr><td><code>---</code></td><td>Linea di separazione</td></tr>
+            <tr><td><code>![descrizione](foto.jpg)</code></td><td>Foto nel testo: scrivi il nome di un file caricato in "Foto del racconto". La descrizione appare come didascalia se la foto è da sola su una riga.</td></tr>
+          </tbody>
+        </table>
+        <p class="mb-0">Per andare a capo basta premere Invio; per separare i paragrafi lascia una riga vuota.</p>
+      </details>
+
+      <fieldset class="upload-box mb-3">
+        <legend class="fs-6 fw-bold">Immagine di copertina</legend>
+        {{ field_block(form.cover, "Facoltativa. Mostrata nell'elenco del blog e in cima al racconto; non fa parte del testo.") }}
+      </fieldset>
+
+      <fieldset class="upload-box mb-3">
+        <legend class="fs-6 fw-bold">Foto del racconto</legend>
+        {{ field_block(form.photos, "Le immagini da usare dentro il testo. Caricarle non basta: scrivi nel testo ![descrizione](nome-file.jpg). Puoi selezionare più file insieme.") }}
+      </fieldset>
+
+      {% if not current_user.is_admin %}
+        <p class="text-muted small">Il tuo nome sarà visibile come autore. Il racconto verrà pubblicato dopo la verifica di un amministratore.</p>
+      {% endif %}
+      {{ form.submit(class="btn btn-brand") }}
+    </form>
+  </section>
+{% endblock %}

@@ -13,7 +13,7 @@ def _is_admin_or(condition):
 
 def _can_view(key):
     """Photos of unverified items are only visible to the people who may review them."""
-    from app.models import News, Product
+    from app.models import BlogPost, News, Product
 
     parts = key.split("/")
     try:
@@ -21,6 +21,11 @@ def _can_view(key):
     except (IndexError, ValueError):
         return False
 
+    if parts[0] == "blog":
+        post = db.session.get(BlogPost, owner_id)
+        if post is None:
+            return False
+        return post.is_verified or _is_admin_or(current_user.get_id() == str(post.author_id))
     if parts[0] == "news":
         article = db.session.get(News, owner_id)
         if article is None:

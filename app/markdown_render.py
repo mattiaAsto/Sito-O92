@@ -1,4 +1,5 @@
 import re
+from html import unescape
 from urllib.parse import unquote
 
 import markdown
@@ -68,7 +69,7 @@ _IMAGE_LINE = re.compile(r"^[ \t]*(!\[[^\]]*\]\([^)]*\))[ \t]*$", re.MULTILINE)
 
 
 def render_news_markdown(text, article):
-    """Render an article's markdown to sanitized HTML.
+    """Render a post's markdown to sanitized HTML.
 
     Images written with the name of an uploaded photo, e.g. ![alt](photo.jpg), are
     replaced with that photo's stored URL.
@@ -78,3 +79,25 @@ def render_news_markdown(text, article):
     html = markdown.markdown(text, extensions=["extra", "sane_lists", "nl2br"])
     clean = nh3.clean(html, attribute_filter=_news_image_filter(article))
     return Markup(_captioned(clean))
+
+
+render_blog_markdown = render_news_markdown
+
+_TEXT_TAGS = nh3.ALLOWED_TAGS - {"img"}
+
+
+def plain_excerpt(text, length=280):
+    """Markdown stripped to plain text and cut at a word boundary, for book-page previews."""
+    html = markdown.markdown((text or "").replace("\r\n", "\n"), extensions=["extra", "sane_lists"])
+    plain = nh3.clean(html, tags=set())
+    plain = re.sub(r"\s+", " ", unescape(plain)).strip()
+    if len(plain) <= length:
+        return plain
+    return plain[:length].rsplit(" ", 1)[0].rstrip(",.;:!?-") + " (…)"
+
+
+def render_text_markdown(text):
+    """Render markdown for image-free content (news): images are dropped."""
+    text = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    html = markdown.markdown(text, extensions=["extra", "sane_lists", "nl2br"])
+    return Markup(nh3.clean(html, tags=_TEXT_TAGS))

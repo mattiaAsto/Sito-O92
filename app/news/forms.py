@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileAllowed, FileField, MultipleFileField
+from flask_wtf.file import FileAllowed, FileField
 from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, Optional
 
@@ -21,10 +21,6 @@ class NewsForm(FlaskForm):
     text = TextAreaField("Testo (markdown)", validators=[DataRequired()])
     thumbnail = FileField(
         "Miniatura",
-        validators=[Optional(), FileAllowed(IMAGE_EXTENSIONS, IMAGE_MESSAGE)],
-    )
-    photos = MultipleFileField(
-        "Foto dell'articolo",
         validators=[Optional(), FileAllowed(IMAGE_EXTENSIONS, IMAGE_MESSAGE)],
     )
     submit = SubmitField("Pubblica")

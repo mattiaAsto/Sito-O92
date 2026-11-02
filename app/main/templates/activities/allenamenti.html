@@ -7,9 +7,6 @@
     <h1 class="page-title">ALLENAMENTI</h1>
 
     <h2 class="page-subtitle">Quando e dove</h2>
-    <p class="transport-booking">
-      <a class="btn btn-brand" href="https://docs.google.com/spreadsheets/d/1YZKKoVIZ8jJVh1FqvBLej4Y5x_F_vZwwCQYzGR3_oME/edit?gid=957375013#gid=957375013" target="_blank" rel="noopener noreferrer">riservazione trasporto</a>
-    </p>
     <div class="schedule-grid">
       <div class="schedule-col">
         <p class="schedule-day">MERCOLEDÍ</p>
@@ -23,5 +20,10 @@
         <p>sempre in <strong>palestra a Contone</strong>: si impara a correre meglio e più veloce, con giochi ed esercizi per affinare la tecnica. E per finire in bellezza, giochi di squadra come unihockey o palla americana!</p>
       </div>
     </div>
+    <p class="transport-booking">
+      <a class="btn btn-brand transport-booking-btn" href="{{ config.TRANSPORT_SHEET_URL }}" target="_blank" rel="noopener noreferrer">riservazione trasporto</a>
+    </p>
   </section>
+  {% set upcoming_title = "Prossimi allenamenti" %}
+  {% include "activities/_upcoming.html" %}
 {% endblock %}

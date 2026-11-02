@@ -4,8 +4,7 @@ from flask import abort, current_app, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from app.extensions import db
-from app.markdown_render import missing_photo_names
-from app.models import News, NewsImage
+from app.models import News
 from app.news import news
 from app.news.forms import NewsForm
 from app.storage import InvalidImage, get_storage, prepare_image, save_image
@@ -85,12 +84,10 @@ def delete(news_id):
 def create():
     form = NewsForm()
     if form.validate_on_submit():
-        photo_files = [f for f in form.photos.data or [] if f and f.filename]
         thumbnail_file = form.thumbnail.data if form.thumbnail.data and form.thumbnail.data.filename else None
 
-        # Validate every image before anything is written.
+        # Validate the image before anything is written.
         try:
-            photos = [(f.filename, prepare_image(f)) for f in photo_files]
             thumbnail = prepare_image(thumbnail_file) if thumbnail_file else None
         except InvalidImage as exc:
             flash(str(exc), "error")
@@ -105,10 +102,6 @@ def create():
         db.session.flush()  # the id names the article's photo folder
         prefix = article.storage_prefix
         try:
-            for original_name, prepared in photos:
-                article.images.append(
-                    NewsImage(filename=save_image(prefix, prepared), original_name=original_name[:255])
-                )
             if thumbnail:
                 article.thumbnail_filename = save_image(prefix, thumbnail)
             db.session.commit()
@@ -119,12 +112,6 @@ def create():
             flash("Non è stato possibile salvare la news.", "error")
         else:
             flash("News salvata: sarà pubblicata dopo la verifica di un amministratore.", "success")
-            missing = missing_photo_names(article.text, [name for name, _ in photos])
-            if missing:
-                flash(
-                    "Nel testo ci sono immagini senza una foto caricata: " + ", ".join(missing),
-                    "warning",
-                )
             return redirect(url_for("news.detail", news_id=article.id))
     return render_template("news/create.html", form=form)
 

@@ -9,7 +9,7 @@
       <h1 class="hero-title">L'avventura inizia da una cartina!</h1>
       <div class="hero-actions">
         <a class="btn btn-brand hero-btn" href="{{ url_for('main.whats_orienteering') }}">cos'è la CO</a>
-        <a class="btn btn-brand-outline hero-btn" href="{{ url_for('main.calendario') }}">calendario</a>
+        <a class="btn btn-brand-outline hero-btn" href="{{ url_for('calendar.calendario') }}">calendario</a>
       </div>
       <p class="hero-join">vuoi aggiungerti anche tu? <a href="{{ url_for('main.contatti') }}">clicca qui</a></p>
     </div>
@@ -19,9 +19,21 @@
   </section>
 
   <section class="activity-cards">
-    {% for label, endpoint in [("Allenamenti", "main.allenamenti"), ("Gare", "main.gare"), ("Attività", "main.attivita")] %}
+    {% for label, endpoint, key in [("Allenamenti", "main.allenamenti", "allenamento"), ("Gare", "main.gare", "gara"), ("Attività", "main.attivita", "attivita")] %}
+      {% set activity = upcoming[key] %}
       <div class="activity-card">
-        <a class="activity-card-box" href="{{ url_for(endpoint) }}" tabindex="-1" aria-hidden="true"></a>
+        {% if activity %}
+          <a class="activity-card-box activity-card-box--event" style="--event-color: {{ activity.color }}" href="{{ url_for('calendar.activity_detail', activity_id=activity.id) }}">
+            <span class="activity-card-kicker">Prossimo</span>
+            <span class="activity-card-title">{{ activity.title }}</span>
+            <span class="activity-card-meta">{{ activity.schedule_label }}</span>
+            {% if activity.location %}<span class="activity-card-meta">{{ activity.location }}</span>{% endif %}
+          </a>
+        {% else %}
+          <a class="activity-card-box activity-card-box--empty" href="{{ url_for(endpoint) }}" tabindex="-1" aria-hidden="true">
+            <span class="activity-card-meta">Nessuna attività in programma</span>
+          </a>
+        {% endif %}
         <a class="btn btn-brand activity-card-btn" href="{{ url_for(endpoint) }}">{{ label }}</a>
       </div>
     {% endfor %}
@@ -42,4 +54,9 @@
       <a class="news-all-btn" href="{{ url_for('news.index') }}">vedi tutte le news</a>
     </div>
   </section>
-{% endblock %}
+
+  <section class="blog-section">
+    <h2 class="news-section-title">o-novanta blog</h2>
+    <p class="blog-section-text">Il giro del mondo in 92 lanterne: racconti di chi grazie alla CO vive esperienze indimenticabili.</p>
+    <a class="news-all-btn" href="{{ url_for('blog.index') }}">leggi i racconti</a>
+  </section>{% endblock %}

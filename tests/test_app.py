@@ -1,11 +1,16 @@
 import unittest
+from datetime import datetime
 from decimal import Decimal
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
+
+from sqlalchemy.exc import IntegrityError
 
 from app import create_app
 from app.email import send_email
 from app.extensions import db
-from app.models import Product, User
+from app.models import CalendarActivity, Product, User
 
 
 class ApplicationTestCase(unittest.TestCase):
@@ -33,9 +38,115 @@ class ApplicationTestCase(unittest.TestCase):
         login = self.client.get("/auth/login")
         self.assertEqual(home.status_code, 200)
         self.assertIn(b"/static/main/css/style.css", home.data)
+        links = self.client.get("/links")
+        self.assertEqual(links.status_code, 200)
+        self.assertIn(b"Societ\xc3\xa0 ticinesi", links.data)
+        self.assertIn(b"https://www.asco-lugano.ch", links.data)
+        self.assertIn(b'href="/links"', home.data)
         self.assertEqual(login.status_code, 200)
         self.assertIn(b"/auth/static/css/forms.css", login.data)
         self.assertEqual(self.client.get("/auth/register").status_code, 200)
+
+    def test_who_we_are_page_links_documents(self):
+        response = self.client.get("/chi-siamo")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.count(b'<details class="who-accordion">'), 3)
+        self.assertIn(b"<h2 class=\"page-subtitle contact-title\">Documenti</h2>", response.data)
+        for document in (
+            "Statuto_20251017.pdf",
+            "Regolamento_2025.pdf",
+            "Carta_etica_nello_sport.pdf",
+            "ABC_della_O-92.pdf",
+            "Padrinato_2026.pdf",
+        ):
+            with self.subTest(document=document):
+                document_response = self.client.get(
+                    f"/static/main/pdf/who_are_we/{document}"
+                )
+                self.assertEqual(document_response.status_code, 200)
+                self.assertIn(document.encode(), response.data)
+                document_response.close()
+
+    def test_who_we_are_slideshow_uses_supported_images(self):
+        with TemporaryDirectory() as temp_dir:
+            slideshow_folder = Path(temp_dir) / "pictures" / "slideshow"
+            slideshow_folder.mkdir(parents=True)
+            for filename in ("second.jpg", "first.png", "ignored.txt"):
+                (slideshow_folder / filename).touch()
+
+            from app.main.routes import get_slideshow_images
+
+            self.assertEqual(
+                get_slideshow_images(slideshow_folder),
+                ["first.png", "second.jpg"],
+            )
+
+        with patch(
+            "app.main.routes.get_slideshow_images",
+            return_value=["first.png", "second.jpg"],
+        ):
+            response = self.client.get("/chi-siamo")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertLess(response.data.index(b"first.png"), response.data.index(b"second.jpg"))
+        self.assertEqual(response.data.count(b'class="carousel-item'), 4)
+        self.assertNotIn(b"ignored.txt", response.data)
+        self.assertIn(b"data-bs-slide=\"next\"", response.data)
+        self.assertIn(b'data-bs-target="#whoSlideshowModal"', response.data)
+        self.assertEqual(response.data.count(b'data-bs-interval="3000"'), 2)
+
+    def test_links_page_lists_all_documents(self):
+        response = self.client.get("/links")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Lista di tutti i documenti", response.data)
+        for document in (
+            "InfoNuoviArrivati_2022.pdf",
+            "SwissOrienteering_O-Kompetenzen_21_IT_Web.pdf",
+            "Descrizione_punti_IOF.pdf",
+            "Flyer_zecche_TI.pdf",
+            "Legenda_bosco.pdf",
+            "Legenda_citt.pdf",
+            "ABC_della_O-92.pdf",
+            "Carta_etica_nello_sport.pdf",
+            "Padrinato_2026.pdf",
+            "Regolamento_2025.pdf",
+            "Statuto_20251017.pdf",
+        ):
+            with self.subTest(document=document):
+                self.assertIn(document.encode(), response.data)
+
+    def test_races_page_links_to_online_tmo_and_national_registrations(self):
+        response = self.client.get("/gare")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'href="https://ol-events.ch"', response.data)
+        self.assertIn(b'Iscrizioni online', response.data)
+
+    def test_miscellaneous_pdfs_are_linked_from_their_pages(self):
+        documents_by_page = {
+            "/whats_orienteering": (
+                "whats_orienteering",
+                (
+                    "SwissOrienteering_O-Kompetenzen_21_IT_Web.pdf",
+                    "Descrizione_punti_IOF.pdf",
+                    "Legenda_bosco.pdf",
+                    "Legenda_citt.pdf",
+                    "Flyer_zecche_TI.pdf",
+                ),
+            ),
+            "/contatti": ("contacts", ("InfoNuoviArrivati_2022.pdf",)),
+        }
+        for page, (folder, documents) in documents_by_page.items():
+            with self.subTest(page=page):
+                response = self.client.get(page)
+                self.assertEqual(response.status_code, 200)
+                for document in documents:
+                    with self.subTest(document=document):
+                        self.assertIn(document.encode(), response.data)
+                        pdf_response = self.client.get(
+                            f"/static/main/pdf/{folder}/{document}"
+                        )
+                        self.assertEqual(pdf_response.status_code, 200)
+                        pdf_response.close()
 
     def test_shop_uses_its_own_blueprint_and_main_layout(self):
         empty_response = self.client.get("/shop")
@@ -81,6 +192,219 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertIn(b"CHF 49.90", response.data)
         self.assertNotIn(b"Al momento non ci sono articoli del team", response.data)
         self.assertNotIn(b"Al momento non ci sono capi usati", response.data)
+
+    def test_calendar_blueprint_loads_activity_data_and_renders_details_route(self):
+        activity = CalendarActivity(
+            activity_type="gara",
+            category="race_ticino",
+            title="Gara cantonale",
+            description="Prima gara della stagione.",
+            starts_at=datetime(2026, 3, 14, 9, 0),
+            ends_at=datetime(2026, 3, 14, 15, 0),
+            location="Bellinzona",
+            latitude=46.1946,
+            longitude=9.0244,
+        )
+        db.session.add(activity)
+        db.session.commit()
+
+        page = self.client.get("/calendar")
+
+        self.assertIn("calendar", self.app.blueprints)
+        self.assertEqual(page.status_code, 200)
+        self.assertIn(b"/calendar/events", page.data)
+        self.assertIn(b"fetch(", page.data)
+
+        response = self.client.get(
+            "/calendar/events?start=2026-03-01&end=2026-04-01"
+        )
+        self.assertEqual(response.status_code, 200)
+        event = response.json["events"][0]
+        self.assertEqual(event["title"], "Gara cantonale")
+        self.assertEqual(event["color"], "#64B5F6")
+        self.assertEqual(event["category_label"], "Gara - Ticino")
+        self.assertIsNone(event["time"])
+        self.assertEqual(event["location"], "Bellinzona")
+
+        detail = self.client.get(f"/calendar/activity/{activity.id}")
+        self.assertEqual(detail.status_code, 200)
+        self.assertIn(b"Gara cantonale", detail.data)
+        self.assertIn(b"Gara - Ticino", detail.data)
+        self.assertIn(b"maps.google.com/maps?q=46.1946,9.0244", detail.data)
+        self.assertEqual(self.client.get("/calendar/activity/9999").status_code, 404)
+        self.assertEqual(self.client.get("/calendario").status_code, 302)
+
+    def test_activity_pages_show_five_upcoming_events_of_their_type(self):
+        types = {
+            "allenamento": ("training_wednesday", "/allenamenti", "Prossimi allenamenti"),
+            "gara": ("race_ticino", "/gare", "Prossime gare"),
+            "attivita": ("other_activity", "/attivita", "Prossime attività"),
+        }
+        for activity_type, (category, _, _) in types.items():
+            for day in range(1, 7):
+                db.session.add(
+                    CalendarActivity(
+                        activity_type=activity_type,
+                        category=category,
+                        title=f"{activity_type} 2030-{day}",
+                        starts_at=datetime(2030, 1, day, 18, 0),
+                        ends_at=datetime(2030, 1, day, 19, 0),
+                    )
+                )
+        db.session.commit()
+
+        for activity_type, (_, path, title) in types.items():
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(title.encode(), response.data)
+                self.assertIn(f"{activity_type} 2030-5".encode(), response.data)
+                self.assertNotIn(f"{activity_type} 2030-6".encode(), response.data)
+                other_types = set(types) - {activity_type}
+                for other_type in other_types:
+                    self.assertNotIn(other_type.encode() + b" 2030-", response.data)
+
+    def test_calendar_schedule_labels_depend_on_activity_type(self):
+        def make(activity_type, category, start, end):
+            return CalendarActivity(
+                activity_type=activity_type,
+                category=category,
+                title="x",
+                starts_at=start,
+                ends_at=end,
+            )
+
+        training = make(
+            "allenamento", "training_wednesday",
+            datetime(2026, 3, 11, 18, 0), datetime(2026, 3, 11, 19, 30),
+        )
+        race = make(
+            "gara", "race_ticino",
+            datetime(2026, 3, 14, 9, 0), datetime(2026, 3, 14, 15, 0),
+        )
+        camp = make(
+            "attivita", "camp",
+            datetime(2026, 4, 3, 9, 0), datetime(2026, 4, 5, 16, 0),
+        )
+
+        self.assertEqual(training.schedule_label, "11.03.2026, 18:00 – 19:30")
+        self.assertEqual(training.time_label, "18:00 – 19:30")
+        self.assertEqual(race.schedule_label, "14.03.2026")
+        self.assertIsNone(race.time_label)
+        self.assertEqual(camp.schedule_label, "03.04.2026 09:00 – 05.04.2026 16:00")
+        self.assertEqual(camp.time_label, "09:00")
+
+    def test_calendar_activity_without_coordinates_has_no_map(self):
+        activity = CalendarActivity(
+            activity_type="attivita",
+            category="other_activity",
+            title="Cena sociale",
+            starts_at=datetime(2026, 3, 14, 19, 0),
+            ends_at=datetime(2026, 3, 14, 22, 0),
+        )
+        db.session.add(activity)
+        db.session.commit()
+
+        detail = self.client.get(f"/calendar/activity/{activity.id}")
+
+        self.assertEqual(detail.status_code, 200)
+        self.assertNotIn(b"<iframe", detail.data)
+
+    def test_calendar_activity_rejects_partial_coordinates(self):
+        db.session.add(
+            CalendarActivity(
+                activity_type="gara",
+                category="race_ticino",
+                title="Invalid coordinates",
+                starts_at=datetime(2026, 3, 14, 9, 0),
+                ends_at=datetime(2026, 3, 14, 10, 0),
+                latitude=46.0,
+            )
+        )
+
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()
+
+    def test_calendar_events_rejects_invalid_date_range(self):
+        response = self.client.get(
+            "/calendar/events?start=2026-04-01&end=2026-03-01"
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_home_shows_next_activity_per_type(self):
+        from datetime import timedelta
+
+        now = datetime.now()
+        db.session.add_all([
+            CalendarActivity(activity_type="allenamento", category="training_friday",
+                             title="Passato", starts_at=now - timedelta(days=3),
+                             ends_at=now - timedelta(days=3, hours=-1)),
+            CalendarActivity(activity_type="allenamento", category="training_friday",
+                             title="Prossimo allenamento", starts_at=now + timedelta(days=2),
+                             ends_at=now + timedelta(days=2, hours=1)),
+            CalendarActivity(activity_type="gara", category="race_ticino",
+                             title="Prossima gara", starts_at=now + timedelta(days=5),
+                             ends_at=now + timedelta(days=5, hours=2)),
+        ])
+        db.session.commit()
+
+        html = self.client.get("/").get_data(as_text=True)
+
+        self.assertIn("Prossimo allenamento", html)
+        self.assertIn("Prossima gara", html)
+        self.assertNotIn("Passato", html)
+        self.assertIn("Nessuna attività in programma", html)
+
+    def test_calendar_lists_three_upcoming_inscription_deadlines(self):
+        from datetime import date, timedelta
+
+        today = date.today()
+        starts = datetime.now() + timedelta(days=40)
+        for index, delta in enumerate((-2, 9, 3, 6, 1)):
+            db.session.add(CalendarActivity(
+                activity_type="gara", category="race_ticino",
+                title=f"Gara {index}", starts_at=starts, ends_at=starts + timedelta(hours=2),
+                inscription_delay_date=today + timedelta(days=delta),
+            ))
+        db.session.commit()
+
+        html = self.client.get("/calendar").get_data(as_text=True)
+
+        self.assertIn("Prossime scadenze", html)
+        self.assertLess(html.index("Gara 4"), html.index("Gara 2"))
+        self.assertLess(html.index("Gara 2"), html.index("Gara 3"))
+        self.assertNotIn("Gara 0", html)
+        self.assertNotIn("Gara 1", html)
+
+    def test_training_cannot_have_inscription_delay(self):
+        from datetime import date
+
+        db.session.add(CalendarActivity(
+            activity_type="allenamento", category="training_friday", title="T",
+            starts_at=datetime(2026, 3, 14, 9, 0), ends_at=datetime(2026, 3, 14, 10, 0),
+            inscription_delay_date=date(2026, 3, 10),
+        ))
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
+        db.session.rollback()
+
+    def test_calendar_activity_rejects_invalid_category_type(self):
+        activity = CalendarActivity(
+            activity_type="gara",
+            category="training_wednesday",
+            title="Invalid activity",
+            starts_at=datetime(2026, 3, 14, 9, 0),
+            ends_at=datetime(2026, 3, 14, 10, 0),
+        )
+        db.session.add(activity)
+
+        with self.assertRaises(IntegrityError):
+            db.session.commit()
+
+        db.session.rollback()
 
     def test_blueprint_static_assets_and_app_error_page(self):
         with self.client.get("/static/main/css/style.css") as response:

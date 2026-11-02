@@ -1,0 +1,98 @@
+{% extends "main/base.html" %}
+
+{% block title %}Links utili | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+  {% set clubs = [
+    ("ASCO Lugano", "https://www.asco-lugano.ch", "ASCO.png"),
+    ("CO AGET Lugano", "https://www.coaget.ch", "CO AGET.png"),
+    ("CO UTOE Bellinzona", "https://www.utoe.ch/co", "CO UTOE.png"),
+    ("GOLD Savosa", "https://www.gold-savosa.ch", "GOLD.png"),
+    ("GOV Valmaggia", "https://www.gov-valmaggia.ch", "GOV.png"),
+    ("SCOM Mendrisio", "https://www.scom-mendrisio.ch", "SCOM.png"),
+    ("UNITAS Malcantone", "https://sites.google.com/view/unitascaslano", "UNITAS.png")
+  ] %}
+  {% set link_groups = [
+    ("Federazioni e associazioni", [
+      ("Iscrizioni online TMO e nazionali", "https://ol-events.ch"),
+      ("Iscrizioni online internazionali", "https://www.orienteeringonline.net"),
+      ("Informazioni internazionali sulla CO", "https://www.worldofo.com"),
+      ("ASTI - Associazione Sportiva Ticinese", "https://www.asti-ticino.ch"),
+      ("Selezione Ticino (SeleTI)", "https://www.asti-ticino.ch/SeleTI"),
+      ("Swiss Orienteering", "https://www.solv.ch"),
+      ("FISO - Federazione Italiana di CO", "https://www.fiso.it"),
+      ("IOF - Federazione Internazionale di CO", "https://www.orienteering.org"),
+      ("Cool and Clean", "https://www.coolandclean.ch")
+    ]),
+    ("Links utili", [
+      ("Classifiche live TMO", "https://www.classifiche.asti-ticino.ch"),
+      ("Classifiche live gare nazionali", "https://www.picotiming.ch"),
+      ("La più grande mappa di orienteering del mondo", "https://www.o-map.ch"),
+      ("SIAC Service", "https://www.sportident.com"),
+      ("Svizzera su carta di CO", "https://www.mapant.ch"),
+      ("Analisi gare di CO svizzere (Olana)", "https://www.ol.zimaa.ch")
+    ])
+  ] %}
+  {% set documents = [
+    ("Informazioni per i nuovi soci", "contacts", "InfoNuoviArrivati_2022.pdf"),
+    ("Competenze orientistiche (Swiss Orienteering)", "whats_orienteering", "SwissOrienteering_O-Kompetenzen_21_IT_Web.pdf"),
+    ("Descrizione dei punti IOF", "whats_orienteering", "Descrizione_punti_IOF.pdf"),
+    ("Informazioni sulle zecche in Ticino", "whats_orienteering", "Flyer_zecche_TI.pdf"),
+    ("Legenda cartina bosco", "whats_orienteering", "Legenda_bosco.pdf"),
+    ("Legenda cartina città", "whats_orienteering", "Legenda_citt.pdf"),
+    ("ABC della O-92", "who_are_we", "ABC_della_O-92.pdf"),
+    ("Carta etica nello sport", "who_are_we", "Carta_etica_nello_sport.pdf"),
+    ("Padrinato 2026", "who_are_we", "Padrinato_2026.pdf"),
+    ("Regolamento", "who_are_we", "Regolamento_2025.pdf"),
+    ("Statuto", "who_are_we", "Statuto_20251017.pdf")
+  ] %}
+  <section class="page-section links-page">
+    <h1 class="page-title">LINKS UTILI</h1>
+    <p class="links-intro">Società, federazioni e strumenti utili per orientarti nel mondo della corsa d’orientamento.</p>
+    <section class="links-group">
+      <h2 class="page-subtitle contact-title">Società ticinesi</h2>
+      <ul class="links-grid links-clubs">
+        {% for label, href, logo in clubs %}
+          <li>
+            <a class="links-card links-club-card" href="{{ href }}" target="_blank" rel="noopener noreferrer">
+              <span class="links-club-logo">
+                <img src="{{ url_for('main.static', filename='pictures/other_clubs/' ~ logo) }}" alt="" loading="lazy">
+              </span>
+              <span class="links-card-label">{{ label }}</span>
+              <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% for heading, items in link_groups %}
+      <section class="links-group">
+        <h2 class="page-subtitle contact-title">{{ heading }}</h2>
+        <ul class="links-grid">
+          {% for label, href in items %}
+            <li>
+              <a class="links-card" href="{{ href }}" target="_blank" rel="noopener noreferrer">
+                <span>{{ label }}</span>
+                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+    <section class="links-group">
+      <h2 class="page-subtitle contact-title">Lista di tutti i documenti</h2>
+      <ul class="links-grid">
+        {% for label, folder, file in documents %}
+          <li>
+            <a class="links-card links-document-card" href="{{ url_for('main.static', filename='pdf/' ~ folder ~ '/' ~ file) }}" target="_blank" rel="noopener noreferrer">
+              <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
+              <span>{{ label }}</span>
+              <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </section>
+{% endblock %}

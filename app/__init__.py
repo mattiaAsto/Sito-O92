@@ -31,26 +31,34 @@ def create_app(test_config=None):
     admin.init_app(app)
 
     from app.auth import auth
+    from app.blog import blog
+    from app.calendar import calendar, routes as calendar_routes
     from app.main import main
     from app.media import media
     from app.news import news
     from app.shop import shop
     from app.storage import init_storage, media_url
+    from app.vans import vans
 
     init_storage(app)
     app.jinja_env.globals["media_url"] = media_url
 
     app.register_blueprint(main)
+    app.register_blueprint(calendar)
     app.register_blueprint(media)
+    app.register_blueprint(blog, url_prefix="/blog")
     app.register_blueprint(news, url_prefix="/news")
     app.register_blueprint(shop)
+    app.register_blueprint(vans)
     app.register_blueprint(auth, url_prefix="/auth")
 
     from app.models import User
 
-    from app.markdown_render import render_news_markdown
+    from app.markdown_render import plain_excerpt, render_blog_markdown, render_text_markdown
 
-    app.jinja_env.filters["news_markdown"] = render_news_markdown
+    app.jinja_env.filters["excerpt"] = plain_excerpt
+    app.jinja_env.filters["news_markdown"] = render_text_markdown
+    app.jinja_env.filters["blog_markdown"] = render_blog_markdown
 
     @login_manager.user_loader
     def load_user(user_id):

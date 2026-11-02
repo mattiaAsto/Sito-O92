@@ -1,0 +1,127 @@
+{% extends "main/base.html" %}
+
+{% block title %}Furgoni | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% macro field(f, cls="contact-input") %}
+  <div class="contact-field">
+    {{ f.label(class="form-label") }}{% if f.flags.required %}<span class="contact-required">*</span>{% endif %}
+    {{ f(class=cls ~ (" is-invalid" if f.errors else ""), **kwargs) }}
+    {% for error in f.errors %}<div class="contact-error">{{ error }}</div>{% endfor %}
+  </div>
+{% endmacro %}
+
+{% set documents = [
+  ("Condizioni noleggio", "pdfs/Condizioni_noleggio.pdf", "fa-regular fa-file-pdf"),
+  ("Regole per occupanti", "pdfs/Regole_per_occupanti.pdf", "fa-regular fa-file-pdf"),
+  ("Uso veicoli di terzi", "pdfs/Uso_veicoli_di_terzi.pdf", "fa-regular fa-file-pdf"),
+] %}
+
+{% block content %}
+  <section class="vans-intro">
+    <h1 class="vans-title">Noleggio furgoni</h1>
+    <p>La società O-92 ha due furgoni 9-posti che utilizza per le trasferte dei giovani durante i tradizionali allenamenti del mercoledì e venerdì, così come per le trasferte alle gare di corsa d'orientamento in Ticino, Svizzera e all'estero.</p>
+    <p>Quando i furgoni non sono utilizzati per gli scopi della società vengono volentieri noleggiati a Enti, Società e privati che li richiedono.</p>
+
+    <div class="vans-cards">
+      <div class="vans-card">
+        <i class="fa-solid fa-van-shuttle" aria-hidden="true"></i>
+        <p class="vans-card-name">{{ vans.trafic }}</p>
+        <p>9 posti &middot; Monte Carasso</p>
+      </div>
+      <div class="vans-card">
+        <i class="fa-solid fa-van-shuttle" aria-hidden="true"></i>
+        <p class="vans-card-name">{{ vans.vivaro }}</p>
+        <p>9 posti &middot; Bironico (Monteceneri)</p>
+      </div>
+    </div>
+
+    <p>Nel <a href="#calendario">calendario occupazione</a> è indicata l'occupazione di massima dei due furgoni. Per nuove richieste, domande o verifiche puoi usare il <a href="#richiesta">formulario online</a> o scrivere a <a href="mailto:{{ vans_email }}">{{ vans_email }}</a>.</p>
+  </section>
+
+  <section id="richiesta" class="contact-section vans-request">
+    <div class="vans-links">
+      <a class="vans-link" href="{{ config.TRANSPORT_SHEET_URL }}" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-link" aria-hidden="true"></i><span>Organizzazione trasporti O-92 &ndash; Cugnasco</span>
+      </a>
+      {% for label, path, icon in documents %}
+        <a class="vans-link" href="{{ url_for('vans.static', filename=path) }}" target="_blank" rel="noopener noreferrer">
+          <i class="fa-solid fa-link" aria-hidden="true"></i><span>{{ label }}</span>
+        </a>
+      {% endfor %}
+      <p class="vans-links-note">Prima di prenotare, dai un'occhiata al calendario occupazioni qua sotto!</p>
+    </div>
+
+    <div class="contact-form-col vans-form-col">
+      <form method="post" action="{{ url_for('vans.index', _anchor='richiesta') }}" novalidate>
+        {{ request_form.hidden_tag() }}
+        {{ field(request_form.email, autocomplete="email") }}
+        <div class="vans-phone">
+          {{ field(request_form.phone_prefix, placeholder="07x", autocomplete="tel-country-code") }}
+          {{ field(request_form.phone_number, placeholder="xxx xx xx", autocomplete="tel-national") }}
+        </div>
+        <div class="vans-dates">
+          {{ field(request_form.start_date) }}
+          {{ field(request_form.end_date) }}
+        </div>
+        {{ field(request_form.message, rows=2) }}
+        {{ request_form.submit(class="btn btn-brand contact-submit") }}
+      </form>
+    </div>
+  </section>
+  <section id="calendario" class="vans-calendar">
+    <h2 class="contact-title">Calendario occupazione</h2>
+    <div class="calendar-controls">
+      <a class="btn btn-outline-secondary" href="{{ url_for('vans.index', month=prev_month, _anchor='calendario') }}" aria-label="Mese precedente"><i class="fas fa-chevron-left" aria-hidden="true"></i></a>
+      <h3 aria-live="polite">{{ month_label }}</h3>
+      <a class="btn btn-outline-secondary" href="{{ url_for('vans.index', month=next_month, _anchor='calendario') }}" aria-label="Mese successivo"><i class="fas fa-chevron-right" aria-hidden="true"></i></a>
+    </div>
+    <div class="calendar-grid vans-grid" aria-label="Occupazione furgoni del mese">
+      {% for name in ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"] %}
+        <div class="calendar-weekday">{{ name }}</div>
+      {% endfor %}
+      {% for week in weeks %}{% for day in week %}
+        <div class="calendar-day{% if not day.in_month %} calendar-day--outside{% endif %}{% if day.date == today %} calendar-day--today{% endif %}">
+          <div class="calendar-day-number">{{ day.date.day }}</div>
+          <div class="calendar-day-events">
+            {% for b in day.bookings %}
+              <div class="calendar-event vans-event" style="--event-color: {{ van_colors[b.van] }}; border-left-color: {{ van_colors[b.van] }}" title="{{ vans[b.van] }}{% if can_manage and b.note %} – {{ b.note }}{% endif %}">
+                <span class="calendar-event-title">{{ vans[b.van] }}</span>
+                <span class="calendar-event-time">non disponibile</span>
+                {% if can_manage %}
+                  <form method="post" action="{{ url_for('vans.delete_booking', booking_id=b.id) }}" onsubmit="return confirm('Rimuovere questa occupazione?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" aria-label="Rimuovi occupazione {{ vans[b.van] }}">&times;</button>
+                  </form>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}{% endfor %}
+    </div>
+    <div class="calendar-legend" aria-label="Furgoni">
+      {% for key, label in vans.items() %}
+        <span class="calendar-legend-item">
+          <span class="calendar-legend-color" style="background-color: {{ van_colors[key] }}" aria-hidden="true"></span>
+          {{ label }} &ndash; non disponibile
+        </span>
+      {% endfor %}
+    </div>
+
+
+    {% if can_manage %}
+      <form method="post" action="{{ url_for('vans.add_booking') }}" class="vans-manage" novalidate>
+        <h3 class="vans-manage-title">Gestione occupazione</h3>
+        {{ booking_form.hidden_tag() }}
+        <div class="vans-manage-grid">
+          {{ field(booking_form.van, cls="contact-input") }}
+          {{ field(booking_form.start_date) }}
+          {{ field(booking_form.end_date) }}
+        </div>
+        {{ field(booking_form.note) }}
+        {{ booking_form.submit(class="btn btn-brand contact-submit") }}
+      </form>
+    {% endif %}
+  </section>
+
+{% endblock %}

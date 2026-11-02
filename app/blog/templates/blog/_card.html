@@ -1,0 +1,19 @@
+{% macro post_card(post) %}
+  <a class="news-card blog-card" href="{{ url_for('blog.detail', post_id=post.id) }}">
+    <span class="news-thumb">
+      {% if post.cover_key %}
+        <img src="{{ media_url(post.cover_key) }}" alt="" loading="lazy">
+      {% else %}
+        <i class="fas fa-book-open"></i>
+      {% endif %}
+    </span>
+    <span class="news-card-body">
+      <span class="news-card-title">{{ post.title }}</span>
+      {% if post.summary %}<span class="news-card-summary">{{ post.summary }}</span>{% endif %}
+      <span class="news-card-summary">
+        di {{ post.author.first_name }} {{ post.author.last_name }} · {{ post.created_at.strftime("%d.%m.%Y") }}
+        {% if not post.is_verified %}· <strong>in attesa di verifica</strong>{% endif %}
+      </span>
+    </span>
+  </a>
+{% endmacro %}

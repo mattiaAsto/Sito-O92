@@ -34,20 +34,14 @@
             <tr><td><code>1. primo<br>2. secondo</code></td><td>Elenco numerato</td></tr>
             <tr><td><code>&gt; citazione</code></td><td>Citazione</td></tr>
             <tr><td><code>---</code></td><td>Linea di separazione</td></tr>
-            <tr><td><code>![descrizione](foto.jpg)</code></td><td>Foto nel testo: scrivi solo il nome del file caricato in "Foto dell'articolo" (maiuscole e spazi vengono gestiti automaticamente)</td></tr>
           </tbody>
         </table>
-        <p class="mb-0">Per andare a capo basta premere Invio; per separare i paragrafi lascia una riga vuota.</p>
+        <p class="mb-0">Per andare a capo basta premere Invio; per separare i paragrafi lascia una riga vuota. Le news sono brevi e senza foto nel testo: per storie lunghe con immagini usa il <a href="{{ url_for('blog.index') }}">blog</a>.</p>
       </details>
 
       <fieldset class="upload-box mb-3">
         <legend class="fs-6 fw-bold">Miniatura dell'anteprima</legend>
         {{ field_block(form.thumbnail, "Un'unica immagine, mostrata nel cerchio accanto al titolo nella home e nella lista delle news. Non compare nel testo dell'articolo. Se la lasci vuota viene mostrata un'icona.") }}
-      </fieldset>
-
-      <fieldset class="upload-box mb-3">
-        <legend class="fs-6 fw-bold">Foto dell'articolo</legend>
-        {{ field_block(form.photos, "Una o più immagini da usare dentro il testo. Caricarle non basta: per mostrarle scrivi nel testo ![descrizione](nome-file.jpg). Puoi selezionare più file insieme.") }}
       </fieldset>
 
       {{ form.submit(class="btn btn-brand") }}

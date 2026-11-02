@@ -6,7 +6,116 @@ from sqlalchemy import CheckConstraint, Numeric
 from sqlalchemy.types import LargeBinary
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from app.calendar.palette import ACTIVITY_CATEGORIES
 from app.extensions import db
+
+
+class CalendarActivity(db.Model):
+    __tablename__ = "calendar_activities"
+    __table_args__ = (
+        CheckConstraint(
+            "activity_type IN ('allenamento', 'gara', 'attivita')",
+            name="ck_calendar_activities_type",
+        ),
+        CheckConstraint(
+            "category IN "
+            "('training_wednesday', 'training_friday', 'race_ticino', "
+            "'race_switzerland', 'other_activity', 'camp')",
+            name="ck_calendar_activities_category",
+        ),
+        CheckConstraint(
+            "ends_at >= starts_at",
+            name="ck_calendar_activities_end_after_start",
+        ),
+        CheckConstraint(
+            "(latitude IS NULL AND longitude IS NULL) OR "
+            "(latitude IS NOT NULL AND longitude IS NOT NULL "
+            "AND latitude BETWEEN -90 AND 90 AND longitude BETWEEN -180 AND 180)",
+            name="ck_calendar_activities_coordinates",
+        ),
+        CheckConstraint(
+            "(category IN ('training_wednesday', 'training_friday') "
+            "AND activity_type = 'allenamento') OR "
+            "(category IN ('race_ticino', 'race_switzerland') "
+            "AND activity_type = 'gara') OR "
+            "(category IN ('other_activity', 'camp') "
+            "AND activity_type = 'attivita')",
+            name="ck_calendar_activities_category_type",
+        ),
+        CheckConstraint(
+            "inscription_delay_date IS NULL OR activity_type <> 'allenamento'",
+            name="ck_calendar_activities_delay_not_training",
+        ),
+    )
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    activity_type = db.Column(db.String(20), nullable=False, index=True)
+    category = db.Column(db.String(40), nullable=False, index=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    starts_at = db.Column(db.DateTime(timezone=True), nullable=False, index=True)
+    ends_at = db.Column(db.DateTime(timezone=True), nullable=False)
+    location = db.Column(db.String(200))
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    inscription_delay_date = db.Column(db.Date, index=True)
+
+    @property
+    def has_coordinates(self):
+        return self.latitude is not None and self.longitude is not None
+
+    @property
+    def schedule_label(self):
+        """Full schedule for the detail page: trainings show hours, races only dates."""
+        starts, ends = self.starts_at, self.ends_at
+        same_day = starts.date() == ends.date()
+        day = starts.strftime("%d.%m.%Y")
+        if self.activity_type == "allenamento" and same_day:
+            return f"{day}, {starts:%H:%M} – {ends:%H:%M}"
+        if self.activity_type == "gara":
+            return day if same_day else f"{day} – {ends:%d.%m.%Y}"
+        if same_day:
+            return f"{day}, {starts:%H:%M} – {ends:%H:%M}"
+        return f"{starts:%d.%m.%Y %H:%M} – {ends:%d.%m.%Y %H:%M}"
+
+    @property
+    def time_label(self):
+        """Short time shown inside calendar cells (None for races)."""
+        if self.activity_type == "gara":
+            return None
+        if self.activity_type == "allenamento":
+            return f"{self.starts_at:%H:%M} – {self.ends_at:%H:%M}"
+        return f"{self.starts_at:%H:%M}"
+
+    @property
+    def category_label(self):
+        return ACTIVITY_CATEGORIES[self.category]["label"]
+
+    @property
+    def color(self):
+        return ACTIVITY_CATEGORIES[self.category]["color"]
+
+
+class VanBooking(db.Model):
+    """A period (inclusive dates) in which a van is not available for rental."""
+
+    __tablename__ = "van_bookings"
+    __table_args__ = (
+        CheckConstraint("van IN ('trafic', 'vivaro')", name="ck_van_bookings_van"),
+        CheckConstraint("end_date >= start_date", name="ck_van_bookings_end_after_start"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    van = db.Column(db.String(20), nullable=False, index=True)
+    start_date = db.Column(db.Date, nullable=False, index=True)
+    end_date = db.Column(db.Date, nullable=False, index=True)
+    note = db.Column(db.String(200))
+    created_by_id = db.Column(db.Integer, db.ForeignKey("Users.id", ondelete="SET NULL"))
+    created_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(ZoneInfo("Europe/Zurich")).replace(tzinfo=None),
+    )
 
 
 class User(UserMixin, db.Model):
@@ -109,10 +218,6 @@ class News(db.Model):
         default=lambda: datetime.now(ZoneInfo("Europe/Zurich")),
     )
 
-    images = db.relationship(
-        "NewsImage", back_populates="news", cascade="all, delete-orphan", order_by="NewsImage.id"
-    )
-
     @property
     def storage_prefix(self):
         return f"news/{self.id}"
@@ -124,21 +229,53 @@ class News(db.Model):
         return f"{self.storage_prefix}/{self.thumbnail_filename}"
 
 
-class NewsImage(db.Model):
-    """A photo uploaded for use inside an article's text."""
+class BlogPost(db.Model):
+    """A long-form story written by a user; needs admin verification to be public."""
 
-    __tablename__ = "news_images"
+    __tablename__ = "blog_posts"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    news_id = db.Column(
-        db.Integer, db.ForeignKey("news.id", ondelete="CASCADE"), nullable=False, index=True
+    author_id = db.Column(
+        db.Integer, db.ForeignKey("Users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    filename = db.Column(db.String(255), nullable=False)  # random stored name
-    original_name = db.Column(db.String(255), nullable=False)  # name used in the markdown
+    title = db.Column(db.String(200), nullable=False)
+    summary = db.Column(db.String(300))
+    text = db.Column(db.Text(length=2**24 - 1), nullable=False)  # markdown
+    cover_filename = db.Column(db.String(255))  # stored name inside the post's folder
+    is_verified = db.Column(db.Boolean, nullable=False, default=False, server_default="0", index=True)
     created_at = db.Column(
         db.DateTime,
         nullable=False,
+        index=True,
         default=lambda: datetime.now(ZoneInfo("Europe/Zurich")),
     )
 
-    news = db.relationship("News", back_populates="images")
+    author = db.relationship("User")
+    images = db.relationship(
+        "BlogImage", back_populates="post", cascade="all, delete-orphan", order_by="BlogImage.id"
+    )
+
+    @property
+    def storage_prefix(self):
+        return f"blog/{self.id}"
+
+    @property
+    def cover_key(self):
+        if not self.cover_filename:
+            return None
+        return f"{self.storage_prefix}/{self.cover_filename}"
+
+
+class BlogImage(db.Model):
+    """A photo uploaded for use inside a blog post's text."""
+
+    __tablename__ = "blog_images"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    post_id = db.Column(
+        db.Integer, db.ForeignKey("blog_posts.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    filename = db.Column(db.String(255), nullable=False)  # random stored name
+    original_name = db.Column(db.String(255), nullable=False)  # name used in the markdown
+
+    post = db.relationship("BlogPost", back_populates="images")

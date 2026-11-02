@@ -22,6 +22,11 @@ class Config:
     CACHE_TYPE = os.getenv("CACHE_TYPE", "SimpleCache")
     CACHE_DEFAULT_TIMEOUT = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "60"))
 
+    TRANSPORT_SHEET_URL = (
+        "https://docs.google.com/spreadsheets/d/1YZKKoVIZ8jJVh1FqvBLej4Y5x_F_vZwwCQYzGR3_oME/"
+        "edit?gid=957375013#gid=957375013"
+    )
+
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = os.getenv(

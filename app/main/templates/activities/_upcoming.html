@@ -1,0 +1,22 @@
+<section class="news-section upcoming-section">
+  <h2 class="news-section-title">{{ upcoming_title }}</h2>
+  {% if upcoming_activities %}
+    <div class="upcoming-events-grid">
+      {% for activity in upcoming_activities %}
+        <a class="upcoming-event-card" href="{{ url_for('calendar.activity_detail', activity_id=activity.id) }}">
+          <span class="upcoming-event-date">{{ activity.starts_at.strftime("%d.%m.%Y") }}</span>
+          <span class="upcoming-event-title">{{ activity.title }}</span>
+          <span class="upcoming-event-meta">{{ activity.schedule_label }}</span>
+          {% if activity.location %}
+            <span class="upcoming-event-meta">{{ activity.location }}</span>
+          {% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center">Al momento non ci sono eventi in programma.</p>
+  {% endif %}
+  <div class="text-center">
+    <a class="news-all-btn" href="{{ url_for('calendar.calendario') }}">vedi calendario</a>
+  </div>
+</section>

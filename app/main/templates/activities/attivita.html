@@ -3,4 +3,36 @@
 {% block title %}Attività | Orientisti 92 Piano di Magadino{% endblock %}
 
 {% block content %}
+  {% set activities = [
+    ("Weekend sulla neve", "Discesa a tutta velocità, sci di fondo per scoprire il proprio equilibrio (o cadere con stile) oppure una tranquilla passeggiata con le ciaspole: qui c’è un modo per divertirsi sulla neve per tutti i gusti!", "Brigels-Campra, 2025", "Brigles-Campra, 2025.png"),
+    ("Weekend di inizio stagione", "Si parte con il piede giusto! Chi è alle prime armi viene preso per mano e accompagnato alla sua prima gara, mentre i veterani possono scaldare le gambe e le bussole. Il tutto in ottima compagnia!", "Tesserete, 2023", "Tesserete, 2023.jpeg"),
+    ("Campo Pasquale", "Quattro giorni nel cuore della Svizzera interna per scoprire boschi diversi da quelli ticinesi. Ad accompagnarci: giochi e attività serali e un pomeriggio a sorpresa che non vi anticipiamo!", "Malters, 2022", "Malters, 2022.jpeg"),
+    ("Trasferta estiva", "Italia, Slovenia, Svezia… il mondo è pieno di cartine nuove da leggere! Ogni anno una meta diversa per mettere alla prova il proprio fiuto orientistico in posti che non si dimenticano.", "5 giorni Dolomiti, 2025", "5 giorni Dolomiti, 2025.jpg"),
+    ("Campo Cantonale (CCCO)", "Qui si fa sul serio, ma ci si diverte ancora di più! Tutte le società ticinesi si ritrovano per 5 giorni di allenamenti, gare e tanto divertimento. Ad accogliervi c’è un team di monitori giovane, motivato e pronto a darvi il meglio. Non vediamo l’ora di vedervi!", "Brigels, 2017", "Brigels, 2017.jpg"),
+    ("Grigliata sociale", "Il profumo del collo di maiale sulla griglia ti guida fino a noi… e tra una chiacchiera e l’altra, c’è anche tempo per una simpatica garetta!", "Bellinzona, 2025", "Bellinzona, 2025.jpg"),
+    ("Trasferta sociale", "Corsa, nuovi luoghi, compagnia… e tanto, tanto cibo! Qui la gara è solo una scusa, ma ci partecipiamo con la massima motivazione (e con la pancia già pronta).", "Cesena (IT), 2023", "Cesena (IT), 2023.jpeg"),
+    ("Uscita maxi", "Coming soon… Tenete gli occhi aperti, la sorpresa è in arrivo!", "L’uscita maxi tornerà nel 2027, non vediamo l’ora di proporvela!", None),
+    ("Cena natalizia", "Come da tradizione, ci ritroviamo per rivivere i momenti più belli dell’anno, tirare le somme della stagione e ringraziare chi ci ha dato una mano. Non può mancare l’ambito premio Güz (a chi l’ha combinata più grossa!) e, per finire, ciò che ci riesce meglio dopo una corsa: mangiare!", "Ascona-Monte Verità, 2025", "Ascona-Monte Verità, 2025.jpg"),
+  ] %}
+  <section class="page-section activities-page">
+    <h1 class="page-title">ATTIVITÀ</h1>
+    <div class="activities-grid">
+      {% for title, description, caption, image in activities %}
+        <article class="activities-item{% if not image %} activities-item-coming{% endif %}">
+          {% if image %}
+            <img class="activities-image" src="{{ url_for('main.static', filename='pictures/activities/attivita/' ~ image) }}" alt="{{ title }} - {{ caption }}" loading="lazy">
+          {% else %}
+            <div class="activities-coming-label">In arrivo nel 2027</div>
+          {% endif %}
+          <div class="activities-copy">
+            <h2>{{ title }}</h2>
+            <p>{{ description }}</p>
+            <p class="activities-caption">{{ caption }}</p>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% set upcoming_title = "Prossime attività" %}
+  {% include "activities/_upcoming.html" %}
 {% endblock %}

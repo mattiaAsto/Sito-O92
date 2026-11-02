@@ -14,11 +14,13 @@
       ('main.index', 'HOME', 'fa-house'),
       ('main.chi_siamo', 'chi siamo', 'fa-users'),
       ('main.foto', 'foto', 'fa-camera'),
-      ('main.furgoni', 'furgoni', 'fa-van-shuttle')
+      ('vans.index', 'furgoni', 'fa-van-shuttle')
     ] %}
     {% macro extra_items() %}
-      <li><a class="dropdown-item" href="{{ url_for('main.calendario') }}"><i class="fas fa-calendar-days"></i> Calendario</a></li>
+      <li><a class="dropdown-item" href="{{ url_for('calendar.calendario') }}"><i class="fas fa-calendar-days"></i> Calendario</a></li>
+      <li><a class="dropdown-item" href="{{ url_for('main.links') }}"><i class="fas fa-link"></i> Links</a></li>
       <li><a class="dropdown-item" href="{{ url_for('shop.index') }}"><i class="fas fa-bag-shopping"></i> Shop</a></li>
+      <li><a class="dropdown-item" href="{{ url_for('blog.index') }}"><i class="fas fa-book-open"></i> Blog</a></li>
       <li><a class="dropdown-item" href="{{ url_for('main.contatti') }}"><i class="fas fa-envelope"></i> Contatti</a></li>
       <li><hr class="dropdown-divider"></li>
       {% if current_user.is_authenticated and current_user.is_news_manager %}
@@ -26,6 +28,12 @@
       {% endif %}
       {% if current_user.is_authenticated and current_user.is_admin %}
         <li><a class="dropdown-item" href="{{ url_for('news.pending') }}"><i class="fas fa-check-double"></i> News da verificare</a></li>
+      {% endif %}
+      {% if current_user.is_authenticated %}
+        <li><a class="dropdown-item" href="{{ url_for('blog.create') }}"><i class="fas fa-feather"></i> Scrivi un racconto</a></li>
+      {% endif %}
+      {% if current_user.is_authenticated and current_user.is_admin %}
+        <li><a class="dropdown-item" href="{{ url_for('blog.pending') }}"><i class="fas fa-check-double"></i> Racconti da verificare</a></li>
       {% endif %}
       {% if current_user.is_authenticated %}
         <li><a class="dropdown-item" href="{{ url_for('shop.create') }}"><i class="fas fa-tag"></i> Vendi un articolo</a></li>

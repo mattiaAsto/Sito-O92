@@ -25,6 +25,6 @@
     <p class="news-date text-muted mb-1">{{ article.created_at.strftime("%d.%m.%Y") }}</p>
     <h1>{{ article.title }}</h1>
     {% if article.summary %}<p class="lead">{{ article.summary }}</p>{% endif %}
-    {{ article.text | news_markdown(article) }}
+    {{ article.text | news_markdown }}
   </article>
 {% endblock %}

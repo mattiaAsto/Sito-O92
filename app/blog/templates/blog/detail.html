@@ -1,0 +1,35 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ post.title }} | Blog | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+  <article class="page-section news-article">
+    <a class="news-back" href="{{ url_for('blog.index') }}">&laquo; tutto il blog</a>
+    {% if not post.is_verified %}
+      <div class="alert alert-warning">
+        Questo racconto non è ancora stato verificato e non è visibile al pubblico.
+        {% if current_user.is_admin %}
+          <form method="post" action="{{ url_for('blog.verify', post_id=post.id) }}" class="mt-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-brand btn-sm" type="submit">Verifica e pubblica</button>
+          </form>
+        {% endif %}
+      </div>
+    {% endif %}
+    {% if can_manage %}
+      <form method="post" action="{{ url_for('blog.delete', post_id=post.id) }}" class="mb-3" onsubmit="return confirm('Eliminare questo racconto e le sue foto?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-outline-danger btn-sm" type="submit">Elimina racconto</button>
+      </form>
+    {% endif %}
+    <p class="news-date text-muted mb-1">
+      {{ post.created_at.strftime("%d.%m.%Y") }} · di {{ post.author.first_name }} {{ post.author.last_name }}
+    </p>
+    <h1>{{ post.title }}</h1>
+    {% if post.summary %}<p class="lead">{{ post.summary }}</p>{% endif %}
+    {% if post.cover_key %}
+      <figure class="blog-cover"><img src="{{ media_url(post.cover_key) }}" alt="{{ post.title }}"></figure>
+    {% endif %}
+    {{ post.text | blog_markdown(post) }}
+  </article>
+{% endblock %}

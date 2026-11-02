@@ -3,4 +3,199 @@
 {% block title %}Chi siamo | Orientisti 92 Piano di Magadino{% endblock %}
 
 {% block content %}
+  {% set committee = [
+    ("Presidente", "Reto Depedrini", "Rivera"),
+    ("Vicepresidente, padrinato", "Carla Bolis", "Camorino"),
+    ("Coord. attività sportive, resp. furgoni e noleggi", "Alain Astori", "Cugnasco"),
+    ("Controllo all. cartine e resp. archivio foto", "Feliciano Pawlowski", "Rivera"),
+    ("Responsabile attività", "Alessandro Bolis", "Camorino"),
+    ("Responsabile materiale", "Roberta De Maria", None),
+    ("Responsabile G+S", "Tito Balestra", None),
+    ("Membro", "Marzio Bianchi", None),
+    ("Membro giovane", "Davide De Giorgi", None),
+    ("Membro giovane", "Marta Riso", None)
+  ] %}
+  {% set other_roles = [
+    ("Responsabile finanze", "Elio Derighetti", "Arcegno"),
+    ("Responsabile magazzino", "Alessandro Pawlowski", "Rivera"),
+    ("Responsabile iscrizioni", "Stefano Maddalena", "Bironico"),
+    ("Membro CTCO", "Tiziano Boiani", "Cadenazzo"),
+    ("Responsabile sito internet", "Mattia Astori", "Cugnasco")
+  ] %}
+  {% set monitors = ["Alain Astori", "Alessandro Juorno", "Alina Vecsey", "Mattia Astori", "Giulia Maddalena"] %}
+  {% set documents = [
+    ("Statuto", "Statuto_20251017.pdf"),
+    ("Regolamento", "Regolamento_2025.pdf"),
+    ("Carta etica nello sport", "Carta_etica_nello_sport.pdf"),
+    ("ABC della O-92", "ABC_della_O-92.pdf"),
+    ("Padrinato 2026", "Padrinato_2026.pdf")
+  ] %}
+  <section class="page-section who-page">
+    <h1 class="page-title">CHI SIAMO</h1>
+
+    <section class="who-hero">
+      <div class="who-hero-copy">
+        <p class="who-lead">Dal 10 luglio 1992 facciamo correre e orientare il Piano di Magadino e oltre. Siamo nati da un gruppo di orientisti già in azione nella Società Atletica VIS NOVA, e da allora non ci siamo più fermati.</p>
+      </div>
+      {% if slideshow_images %}
+        <div id="whoSlideshow" class="carousel slide who-slideshow" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="false">
+          {% if slideshow_images|length > 1 %}
+            <div class="carousel-indicators">
+              {% for image in slideshow_images %}
+                <button type="button" data-bs-target="#whoSlideshow" data-bs-slide-to="{{ loop.index0 }}" {% if loop.first %}class="active" aria-current="true"{% endif %} aria-label="Vai alla foto {{ loop.index }}"></button>
+              {% endfor %}
+            </div>
+          {% endif %}
+          <button class="who-slideshow-expand" type="button" data-bs-toggle="modal" data-bs-target="#whoSlideshowModal" aria-label="Ingrandisci slideshow">
+            <i class="fa-solid fa-expand" aria-hidden="true"></i>
+          </button>
+          <div class="carousel-inner">
+            {% for image in slideshow_images %}
+              <div class="carousel-item{% if loop.first %} active{% endif %}">
+                <img src="{{ url_for('main.static', filename='pictures/slideshow/' ~ image) }}" class="d-block w-100" alt="Foto della società: {{ image.rsplit('.', 1)[0].replace('_', ' ').replace('-', ' ') }}" {% if not loop.first %}loading="lazy"{% endif %}>
+              </div>
+            {% endfor %}
+          </div>
+          {% if slideshow_images|length > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#whoSlideshow" data-bs-slide="prev" aria-label="Foto precedente">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#whoSlideshow" data-bs-slide="next" aria-label="Foto successiva">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            </button>
+          {% endif %}
+        </div>
+      {% endif %}
+    </section>
+
+    {% if slideshow_images %}
+      <div class="modal fade who-slideshow-modal" id="whoSlideshowModal" tabindex="-1" aria-labelledby="whoSlideshowModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <h2 class="visually-hidden" id="whoSlideshowModalTitle">Slideshow della società</h2>
+            <button type="button" class="btn-close btn-close-white who-slideshow-modal-close" data-bs-dismiss="modal" aria-label="Chiudi slideshow"></button>
+            <div id="whoSlideshowExpanded" class="carousel slide who-slideshow-expanded" data-bs-interval="3000" data-bs-pause="false">
+              <div class="carousel-inner">
+                {% for image in slideshow_images %}
+                  <div class="carousel-item{% if loop.first %} active{% endif %}">
+                    <img src="{{ url_for('main.static', filename='pictures/slideshow/' ~ image) }}" class="d-block w-100" alt="Foto della società: {{ image.rsplit('.', 1)[0].replace('_', ' ').replace('-', ' ') }}">
+                  </div>
+                {% endfor %}
+              </div>
+              {% if slideshow_images|length > 1 %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#whoSlideshowExpanded" data-bs-slide="prev" aria-label="Foto precedente">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#whoSlideshowExpanded" data-bs-slide="next" aria-label="Foto successiva">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                </button>
+                <div class="carousel-indicators">
+                  {% for image in slideshow_images %}
+                    <button type="button" data-bs-target="#whoSlideshowExpanded" data-bs-slide-to="{{ loop.index0 }}" {% if loop.first %}class="active" aria-current="true"{% endif %} aria-label="Vai alla foto {{ loop.index }}"></button>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <section class="who-intro">
+      <p>La corsa orientamento è lo sport in cui vince chi corre… e chi ragiona. Una cartina, una bussola, un percorso da portare a termine: ogni tracciato è una sfida nuova, per le gambe e per la testa. E la cosa bella? È per tutti. Ragazzi, famiglie, adulti e senior: da noi trovi il tuo ritmo e la tua squadra, che tu voglia competere o semplicemente goderti il bosco e i nuclei cittadini.</p>
+      <p>Ci muoviamo nel pieno rispetto dell’etica sportiva e di ogni convinzione politica e religiosa, perché per metterci in gioco bastano scarpe da corsa ed entusiasmo. Il nostro obiettivo? Creare legami tra i giovani e le loro famiglie, dentro e fuori dal bosco.</p>
+      <p>Ogni anno organizziamo due gare tutte nostre, e per i soci più assidui ci sono le trasferte a tutte le competizioni nazionali.</p>
+      <p>Cos’altro offriamo? Weekend sulla neve, campi d’allenamento, trasferte internazionali… e tanto altro. Scopri di più su <a href="{{ url_for('main.allenamenti') }}">allenamenti</a>, <a href="{{ url_for('main.attivita') }}">attività</a> e <a href="{{ url_for('main.gare') }}">gare</a>.</p>
+    </section>
+
+    <details class="who-accordion">
+      <summary class="contact-title">Comitato attuale</summary>
+      <div class="who-people-grid">
+        {% for role, name, location in committee %}
+          <article class="contact-person">
+            <p class="contact-person-role">{{ role }}</p>
+            <p class="contact-person-name">{{ name }}</p>
+            {% if location %}<p class="contact-person-location">{{ location }}</p>{% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </details>
+
+    <details class="who-accordion">
+      <summary class="contact-title">Altri compiti</summary>
+      <div class="who-people-grid">
+        {% for role, name, location in other_roles %}
+          <article class="contact-person">
+            <p class="contact-person-role">{{ role }}</p>
+            <p class="contact-person-name">{{ name }}</p>
+            {% if location %}<p class="contact-person-location">{{ location }}</p>{% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </details>
+
+    <details class="who-accordion">
+      <summary class="contact-title">Monitori G+S</summary>
+      <ul class="who-monitors">
+        {% for name in monitors %}
+          <li><i class="fa-solid fa-compass" aria-hidden="true"></i>{{ name }}</li>
+        {% endfor %}
+      </ul>
+    </details>
+
+    <section class="who-static-documents">
+      <h2 class="page-subtitle contact-title">Documenti</h2>
+      <div class="who-documents">
+        {% for label, file in documents %}
+          <a class="who-document" href="{{ url_for('main.static', filename='pdf/who_are_we/' ~ file) }}" target="_blank" rel="noopener noreferrer">
+            <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
+            <span>{{ label }}</span>
+            <i class="fa-solid fa-arrow-up-right-from-square who-document-external" aria-hidden="true"></i>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% if slideshow_images %}
+    <script>
+      (() => {
+        const slideshow = document.getElementById("whoSlideshow");
+        const modalElement = document.getElementById("whoSlideshowModal");
+        const expandedSlideshow = document.getElementById("whoSlideshowExpanded");
+        if (!slideshow || !modalElement || !expandedSlideshow) return;
+
+        const mainCarousel = bootstrap.Carousel.getOrCreateInstance(slideshow);
+        const expandedCarousel = bootstrap.Carousel.getOrCreateInstance(expandedSlideshow, {
+          interval: 3000,
+          pause: false,
+        });
+        const activeIndex = (carousel) => Array.from(
+          carousel.querySelectorAll(".carousel-item"),
+        ).findIndex((item) => item.classList.contains("active"));
+
+        modalElement.addEventListener("show.bs.modal", () => {
+          mainCarousel.pause();
+          expandedCarousel.to(activeIndex(slideshow));
+        });
+        modalElement.addEventListener("shown.bs.modal", () => expandedCarousel.cycle());
+        modalElement.addEventListener("hide.bs.modal", () => {
+          expandedCarousel.pause();
+        });
+        modalElement.addEventListener("hidden.bs.modal", () => {
+          const index = activeIndex(expandedSlideshow);
+          if (activeIndex(slideshow) === index) {
+            mainCarousel.cycle();
+            return;
+          }
+          const resumeMainCarousel = () => mainCarousel.cycle();
+          slideshow.addEventListener("slid.bs.carousel", resumeMainCarousel, { once: true });
+          mainCarousel.to(index);
+        });
+      })();
+    </script>
+  {% endif %}
 {% endblock %}

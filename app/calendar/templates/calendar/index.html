@@ -1,0 +1,187 @@
+{% extends "main/base.html" %}
+
+{% block title %}Calendario | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+  <section class="page-section">
+    <h1 class="page-title">CALENDARIO</h1>
+
+    <div class="calendar-deadlines">
+      <h2>Prossime scadenze</h2>
+      {% if deadlines %}
+        <ul>
+          {% for activity in deadlines %}
+            <li>
+              <a href="{{ url_for('calendar.activity_detail', activity_id=activity.id) }}">{{ activity.title }}</a>
+              <span>Scadenza iscrizione: {{ activity.inscription_delay_date.strftime('%d.%m.%Y') }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="calendar-status">Nessuna scadenza in programma.</p>
+      {% endif %}
+    </div>
+
+    <div class="calendar-controls">
+      <button class="btn btn-outline-secondary" id="calendar-previous" type="button" aria-label="Mese precedente">
+        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+      </button>
+      <h2 id="calendar-month" aria-live="polite"></h2>
+      <button class="btn btn-outline-secondary" id="calendar-next" type="button" aria-label="Mese successivo">
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <p id="calendar-status" class="calendar-status" role="status" aria-live="polite"></p>
+    <div class="calendar-grid" id="calendar-grid" aria-label="Attività del mese"></div>
+
+    <div class="calendar-legend" aria-label="Categorie attività">
+      {% for category in activity_categories.values() %}
+        <span class="calendar-legend-item">
+          <span class="calendar-legend-color" style="background-color: {{ category.color }}" aria-hidden="true"></span>
+          {{ category.label }}
+        </span>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    (() => {
+      const grid = document.getElementById("calendar-grid");
+      const monthHeading = document.getElementById("calendar-month");
+      const status = document.getElementById("calendar-status");
+      const staticEvents = {{ static_events|default(none)|tojson }};
+      const eventUrl = {{ url_for("calendar.events")|tojson }};
+      const detailUrlTemplate = {{ url_for("calendar.activity_detail", activity_id=0)|tojson }};
+      const staticDetailUrlTemplate = "activity/0/index.html";
+      const weekdays = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
+      let displayedMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      let activeRequest;
+
+      function dateString(date) {
+        return [
+          date.getFullYear(),
+          String(date.getMonth() + 1).padStart(2, "0"),
+          String(date.getDate()).padStart(2, "0")
+        ].join("-");
+      }
+
+      function addDays(date, amount) {
+        const result = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        result.setDate(result.getDate() + amount);
+        return result;
+      }
+
+      function makeElement(tag, className, text) {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (text !== undefined) element.textContent = text;
+        return element;
+      }
+
+      function renderCalendar(events, firstDay, dayCount) {
+        const eventsByDate = new Map();
+        for (let offset = 0; offset < dayCount; offset += 1) {
+          const date = dateString(addDays(firstDay, offset));
+          events.forEach((event) => {
+            if (date < event.start.slice(0, 10) || date > event.end.slice(0, 10)) return;
+            if (!eventsByDate.has(date)) eventsByDate.set(date, []);
+            eventsByDate.get(date).push(event);
+          });
+        }
+
+        grid.replaceChildren();
+        weekdays.forEach((weekday) => {
+          grid.append(makeElement("div", "calendar-weekday", weekday));
+        });
+
+        const today = dateString(new Date());
+        for (let offset = 0; offset < dayCount; offset += 1) {
+          const day = addDays(firstDay, offset);
+          const dayKey = dateString(day);
+          const cell = makeElement("div", "calendar-day");
+          if (day.getMonth() !== displayedMonth.getMonth()) cell.classList.add("calendar-day--outside");
+          if (dayKey === today) cell.classList.add("calendar-day--today");
+          cell.append(makeElement("div", "calendar-day-number", String(day.getDate())));
+
+          const dayEvents = makeElement("div", "calendar-day-events");
+          (eventsByDate.get(dayKey) || []).forEach((event) => {
+            const link = makeElement("a", "calendar-event");
+            link.href = staticEvents === null
+              ? detailUrlTemplate.replace(/0$/, String(event.id))
+              : staticDetailUrlTemplate.replace("/0/", `/${event.id}/`);
+            link.style.setProperty("--event-color", event.color);
+            link.style.borderLeftColor = event.color;
+            link.title = `${event.title} (${event.category_label})`;
+            link.setAttribute("aria-label", link.title);
+            link.append(makeElement("span", "calendar-event-title", event.title));
+            if (event.time) link.append(makeElement("span", "calendar-event-time", event.time));
+            dayEvents.append(link);
+          });
+          cell.append(dayEvents);
+          grid.append(cell);
+        }
+      }
+
+      async function loadMonth() {
+        const year = displayedMonth.getFullYear();
+        const month = displayedMonth.getMonth();
+        monthHeading.textContent = new Intl.DateTimeFormat("it-CH", {
+          month: "long",
+          year: "numeric"
+        }).format(displayedMonth);
+
+        const monthStart = new Date(year, month, 1);
+        const firstDay = addDays(monthStart, -((monthStart.getDay() + 6) % 7));
+        const nextMonth = new Date(year, month + 1, 1);
+        const lastDay = addDays(nextMonth, -1);
+        const dayCount = Math.ceil((lastDay.getDate() + (monthStart.getDay() + 6) % 7) / 7) * 7;
+        const rangeEnd = addDays(firstDay, dayCount);
+
+        if (activeRequest) activeRequest.abort();
+        activeRequest = new AbortController();
+        status.textContent = "Caricamento attività…";
+        try {
+          let events;
+          if (staticEvents !== null) {
+            events = staticEvents.filter((event) =>
+              event.end.slice(0, 10) >= dateString(firstDay)
+              && event.start.slice(0, 10) < dateString(rangeEnd)
+            );
+          } else {
+            const query = new URLSearchParams({
+              start: dateString(firstDay),
+              end: dateString(rangeEnd)
+            });
+            const response = await fetch(`${eventUrl}?${query}`, { signal: activeRequest.signal });
+            if (!response.ok) throw new Error("Impossibile caricare le attività.");
+            const data = await response.json();
+            events = data.events;
+          }
+          renderCalendar(events, firstDay, dayCount);
+          status.textContent = events.length
+            ? ""
+            : "Non ci sono attività in questo periodo.";
+        } catch (error) {
+          if (error.name === "AbortError") return;
+          console.error(error);
+          grid.replaceChildren();
+          status.textContent = "Non è stato possibile caricare il calendario.";
+        }
+      }
+
+      document.getElementById("calendar-previous").addEventListener("click", () => {
+        displayedMonth = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() - 1, 1);
+        loadMonth();
+      });
+      document.getElementById("calendar-next").addEventListener("click", () => {
+        displayedMonth = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() + 1, 1);
+        loadMonth();
+      });
+      loadMonth();
+    })();
+  </script>
+{% endblock %}

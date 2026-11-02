@@ -3,4 +3,96 @@
 {% block title %}Cos'è la CO | Orientisti 92 Piano di Magadino{% endblock %}
 
 {% block content %}
+  {% set advanced_documents = [
+    ("Competenze orientistiche (Swiss Orienteering)", "SwissOrienteering_O-Kompetenzen_21_IT_Web.pdf"),
+    ("Descrizione dei punti IOF", "Descrizione_punti_IOF.pdf"),
+    ("Legenda cartina bosco", "Legenda_bosco.pdf"),
+    ("Legenda cartina città", "Legenda_citt.pdf")
+  ] %}
+  <section class="page-section orienteering-page">
+    <h1 class="page-title">COS'È LA CO</h1>
+
+    <section class="orienteering-section">
+      <h2 class="page-subtitle">Da dove viene?</h2>
+      <p>La CO nasce nei paesi nordici, dove è uno sport nazionale. In Svizzera è esplosa dopo gli anni ’50 e oggi conta circa 6'000 orientisti attivi: fino a 2'000 ai grandi appuntamenti nazionali e spesso 400 partenti in Ticino. Nel mondo il re delle gare estive è l’O-Ringen, la 5 giorni svedese che raduna fino a 20'000 partecipanti. Una festa grande come una città!</p>
+    </section>
+
+    <section class="orienteering-section">
+      <h2 class="page-subtitle">Dove si pratica?</h2>
+      <p>Nei boschi soprattutto, ma anche sui pascoli alpini, nei parchi cittadini e nei centri abitati. Ogni gara è un’avventura in un posto nuovo. Ecco alcuni esempi:</p>
+      <div class="orienteering-maps">
+        <figure>
+          <img src="{{ url_for('main.static', filename='pictures/whats_orienteering/bellinzona.png') }}" alt="Estratto di una cartina di orienteering di Bellinzona" loading="lazy">
+          <figcaption>Bellinzona</figcaption>
+        </figure>
+        <figure>
+          <img src="{{ url_for('main.static', filename='pictures/whats_orienteering/Bosco Gurin.png') }}" alt="Estratto di una cartina di orienteering di Bosco Gurin" loading="lazy">
+          <figcaption>Bosco Gurin</figcaption>
+        </figure>
+        <figure>
+          <img src="{{ url_for('main.static', filename='pictures/whats_orienteering/Pian San Giacomo.png') }}" alt="Estratto di una cartina di orienteering di Pian San Giacomo" loading="lazy">
+          <figcaption>Pian San Giacomo</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="orienteering-section">
+      <h2 class="page-subtitle">Come funziona?</h2>
+      <p>Ricevi una cartina con un percorso segnato: una serie di punti di controllo da toccare in ordine, scegliendo tu la strada. Sul terreno ogni punto è segnalato da una lanterna arancione e bianca. Dritto, aggirando l’ostacolo o seguendo il sentiero? Decidi tu, e vince chi sceglie meglio e corre più veloce!</p>
+      <p>Niente trucchi: ogni concorrente ha una SI-card, un lettore elettronico che registra codice e ora di passaggio a ogni lanterna. All’arrivo il computer verifica il percorso; vengono poi pubblicate le classifiche con tanto di tempi intermedi per scoprire dove hai guadagnato (o perso) secondi preziosi.</p>
+    </section>
+
+    <section class="orienteering-facts">
+      <article class="orienteering-fact">
+        <h2 class="page-subtitle">Per chi è adatta?</h2>
+        <p>Per tutti! Categorie per donne (D) e uomini (H), da 10 a 80 anni e per ogni livello. Che tu voglia sfidare il cronometro o goderti il bosco e i nuclei cittadini, c’è un percorso per te.</p>
+      </article>
+      <article class="orienteering-fact">
+        <h2 class="page-subtitle">Cosa serve?</h2>
+        <p>Gambe, testa e bussola. Al resto ci pensiamo noi!</p>
+      </article>
+    </section>
+
+    <section class="orienteering-section orienteering-disciplines">
+      <h2 class="page-subtitle">Che discipline ci sono?</h2>
+      <p>Scopri tutte le discipline e le gare di orienteering.</p>
+      <a class="btn btn-brand orienteering-link" href="{{ url_for('main.gare') }}">Scopri le gare</a>
+    </section>
+
+    <section class="orienteering-section orienteering-champions">
+      <div class="orienteering-champions-copy">
+        <h2 class="page-subtitle">Chi sono i campioni?</h2>
+        <p>Gli orientisti svizzeri sono tra i migliori al mondo: Simone Niggli-Luder, 23 volte campionessa mondiale, e Daniel Hubmann, più di 40 volte sul podio ai Mondiali ed Europei.</p>
+        <p>…e un pezzo di storia è anche nostro. Elena Roos è cresciuta nella nostra società ed è stata protagonista della squadra nazionale fino al 2024. Ha vinto numerose medaglie e ci ha fatto vibrare tutti, soprattutto agli Europei in Capriasca nel 2018. Oggi, con Florian, allena la selezione giovanile ticinese di CO (SeleTi).</p>
+      </div>
+      <figure>
+        <img src="{{ url_for('main.static', filename='pictures/whats_orienteering/Mondiali Lettonia, 2018.jpg') }}" alt="Elena Roos ai Mondiali in Lettonia nel 2018" loading="lazy">
+        <figcaption>Mondiali Lettonia, 2018</figcaption>
+      </figure>
+    </section>
+
+    <section class="orienteering-section orienteering-resources">
+      <h2 class="page-subtitle">Per gli avanzati</h2>
+      <div class="who-documents">
+        {% for label, file in advanced_documents %}
+          <a class="who-document" href="{{ url_for('main.static', filename='pdf/whats_orienteering/' ~ file) }}" target="_blank" rel="noopener noreferrer">
+            <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
+            <span>{{ label }}</span>
+            <i class="fa-solid fa-arrow-up-right-from-square who-document-external" aria-hidden="true"></i>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="orienteering-section orienteering-resources">
+      <h2 class="page-subtitle">Salute</h2>
+      <div class="who-documents">
+        <a class="who-document" href="{{ url_for('main.static', filename='pdf/whats_orienteering/Flyer_zecche_TI.pdf') }}" target="_blank" rel="noopener noreferrer">
+          <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
+          <span>Informazioni sulle zecche in Ticino</span>
+          <i class="fa-solid fa-arrow-up-right-from-square who-document-external" aria-hidden="true"></i>
+        </a>
+      </div>
+    </section>
+  </section>
 {% endblock %}
