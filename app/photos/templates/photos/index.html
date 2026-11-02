@@ -1,0 +1,30 @@
+{% extends "main/base.html" %}
+{% from "photos/_card.html" import album_card, feature_form  with context%}
+
+{% block title %}Tutti gli album | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+  <section class="page-section">
+    <a class="news-back" href="{{ url_for('main.foto') }}">&laquo; foto</a>
+    <h1 class="page-title">Tutti gli album</h1>
+    {% if page.items %}
+      <div class="photo-album-grid">
+        {% for album in page.items %}
+          <div>
+            {{ album_card(album) }}
+            {{ feature_form(album, request.full_path) }}
+          </div>
+        {% endfor %}
+      </div>
+      {% if page.pages > 1 %}
+        <nav class="news-pager" aria-label="Pagine album">
+          {% if page.has_prev %}<a href="{{ url_for('photos.index', page=page.prev_num) }}">&laquo; più recenti</a>{% endif %}
+          <span>{{ page.page }} / {{ page.pages }}</span>
+          {% if page.has_next %}<a href="{{ url_for('photos.index', page=page.next_num) }}">meno recenti &raquo;</a>{% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <p class="text-center text-muted">Nessun album disponibile.</p>
+    {% endif %}
+  </section>
+{% endblock %}

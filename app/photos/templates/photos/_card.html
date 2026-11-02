@@ -1,0 +1,25 @@
+{% macro album_card(album) %}
+  <a class="photo-album-card" href="{{ url_for('photos.album', album_id=album.id) }}">
+    <span class="photo-album-cover">
+      {% if album.cover_path %}
+        <img src="{{ url_for('photos.cover', album_id=album.id, size='small') }}" alt="" loading="lazy">
+      {% else %}
+        <i class="far fa-images"></i>
+      {% endif %}
+    </span>
+    <span class="photo-album-title">{{ album.title }}</span>
+    <span class="photo-album-meta">{{ album.date.strftime("%d.%m.%Y") }}</span>
+  </a>
+{% endmacro %}
+
+{% macro feature_form(album, next_url) %}
+  {% if current_user.is_authenticated and (current_user.is_photo_manager or current_user.is_admin) %}
+    <form method="post" action="{{ url_for('photos.toggle_featured', album_id=album.id) }}" class="photo-feature-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <button type="submit" class="btn btn-sm {{ 'btn-brand' if album.is_featured else 'btn-brand-outline' }}">
+        {{ 'In evidenza' if album.is_featured else 'Metti in evidenza' }}
+      </button>
+    </form>
+  {% endif %}
+{% endmacro %}

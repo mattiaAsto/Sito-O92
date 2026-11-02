@@ -4,10 +4,10 @@
 
 {% block content %}
   {% set advanced_documents = [
-    ("Competenze orientistiche (Swiss Orienteering)", "SwissOrienteering_O-Kompetenzen_21_IT_Web.pdf"),
-    ("Descrizione dei punti IOF", "Descrizione_punti_IOF.pdf"),
-    ("Legenda cartina bosco", "Legenda_bosco.pdf"),
-    ("Legenda cartina città", "Legenda_citt.pdf")
+    ("Competenze orientistiche (Swiss Orienteering)", "swiss_orienteering_competencies_21.pdf"),
+    ("Descrizione dei punti IOF", "iof_control_descriptions.pdf"),
+    ("Legenda cartina bosco", "forest_map_legend.pdf"),
+    ("Legenda cartina città", "city_map_legend.pdf")
   ] %}
   <section class="page-section orienteering-page">
     <h1 class="page-title">COS'È LA CO</h1>
@@ -26,11 +26,11 @@
           <figcaption>Bellinzona</figcaption>
         </figure>
         <figure>
-          <img src="{{ url_for('main.static', filename='pictures/whats_orienteering/Bosco Gurin.png') }}" alt="Estratto di una cartina di orienteering di Bosco Gurin" loading="lazy">
+          <img src="{{ url_for('main.static', filename='pictures/whats_orienteering/bosco_gurin.png') }}" alt="Estratto di una cartina di orienteering di Bosco Gurin" loading="lazy">
           <figcaption>Bosco Gurin</figcaption>
         </figure>
         <figure>
-          <img src="{{ url_for('main.static', filename='pictures/whats_orienteering/Pian San Giacomo.png') }}" alt="Estratto di una cartina di orienteering di Pian San Giacomo" loading="lazy">
+          <img src="{{ url_for('main.static', filename='pictures/whats_orienteering/pian_san_giacomo.png') }}" alt="Estratto di una cartina di orienteering di Pian San Giacomo" loading="lazy">
           <figcaption>Pian San Giacomo</figcaption>
         </figure>
       </div>
@@ -66,7 +66,7 @@
         <p>…e un pezzo di storia è anche nostro. Elena Roos è cresciuta nella nostra società ed è stata protagonista della squadra nazionale fino al 2024. Ha vinto numerose medaglie e ci ha fatto vibrare tutti, soprattutto agli Europei in Capriasca nel 2018. Oggi, con Florian, allena la selezione giovanile ticinese di CO (SeleTi).</p>
       </div>
       <figure>
-        <img src="{{ url_for('main.static', filename='pictures/whats_orienteering/Mondiali Lettonia, 2018.jpg') }}" alt="Elena Roos ai Mondiali in Lettonia nel 2018" loading="lazy">
+        <img src="{{ url_for('main.static', filename='pictures/whats_orienteering/world_championships_latvia_2018.jpg') }}" alt="Elena Roos ai Mondiali in Lettonia nel 2018" loading="lazy">
         <figcaption>Mondiali Lettonia, 2018</figcaption>
       </figure>
     </section>
@@ -87,7 +87,7 @@
     <section class="orienteering-section orienteering-resources">
       <h2 class="page-subtitle">Salute</h2>
       <div class="who-documents">
-        <a class="who-document" href="{{ url_for('main.static', filename='pdf/whats_orienteering/Flyer_zecche_TI.pdf') }}" target="_blank" rel="noopener noreferrer">
+        <a class="who-document" href="{{ url_for('main.static', filename='pdf/whats_orienteering/ticks_flyer_ti.pdf') }}" target="_blank" rel="noopener noreferrer">
           <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
           <span>Informazioni sulle zecche in Ticino</span>
           <i class="fa-solid fa-arrow-up-right-from-square who-document-external" aria-hidden="true"></i>

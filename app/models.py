@@ -229,6 +229,40 @@ class News(db.Model):
         return f"{self.storage_prefix}/{self.thumbnail_filename}"
 
 
+class Album(db.Model):
+    """A first-level sub-folder of the Dropbox photo folder, mirrored by the photo sync."""
+
+    __tablename__ = "photo_albums"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    dropbox_path = db.Column(db.String(500), nullable=False, unique=True)  # relative to the shared folder
+    title = db.Column(db.String(255), nullable=False)
+    cover_path = db.Column(db.String(600), nullable=False)  # first photo, relative to the shared folder
+    is_featured = db.Column(db.Boolean, nullable=False, default=False, server_default="0", index=True)
+    date = db.Column(db.DateTime, nullable=False, index=True)  # from the folder name, else newest photo
+    photos_loaded_at = db.Column(db.DateTime)  # when the full photo list was last read from Dropbox
+
+    photos = db.relationship(
+        "Photo", back_populates="album", cascade="all, delete-orphan", order_by="Photo.taken_at, Photo.id"
+    )
+
+
+class Photo(db.Model):
+    """A photo inside an album; the image itself stays on Dropbox and is proxied by the site."""
+
+    __tablename__ = "photo_photos"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    album_id = db.Column(
+        db.Integer, db.ForeignKey("photo_albums.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    dropbox_path = db.Column(db.String(600), nullable=False)  # relative to the shared folder
+    name = db.Column(db.String(255), nullable=False)
+    taken_at = db.Column(db.DateTime, nullable=False)
+
+    album = db.relationship("Album", back_populates="photos")
+
+
 class BlogPost(db.Model):
     """A long-form story written by a user; needs admin verification to be public."""
 

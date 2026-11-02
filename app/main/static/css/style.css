@@ -20,6 +20,11 @@
   --surface: #fff;
 
   --bs-body-font-family: Avenir, "Avenir Next", "Nunito Sans", "Helvetica Neue", Arial, sans-serif;
+
+  --bs-link-color: var(--color-700);
+  --bs-link-color-rgb: 159, 100, 4;
+  --bs-link-hover-color: var(--color-900);
+  --bs-link-hover-color-rgb: 70, 44, 2;
 }
 
 html {
@@ -2219,4 +2224,69 @@ body {
   .calendar-event { height: .7rem; padding: 0; border-left-width: 0; border-radius: .2rem; background: var(--event-color); }
   .calendar-event:hover, .calendar-event:focus { background: var(--event-color); filter: brightness(.9); }
   .calendar-event > span { display: none; }
+}
+
+.photo-album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 1.5rem auto 0;
+}
+
+.photo-album-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  color: var(--color-900);
+  text-decoration: none;
+}
+
+.photo-album-card:hover .photo-album-title {
+  text-decoration: underline;
+}
+
+.photo-album-cover {
+  aspect-ratio: 4 / 3;
+  border: 2px solid var(--color-800);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--color-800);
+}
+
+.photo-album-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-album-title {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.photo-album-meta {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.photo-feature-form {
+  margin-top: 0.4rem;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.75rem;
+}
+
+.photo-grid img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 0.35rem;
 }

@@ -36,6 +36,7 @@ def create_app(test_config=None):
     from app.main import main
     from app.media import media
     from app.news import news
+    from app.photos import photos
     from app.shop import shop
     from app.storage import init_storage, media_url
     from app.vans import vans
@@ -48,6 +49,7 @@ def create_app(test_config=None):
     app.register_blueprint(media)
     app.register_blueprint(blog, url_prefix="/blog")
     app.register_blueprint(news, url_prefix="/news")
+    app.register_blueprint(photos, url_prefix="/photos")
     app.register_blueprint(shop)
     app.register_blueprint(vans)
     app.register_blueprint(auth, url_prefix="/auth")

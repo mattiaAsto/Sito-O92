@@ -1,0 +1,36 @@
+{% extends "main/base.html" %}
+{% from "photos/_card.html" import album_card  with context%}
+
+{% block title %}Foto | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+  <section class="page-section">
+    <h1 class="page-title">Foto</h1>
+    <p class="text-center">
+      Tutte le foto della società sono raccolte in una cartella Dropbox condivisa. Puoi sfogliarla e scaricare le foto
+      dal primo link; se hai scattato foto a un allenamento o a una gara, caricale con il secondo link, senza bisogno
+      di un account Dropbox.
+    </p>
+    <p class="text-center">
+      <a class="btn btn-brand" href="{{ dropbox_url }}" target="_blank" rel="noopener"><i class="fab fa-dropbox"></i> Sfoglia le foto</a>
+      <a class="btn btn-brand-outline" href="{{ upload_url }}" target="_blank" rel="noopener"><i class="fas fa-upload"></i> Carica le tue foto</a>
+    </p>
+
+    <h2 class="text-center mt-5">Album</h2>
+    {% if current_user.is_authenticated and (current_user.is_photo_manager or current_user.is_admin) %}
+      <form method="post" action="{{ url_for('photos.sync') }}" class="text-center mb-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-brand-outline btn-sm" type="submit">Sincronizza con Dropbox</button>
+        <a class="btn btn-brand-outline btn-sm" href="{{ url_for('photos.index') }}">Gestisci album in evidenza</a>
+      </form>
+    {% endif %}
+    {% if albums %}
+      <div class="photo-album-grid">
+        {% for album in albums %}{{ album_card(album) }}{% endfor %}
+      </div>
+      <p class="text-center mt-3"><a href="{{ url_for('photos.index') }}">Tutti gli album &raquo;</a></p>
+    {% else %}
+      <p class="text-center text-muted">Nessun album al momento.</p>
+    {% endif %}
+  </section>
+{% endblock %}

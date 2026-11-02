@@ -63,7 +63,7 @@ class VansTestCase(unittest.TestCase):
                 VanBooking(van="vivaro", start_date=date.today(), end_date=date.today())
             )
             db.session.commit()
-        response = self.client_for().get("/furgoni")
+        response = self.client_for().get("/vans")
         self.assertEqual(response.status_code, 200)
         self.assertIn("Opel Vivaro", response.get_data(as_text=True))
         self.assertIn("non disponibile", response.get_data(as_text=True))
@@ -71,18 +71,18 @@ class VansTestCase(unittest.TestCase):
 
     def test_only_managers_and_admins_can_add_without_verification(self):
         self.assertEqual(
-            self.client_for().post("/furgoni/occupazione", data=self.booking_data()).status_code,
+            self.client_for().post("/vans/occupancy", data=self.booking_data()).status_code,
             302,
         )
         self.assertEqual(
             self.client_for("user@example.com")
-            .post("/furgoni/occupazione", data=self.booking_data())
+            .post("/vans/occupancy", data=self.booking_data())
             .status_code,
             403,
         )
         for email in ("manager@example.com", "admin@example.com"):
             response = self.client_for(email).post(
-                "/furgoni/occupazione", data=self.booking_data()
+                "/vans/occupancy", data=self.booking_data()
             )
             self.assertEqual(response.status_code, 302)
         with self.app.app_context():
@@ -91,7 +91,7 @@ class VansTestCase(unittest.TestCase):
     def test_invalid_range_rejected(self):
         today = date.today()
         response = self.client_for("manager@example.com").post(
-            "/furgoni/occupazione",
+            "/vans/occupancy",
             data=self.booking_data(**{"book-end_date": (today - timedelta(days=1)).isoformat()}),
         )
         self.assertEqual(response.status_code, 400)
@@ -104,7 +104,7 @@ class VansTestCase(unittest.TestCase):
             db.session.add(booking)
             db.session.commit()
             booking_id = booking.id
-        url = f"/furgoni/occupazione/{booking_id}/elimina"
+        url = f"/vans/occupancy/{booking_id}/delete"
         self.assertEqual(self.client_for("user@example.com").post(url).status_code, 403)
         self.assertEqual(self.client_for("manager@example.com").post(url).status_code, 302)
         with self.app.app_context():
@@ -121,14 +121,14 @@ class VansTestCase(unittest.TestCase):
             "rent-message": "ciao",
         }
         with patch("app.vans.routes.send_email") as send:
-            response = self.client_for().post("/furgoni", data=data)
+            response = self.client_for().post("/vans", data=data)
         self.assertEqual(response.status_code, 302)
         send.assert_called_once()
         self.assertEqual(send.call_args.kwargs["reply_to"], "x@example.com")
 
     def test_rental_request_validation(self):
         with patch("app.vans.routes.send_email") as send:
-            response = self.client_for().post("/furgoni", data={"rent-email": "bad"})
+            response = self.client_for().post("/vans", data={"rent-email": "bad"})
         self.assertEqual(response.status_code, 200)
         send.assert_not_called()
 

@@ -9,11 +9,6 @@ from app.extensions import db
 from app.models import CalendarActivity
 
 
-@calendar.route("/calendario")
-def legacy_calendario():
-    return redirect(url_for("calendar.calendario"))
-
-
 @calendar.route("/calendar")
 def calendario():
     return render_template(

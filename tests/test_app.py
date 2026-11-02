@@ -47,17 +47,50 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertIn(b"/auth/static/css/forms.css", login.data)
         self.assertEqual(self.client.get("/auth/register").status_code, 200)
 
+    def test_public_routes_use_english_paths(self):
+        routes = {rule.rule for rule in self.app.url_map.iter_rules()}
+        self.assertTrue(
+            {
+                "/what-is-orienteering",
+                "/training",
+                "/races",
+                "/activities",
+                "/about-us",
+                "/gallery",
+                "/contact",
+                "/calendar",
+                "/vans",
+                "/vans/occupancy",
+                "/vans/occupancy/<int:booking_id>/delete",
+            }.issubset(routes)
+        )
+        self.assertTrue(
+            {
+                "/whats_orienteering",
+                "/allenamenti",
+                "/gare",
+                "/attivita",
+                "/chi-siamo",
+                "/foto",
+                "/contatti",
+                "/calendario",
+                "/furgoni",
+                "/furgoni/occupazione",
+                "/furgoni/occupazione/<int:booking_id>/elimina",
+            }.isdisjoint(routes)
+        )
+
     def test_who_we_are_page_links_documents(self):
-        response = self.client.get("/chi-siamo")
+        response = self.client.get("/about-us")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.count(b'<details class="who-accordion">'), 3)
         self.assertIn(b"<h2 class=\"page-subtitle contact-title\">Documenti</h2>", response.data)
         for document in (
-            "Statuto_20251017.pdf",
-            "Regolamento_2025.pdf",
-            "Carta_etica_nello_sport.pdf",
-            "ABC_della_O-92.pdf",
-            "Padrinato_2026.pdf",
+            "statutes_20251017.pdf",
+            "regulations_2025.pdf",
+            "sports_code_of_ethics.pdf",
+            "o92_abc.pdf",
+            "sponsorship_2026.pdf",
         ):
             with self.subTest(document=document):
                 document_response = self.client.get(
@@ -85,7 +118,7 @@ class ApplicationTestCase(unittest.TestCase):
             "app.main.routes.get_slideshow_images",
             return_value=["first.png", "second.jpg"],
         ):
-            response = self.client.get("/chi-siamo")
+            response = self.client.get("/about-us")
 
         self.assertEqual(response.status_code, 200)
         self.assertLess(response.data.index(b"first.png"), response.data.index(b"second.jpg"))
@@ -100,40 +133,40 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Lista di tutti i documenti", response.data)
         for document in (
-            "InfoNuoviArrivati_2022.pdf",
-            "SwissOrienteering_O-Kompetenzen_21_IT_Web.pdf",
-            "Descrizione_punti_IOF.pdf",
-            "Flyer_zecche_TI.pdf",
-            "Legenda_bosco.pdf",
-            "Legenda_citt.pdf",
-            "ABC_della_O-92.pdf",
-            "Carta_etica_nello_sport.pdf",
-            "Padrinato_2026.pdf",
-            "Regolamento_2025.pdf",
-            "Statuto_20251017.pdf",
+            "newcomers_info_2022.pdf",
+            "swiss_orienteering_competencies_21.pdf",
+            "iof_control_descriptions.pdf",
+            "ticks_flyer_ti.pdf",
+            "forest_map_legend.pdf",
+            "city_map_legend.pdf",
+            "o92_abc.pdf",
+            "sports_code_of_ethics.pdf",
+            "sponsorship_2026.pdf",
+            "regulations_2025.pdf",
+            "statutes_20251017.pdf",
         ):
             with self.subTest(document=document):
                 self.assertIn(document.encode(), response.data)
 
     def test_races_page_links_to_online_tmo_and_national_registrations(self):
-        response = self.client.get("/gare")
+        response = self.client.get("/races")
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'href="https://ol-events.ch"', response.data)
         self.assertIn(b'Iscrizioni online', response.data)
 
     def test_miscellaneous_pdfs_are_linked_from_their_pages(self):
         documents_by_page = {
-            "/whats_orienteering": (
+            "/what-is-orienteering": (
                 "whats_orienteering",
                 (
-                    "SwissOrienteering_O-Kompetenzen_21_IT_Web.pdf",
-                    "Descrizione_punti_IOF.pdf",
-                    "Legenda_bosco.pdf",
-                    "Legenda_citt.pdf",
-                    "Flyer_zecche_TI.pdf",
+                    "swiss_orienteering_competencies_21.pdf",
+                    "iof_control_descriptions.pdf",
+                    "forest_map_legend.pdf",
+                    "city_map_legend.pdf",
+                    "ticks_flyer_ti.pdf",
                 ),
             ),
-            "/contatti": ("contacts", ("InfoNuoviArrivati_2022.pdf",)),
+            "/contact": ("contacts", ("newcomers_info_2022.pdf",)),
         }
         for page, (folder, documents) in documents_by_page.items():
             with self.subTest(page=page):
@@ -232,13 +265,13 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertIn(b"Gara - Ticino", detail.data)
         self.assertIn(b"maps.google.com/maps?q=46.1946,9.0244", detail.data)
         self.assertEqual(self.client.get("/calendar/activity/9999").status_code, 404)
-        self.assertEqual(self.client.get("/calendario").status_code, 302)
+        self.assertEqual(self.client.get("/calendario").status_code, 404)
 
     def test_activity_pages_show_five_upcoming_events_of_their_type(self):
         types = {
-            "allenamento": ("training_wednesday", "/allenamenti", "Prossimi allenamenti"),
-            "gara": ("race_ticino", "/gare", "Prossime gare"),
-            "attivita": ("other_activity", "/attivita", "Prossime attività"),
+            "allenamento": ("training_wednesday", "/training", "Prossimi allenamenti"),
+            "gara": ("race_ticino", "/races", "Prossime gare"),
+            "attivita": ("other_activity", "/activities", "Prossime attività"),
         }
         for activity_type, (category, _, _) in types.items():
             for day in range(1, 7):
@@ -460,12 +493,12 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertEqual(User.query.count(), 0)
 
     def test_contact_form(self):
-        self.assertEqual(self.client.get("/contatti").status_code, 200)
-        invalid = self.client.post("/contatti", data={"name": "Mario"})
+        self.assertEqual(self.client.get("/contact").status_code, 200)
+        invalid = self.client.post("/contact", data={"name": "Mario"})
         self.assertEqual(invalid.status_code, 200)
         with patch("app.main.routes.send_email") as send:
             valid = self.client.post(
-                "/contatti",
+                "/contact",
                 data={"name": "Mario", "email": "m@example.com", "message": "Ciao"},
             )
         self.assertEqual(valid.status_code, 302)

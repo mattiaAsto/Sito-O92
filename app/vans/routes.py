@@ -49,7 +49,7 @@ def _render_page(request_form, booking_form, month_arg):
     )
 
 
-@vans.route("/furgoni", methods=["GET", "POST"])
+@vans.route("/vans", methods=["GET", "POST"])
 def index():
     request_form = RentalRequestForm(prefix="rent")
     if request_form.validate_on_submit():
@@ -81,7 +81,7 @@ def index():
     return _render_page(request_form, BookingForm(prefix="book"), request.args.get("month"))
 
 
-@vans.route("/furgoni/occupazione", methods=["POST"])
+@vans.route("/vans/occupancy", methods=["POST"])
 @van_manager_required
 def add_booking():
     form = BookingForm(prefix="book")
@@ -107,7 +107,7 @@ def add_booking():
     return page, 400
 
 
-@vans.route("/furgoni/occupazione/<int:booking_id>/elimina", methods=["POST"])
+@vans.route("/vans/occupancy/<int:booking_id>/delete", methods=["POST"])
 @van_manager_required
 def delete_booking(booking_id):
     booking = db.get_or_404(VanBooking, booking_id)

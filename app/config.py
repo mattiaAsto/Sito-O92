@@ -27,6 +27,14 @@ class Config:
         "edit?gid=957375013#gid=957375013"
     )
 
+    DROPBOX_FOLDER_URL = os.getenv(
+        "DROPBOX_FOLDER_URL",
+        "https://www.dropbox.com/scl/fo/uypvkzvavbhxglc48n2wd/AIu0AJRFYe020lw8_yGsPAU"
+        "?rlkey=o3vax0pgi2svl5r40bevwsj5v&e=1&dl=0",
+    )
+    DROPBOX_UPLOAD_URL = "https://www.dropbox.com/request/dxyytZyQd0h8PufJkxk3"
+    DROPBOX_API_KEY = os.getenv("DROPBOX_API_KEY")  # Dropbox access token
+
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = os.getenv(

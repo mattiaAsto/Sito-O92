@@ -7,7 +7,7 @@ from app.email import send_email
 from app.extensions import db
 from app.main import main
 from app.main.forms import ContactForm
-from app.models import News
+from app.models import Album, News
 
 CONTACT_EMAIL = "info@o-92.ch"
 
@@ -54,7 +54,7 @@ def index():
     return render_template("main/home.html", latest_news=latest_news, upcoming=upcoming)
 
 
-@main.route("/whats_orienteering")
+@main.route("/what-is-orienteering")
 def whats_orienteering():
     return render_template("main/whats_orienteering.html")
 
@@ -64,47 +64,57 @@ def links():
     return render_template("main/links.html")
 
 
-@main.route("/allenamenti")
+@main.route("/training")
 def allenamenti():
     upcoming_activities = get_upcoming_activities("allenamento")
     return render_template(
-        "activities/allenamenti.html",
+        "activities/training.html",
         upcoming_activities=upcoming_activities,
     )
 
 
-@main.route("/gare")
+@main.route("/races")
 def gare():
     upcoming_activities = get_upcoming_activities("gara")
     return render_template(
-        "activities/gare.html",
+        "activities/races.html",
         upcoming_activities=upcoming_activities,
     )
 
 
-@main.route("/attivita")
+@main.route("/activities")
 def attivita():
     upcoming_activities = get_upcoming_activities("attivita")
     return render_template(
-        "activities/attivita.html",
+        "activities/activities.html",
         upcoming_activities=upcoming_activities,
     )
 
 
-@main.route("/chi-siamo")
+@main.route("/about-us")
 def chi_siamo():
     return render_template(
-        "main/chi_siamo.html",
+        "main/about_us.html",
         slideshow_images=get_slideshow_images(),
     )
 
 
-@main.route("/foto")
+@main.route("/gallery")
 def foto():
-    return render_template("main/foto.html")
+    # Featured albums if the photo managers picked any, otherwise the most recent ones.
+    query = db.select(Album).order_by(Album.date.desc(), Album.id.desc())
+    albums = db.session.execute(query.where(Album.is_featured.is_(True))).scalars().all()
+    if not albums:
+        albums = db.session.execute(query.limit(12)).scalars().all()
+    return render_template(
+        "main/gallery.html",
+        albums=albums,
+        dropbox_url=current_app.config["DROPBOX_FOLDER_URL"],
+        upload_url=current_app.config["DROPBOX_UPLOAD_URL"],
+    )
 
 
-@main.route("/contatti", methods=["GET", "POST"])
+@main.route("/contact", methods=["GET", "POST"])
 def contatti():
     form = ContactForm()
     if form.validate_on_submit():
@@ -120,4 +130,4 @@ def contatti():
         else:
             flash("Grazie! Il tuo messaggio è stato inviato.", "success")
             return redirect(url_for("main.contatti"))
-    return render_template("main/contatti.html", form=form, contact_email=CONTACT_EMAIL)
+    return render_template("main/contact.html", form=form, contact_email=CONTACT_EMAIL)
