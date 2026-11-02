@@ -4,11 +4,13 @@
     <div class="upcoming-events-grid">
       {% for activity in upcoming_activities %}
         <a class="upcoming-event-card" href="{{ url_for('calendar.activity_detail', activity_id=activity.id) }}">
-          <span class="upcoming-event-date">{{ activity.starts_at.strftime("%d.%m.%Y") }}</span>
+          <span class="upcoming-event-date">{{ activity.date_label }}</span>
           <span class="upcoming-event-title">{{ activity.title }}</span>
-          <span class="upcoming-event-meta">{{ activity.schedule_label }}</span>
-          {% if activity.location %}
-            <span class="upcoming-event-meta">{{ activity.location }}</span>
+          {% if activity.hours_label or activity.location %}
+            <span class="upcoming-event-meta">
+              {% if activity.hours_label %}<span>{{ activity.hours_label }}</span>{% endif %}
+              {% if activity.location %}<span>{{ activity.location }}</span>{% endif %}
+            </span>
           {% endif %}
         </a>
       {% endfor %}

@@ -1,53 +1,62 @@
 {% extends "main/base.html" %}
+{% import "main/_swipe_tabs.html" as swipe %}
 
 {% block title %}Gare | Orientisti 92 Piano di Magadino{% endblock %}
 
 {% block content %}
-  {% set disciplines = [
-    ("Lunga distanza (long)", "la gara di resistenza, per chi ama le lunghe corse nel bosco"),
-    ("Media distanza (middle)", "tecnica e precisione, con il cronometro che corre veloce"),
-    ("Corta distanza (sprint)", "ritmo da urlo, di solito tra le vie dei paesi"),
-    ("Staffetta", "si corre in squadra, perché insieme è più bello (e più emozionante!)")
-  ] %}
   <section class="page-section races-page">
     <h1 class="page-title">GARE</h1>
 
+    <div class="swipe-tabs" data-swipe-tabs>
+      {{ swipe.nav('races', [('disciplines', 'Discipline'), ('ticino', 'Ticino'), ('switzerland', 'Svizzera'), ('signup', 'Iscrizioni')]) }}
+      <div class="tab-content">
+        <div {{ swipe.pane('races', 'disciplines', True) }}>
     <section class="races-disciplines">
-      <h2 class="page-subtitle">Le discipline della CO</h2>
+      <h2 class="page-subtitle swipe-pane-title">Le discipline della CO</h2>
       <div class="races-discipline-grid">
-        {% for name, description in disciplines %}
+        {% for discipline in disciplines %}
           <article class="races-discipline">
-            <h3>{{ name }}</h3>
-            <p>{{ description }}</p>
+            <h3>{{ discipline.name }}</h3>
+            <p>{{ discipline.description }}</p>
           </article>
         {% endfor %}
       </div>
     </section>
+        </div>
 
+        <div {{ swipe.pane('races', 'ticino') }}>
     <section class="races-region">
       <div class="races-region-copy">
-        <h2 class="page-subtitle">Le gare in Ticino</h2>
+        <h2 class="page-subtitle swipe-pane-title">Le gare in Ticino</h2>
         <p>In Ticino le società organizzano una dozzina di gare l'anno, valide per il Trofeo Miglior Orientista (TMO) ed alcune gare speciali come la notturna, staffetta, lui+lei e altre gare nei paesi.</p>
       </div>
       <img class="races-map races-map-ticino" src="{{ url_for('main.static', filename='pictures/activities/races/canton_ticino.png') }}" alt="Mappa del Canton Ticino" loading="lazy">
     </section>
+        </div>
 
+        <div {{ swipe.pane('races', 'switzerland') }}>
     <section class="races-region races-region-switzerland">
       <div class="races-region-copy">
-        <h2 class="page-subtitle">Le gare in Svizzera</h2>
+        <h2 class="page-subtitle swipe-pane-title">Le gare in Svizzera</h2>
         <p>Le gare più importanti in Svizzera sono i campionati svizzeri nelle quattro discipline citate (LOM, MOM, SPM, SSM), inoltre in notturna (NOM) e a squadre (TOM), in più ci sono una decina di gare nazionali.</p>
       </div>
       <img class="races-map races-map-switzerland" src="{{ url_for('main.static', filename='pictures/activities/races/switzerland.png') }}" alt="Mappa della Svizzera" loading="lazy">
     </section>
+        </div>
 
+        <div {{ swipe.pane('races', 'signup') }}>
     <section class="races-registration">
-      <h2 class="page-subtitle">Iscrizioni alle gare</h2>
+      <h2 class="page-subtitle swipe-pane-title">Iscrizioni alle gare</h2>
       <p>Consulta le gare e iscriviti online alle competizioni TMO e nazionali.</p>
       <a class="btn btn-brand" href="https://ol-events.ch" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-link me-2" aria-hidden="true"></i>
         Iscrizioni online
         <i class="fa-solid fa-arrow-up-right-from-square ms-2" aria-hidden="true"></i>
       </a>
     </section>
+        </div>
+      </div>
+    </div>
   </section>
   {% set upcoming_title = "Prossime gare" %}
   {% include "activities/_upcoming.html" %}

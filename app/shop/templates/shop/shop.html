@@ -1,5 +1,6 @@
 {% extends "main/base.html" %}
 {% from "shop/_card.html" import product_grid %}
+{% import "main/_swipe_tabs.html" as swipe %}
 
 {% block title %}Shop | Orientisti 92 Piano di Magadino{% endblock %}
 
@@ -27,6 +28,10 @@
   {% endif %}
 </section>
 
+<div class="swipe-tabs" data-swipe-tabs>
+{{ swipe.nav('shop', [('official', 'Ufficiale'), ('used', 'Usato')]) }}
+<div class="tab-content">
+<div {{ swipe.pane('shop', 'official', True) }}>
 <section class="mb-5" aria-labelledby="team-clothes-title">
   <div class="mb-3">
     <p class="shop-eyebrow mb-1">Collezione ufficiale</p>
@@ -62,7 +67,9 @@
     <div class="mt-4">{{ product_grid(team_products, "") }}</div>
   {% endif %}
 </section>
+</div>
 
+<div {{ swipe.pane('shop', 'used') }}>
 <section class="mb-4" aria-labelledby="used-clothes-title">
   <div class="mb-3">
     <p class="shop-eyebrow mb-1">Annunci dei membri</p>
@@ -70,4 +77,7 @@
   </div>
   {{ product_grid(used_products, "Al momento non ci sono capi usati in vendita.") }}
 </section>
+</div>
+</div>
+</div>
 {% endblock %}

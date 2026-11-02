@@ -7,21 +7,33 @@
     <h1 class="page-title">ALLENAMENTI</h1>
 
     <h2 class="page-subtitle">Quando e dove</h2>
-    <div class="schedule-grid">
-      <div class="schedule-col">
+    {% macro wednesday() %}
         <p class="schedule-day">MERCOLEDÍ</p>
         <p class="schedule-time">18:00 - 19:30</p>
         <p>d'inverno in <strong>palestra a Cadenazzo</strong>: giochi, sfide e tanto altro per tenerti in forma, anche quando fuori fa freddo!</p>
         <p>in primavera ed autunno <strong>allenamenti in cartina:</strong> si esce all'aperto, da Roveredo a Taverne-Torricella, per leggere la cartina e correre nei boschi e paesi.</p>
-      </div>
-      <div class="schedule-col">
+    {% endmacro %}
+    {% macro friday() %}
         <p class="schedule-day">VENERDÌ</p>
         <p class="schedule-time">18:00 - 19:30</p>
         <p>sempre in <strong>palestra a Contone</strong>: si impara a correre meglio e più veloce, con giochi ed esercizi per affinare la tecnica. E per finire in bellezza, giochi di squadra come unihockey o palla americana!</p>
+    {% endmacro %}
+    <div class="schedule-grid d-none d-md-grid">
+      <div class="schedule-col">{{ wednesday() }}</div>
+      <div class="schedule-col">{{ friday() }}</div>
+    </div>
+    <div class="schedule-tabs d-md-none" data-swipe-tabs>
+      <div class="activity-tabs-nav" role="tablist">
+        <button class="activity-tabs-btn active" type="button" role="tab" id="schedule-tab-wed" data-bs-toggle="pill" data-bs-target="#schedule-pane-wed" aria-controls="schedule-pane-wed" aria-selected="true">Mercoledì</button>
+        <button class="activity-tabs-btn" type="button" role="tab" id="schedule-tab-fri" data-bs-toggle="pill" data-bs-target="#schedule-pane-fri" aria-controls="schedule-pane-fri" aria-selected="false">Venerdì</button>
+      </div>
+      <div class="tab-content schedule-col">
+        <div class="tab-pane fade show active" id="schedule-pane-wed" role="tabpanel" aria-labelledby="schedule-tab-wed" tabindex="0">{{ wednesday() }}</div>
+        <div class="tab-pane fade" id="schedule-pane-fri" role="tabpanel" aria-labelledby="schedule-tab-fri" tabindex="0">{{ friday() }}</div>
       </div>
     </div>
     <p class="transport-booking">
-      <a class="btn btn-brand transport-booking-btn" href="{{ config.TRANSPORT_SHEET_URL }}" target="_blank" rel="noopener noreferrer">riservazione trasporto</a>
+      <a class="btn btn-brand transport-booking-btn" href="{{ config.TRANSPORT_SHEET_URL }}" target="_blank" rel="noopener noreferrer"><i class="fa-regular fa-file-excel me-2" aria-hidden="true"></i>riservazione trasporto</a>
     </p>
   </section>
   {% set upcoming_title = "Prossimi allenamenti" %}

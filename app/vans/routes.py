@@ -10,8 +10,8 @@ from app.models import VanBooking
 from app.vans import vans
 from app.vans.forms import VANS, VAN_COLORS, BookingForm, RentalRequestForm
 from app.vans.services import MONTH_NAMES, month_grid, parse_month, shift_month
-
-VANS_EMAIL = "furgoni@o-92.ch"
+from PARAMETRIZATION.documents import page_documents
+from PARAMETRIZATION.settings import VANS_EMAIL
 
 
 def van_manager_required(view):
@@ -46,6 +46,7 @@ def _render_page(request_form, booking_form, month_arg):
         today=date.today(),
         can_manage=_can_manage(),
         vans_email=VANS_EMAIL,
+        documents=page_documents("vans"),
     )
 
 

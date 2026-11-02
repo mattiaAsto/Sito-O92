@@ -1,4 +1,5 @@
 {% extends "main/base.html" %}
+{% import "main/_swipe_tabs.html" as swipe %}
 
 {% block title %}Furgoni | Orientisti 92 Piano di Magadino{% endblock %}
 
@@ -10,10 +11,16 @@
   </div>
 {% endmacro %}
 
-{% set documents = [
-  ("Condizioni noleggio", "pdf/van_rental_terms_2026.pdf", "fa-regular fa-file-pdf"),
-  ("Uso veicoli di terzi", "pdf/third_party_vehicle_use.pdf", "fa-regular fa-file-pdf"),
-] %}
+{% macro links_list() %}
+      <a class="vans-link" href="{{ config.TRANSPORT_SHEET_URL }}" target="_blank" rel="noopener noreferrer">
+        <i class="fa-regular fa-file-excel" aria-hidden="true"></i><span>Organizzazione trasporti O-92 &ndash; Cugnasco</span>
+      </a>
+      {% for doc in documents %}
+        <a class="vans-link" href="{{ url_for(doc.blueprint ~ '.static', filename=doc.filename) }}" target="_blank" rel="noopener noreferrer">
+          <i class="fa-regular fa-file-pdf" aria-hidden="true"></i><span>{{ doc.label }}</span>
+        </a>
+      {% endfor %}
+{% endmacro %}
 
 {% block content %}
   <section class="vans-intro">
@@ -37,8 +44,12 @@
     <p>Nel <a class="contact-mail" href="#calendario">calendario occupazione</a> è indicata l'occupazione di massima dei due furgoni. Per nuove richieste, domande o verifiche puoi usare il <a class="contact-mail" href="#richiesta">formulario online</a> o scrivere a <a class="contact-mail" href="mailto:{{ vans_email }}">{{ vans_email }}</a>.</p>
   </section>
 
+  <div class="swipe-tabs" data-swipe-tabs>
+    {{ swipe.nav('vans', [('calendar', 'Calendario'), ('documents', 'Documenti'), ('request', 'Richiesta')]) }}
+    <div class="tab-content">
+  <div {{ swipe.pane('vans', 'calendar', True) }}>
   <section id="calendario" class="vans-calendar">
-    <h2 class="contact-title">Calendario occupazione</h2>
+    <h2 class="contact-title swipe-pane-title">Calendario occupazione</h2>
     <div class="calendar-controls">
       <a class="btn btn-outline-secondary" href="{{ url_for('vans.index', month=prev_month, _anchor='calendario') }}" aria-label="Mese precedente"><i class="fas fa-chevron-left" aria-hidden="true"></i></a>
       <h3 aria-live="polite">{{ month_label }}</h3>
@@ -92,17 +103,18 @@
       </form>
     {% endif %}
   </section>
+  </div>
 
+  <div {{ swipe.pane('vans', 'documents') }}>
+    <div class="vans-links vans-links-pane d-md-none">
+      {{ links_list() }}
+    </div>
+  </div>
+
+  <div {{ swipe.pane('vans', 'request') }}>
   <section id="richiesta" class="contact-section vans-request">
-    <div class="vans-links">
-      <a class="vans-link" href="{{ config.TRANSPORT_SHEET_URL }}" target="_blank" rel="noopener noreferrer">
-        <i class="fa-solid fa-link" aria-hidden="true"></i><span>Organizzazione trasporti O-92 &ndash; Cugnasco</span>
-      </a>
-      {% for label, path, icon in documents %}
-        <a class="vans-link" href="{{ url_for('vans.static', filename=path) }}" target="_blank" rel="noopener noreferrer">
-          <i class="fa-solid fa-link" aria-hidden="true"></i><span>{{ label }}</span>
-        </a>
-      {% endfor %}
+    <div class="vans-links d-none d-md-block">
+      {{ links_list() }}
       <p class="vans-links-note">Prima di prenotare, dai un'occhiata al calendario occupazioni qua sopra!</p>
     </div>
 
@@ -123,4 +135,7 @@
       </form>
     </div>
   </section>
+  </div>
+    </div>
+  </div>
 {% endblock %}

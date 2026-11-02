@@ -8,8 +8,13 @@ from app.extensions import db
 from app.main import main
 from app.main.forms import ContactForm
 from app.models import Album, News
-
-CONTACT_EMAIL = "info@o-92.ch"
+from PARAMETRIZATION.activities import ACTIVITIES, DISCIPLINES
+from PARAMETRIZATION.clubs import CLUBS
+from PARAMETRIZATION.documents import page_documents
+from PARAMETRIZATION.links import LINK_GROUPS
+from PARAMETRIZATION.people import COMMITTEE, CONTACTS, MONITORS, OTHER_ROLES
+from PARAMETRIZATION.settings import CONTACT_EMAIL
+from PARAMETRIZATION.sponsors import SPONSORS
 
 SPONSOR_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".webp", ".gif"}
 SLIDESHOW_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
@@ -56,12 +61,22 @@ def index():
 
 @main.route("/what-is-orienteering")
 def whats_orienteering():
-    return render_template("main/whats_orienteering.html")
+    return render_template(
+        "main/whats_orienteering.html",
+        advanced_documents=page_documents("whats_orienteering_advanced"),
+        ticks_documents=page_documents("whats_orienteering_ticks"),
+    )
 
 
 @main.route("/links")
 def links():
-    return render_template("main/links.html")
+    return render_template(
+        "main/links.html",
+        clubs=CLUBS,
+        link_groups=LINK_GROUPS,
+        documents=page_documents("links"),
+        sponsors=SPONSORS,
+    )
 
 
 @main.route("/training")
@@ -79,6 +94,7 @@ def gare():
     return render_template(
         "activities/races.html",
         upcoming_activities=upcoming_activities,
+        disciplines=DISCIPLINES,
     )
 
 
@@ -88,6 +104,8 @@ def attivita():
     return render_template(
         "activities/activities.html",
         upcoming_activities=upcoming_activities,
+        activities=ACTIVITIES,
+        activity_tabs=[(i, a["tab"]) for i, a in enumerate(ACTIVITIES)],
     )
 
 
@@ -96,6 +114,10 @@ def chi_siamo():
     return render_template(
         "main/about_us.html",
         slideshow_images=get_slideshow_images(),
+        committee=COMMITTEE,
+        other_roles=OTHER_ROLES,
+        monitors=MONITORS,
+        documents=page_documents("about_us"),
     )
 
 
@@ -130,4 +152,10 @@ def contatti():
         else:
             flash("Grazie! Il tuo messaggio è stato inviato.", "success")
             return redirect(url_for("main.contatti"))
-    return render_template("main/contact.html", form=form, contact_email=CONTACT_EMAIL)
+    return render_template(
+        "main/contact.html",
+        form=form,
+        contact_email=CONTACT_EMAIL,
+        referenti=CONTACTS,
+        documents=page_documents("contact"),
+    )

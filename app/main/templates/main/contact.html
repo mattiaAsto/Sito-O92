@@ -1,4 +1,5 @@
 {% extends "main/base.html" %}
+{% import "main/_swipe_tabs.html" as swipe %}
 
 {% block title %}Contatti | Orientisti 92 Piano di Magadino{% endblock %}
 
@@ -15,9 +16,13 @@
 {% endmacro %}
 
 {% block content %}
+  <div class="swipe-tabs" data-swipe-tabs>
+    {{ swipe.nav('contact', [('write', 'Scrivici'), ('people', 'Responsabili'), ('members', 'Nuovi soci')]) }}
+    <div class="tab-content">
+  <div {{ swipe.pane('contact', 'write', True) }}>
   <section class="contact-section">
     <div class="contact-form-col">
-      <h1 class="contact-title">scrivici qui:</h1>
+      <h1 class="contact-title swipe-pane-title">scrivici qui:</h1>
       <form method="post" novalidate>
         {{ form.hidden_tag() }}
         {{ field(form.name, "name") }}
@@ -45,29 +50,22 @@
       </li>
     </ul>
   </section>
+  </div>
 
-  {% set referenti = [
-    ("Responsabile attività", "Alessandro Bolis", "alessandro.bolis3(at)gmail.com", None),
-    ("Noleggio furgoni", "Alain Astori", None, None),
-    ("Ordinazione materiale", "Roberta De Maria", "roberta.demaria(at)gmail.com", None),
-    ("Info e password iscrizioni gare", "Stefano Maddalena", "stemadda(at)bluewin.ch", None),
-    ("Responsabile all. cartine", "Alain Astori", None, "079 337 42 65"),
-    ("Membro CTCO", "Tiziano Boiani", None, None),
-    ("Responsabile finanze", "Elio Derighetti", "leliodivo(at)bluewin.ch", None),
-    ("Responsabile sito internet", "Mattia Astori", "webmaster(at)o-92.ch", None),
-  ] %}
+  <div {{ swipe.pane('contact', 'people') }}>
   <section class="contact-people">
-    <h2 class="contact-title">responsabili:</h2>
+    <h2 class="contact-title swipe-pane-title">responsabili:</h2>
     <div class="contact-people-grid">
-      {% for role, name, mail, phone in referenti %}
+      {% for person in referenti %}
+        {% set role = person.role %}
         <div class="contact-person">
           <p class="contact-person-role">{{ role }}</p>
-          <p class="contact-person-name">{{ name }}</p>
-          {% if mail %}
-            <a class="contact-mail" href="mailto:{{ mail | replace('(at)', '@') }}">{{ mail | replace('(at)', '@') }}</a>
+          <p class="contact-person-name">{{ person.name }}</p>
+          {% if person.email %}
+            <a class="contact-mail" href="mailto:{{ person.email | replace('(at)', '@') }}"><i class="fa-regular fa-envelope me-2" aria-hidden="true"></i>{{ person.email | replace('(at)', '@') }}</a>
           {% endif %}
-          {% if phone %}
-            <a class="contact-phone" href="tel:{{ phone | replace(' ', '') }}">{{ phone }}</a>
+          {% if person.phone %}
+            <a class="contact-phone" href="tel:{{ person.phone | replace(' ', '') }}"><i class="fa-solid fa-phone me-2" aria-hidden="true"></i>{{ person.phone }}</a>
           {% endif %}
           {% if role == "Noleggio furgoni" %}
             <a class="contact-mail" href="{{ url_for('vans.index') }}">Vai alla pagina furgoni</a>
@@ -76,15 +74,22 @@
       {% endfor %}
     </div>
   </section>
+  </div>
 
+  <div {{ swipe.pane('contact', 'members') }}>
   <section class="who-group contact-documents">
-    <h2 class="contact-title">Informazioni per i nuovi soci</h2>
+    <h2 class="contact-title swipe-pane-title">Informazioni per i nuovi soci</h2>
     <div class="who-documents">
-      <a class="who-document" href="{{ url_for('main.static', filename='pdf/contacts/newcomers_info_2022.pdf') }}" target="_blank" rel="noopener noreferrer">
+      {% for doc in documents %}
+      <a class="who-document" href="{{ url_for(doc.blueprint ~ '.static', filename=doc.filename) }}" target="_blank" rel="noopener noreferrer">
         <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
-        <span>Informazioni per i nuovi arrivati</span>
+        <span>{{ doc.label }}</span>
         <i class="fa-solid fa-arrow-up-right-from-square who-document-external" aria-hidden="true"></i>
       </a>
+      {% endfor %}
     </div>
   </section>
+  </div>
+    </div>
+  </div>
 {% endblock %}

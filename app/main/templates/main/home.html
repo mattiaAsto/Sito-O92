@@ -18,25 +18,45 @@
     </div>
   </section>
 
-  <section class="activity-cards">
-    {% for label, endpoint, key in [("Allenamenti", "main.allenamenti", "allenamento"), ("Gare", "main.gare", "gara"), ("Attività", "main.attivita", "attivita")] %}
-      {% set activity = upcoming[key] %}
+  {% set activity_tabs = [("Allenamenti", "main.allenamenti", "allenamento"), ("Gare", "main.gare", "gara"), ("Attività", "main.attivita", "attivita")] %}
+  {% macro activity_box(activity, endpoint) %}
+    {% if activity %}
+      <a class="activity-card-box activity-card-box--event" style="--event-color: {{ activity.color }}" href="{{ url_for('calendar.activity_detail', activity_id=activity.id) }}">
+        <span class="activity-card-kicker">Prossimo</span>
+        <span class="activity-card-title">{{ activity.title }}</span>
+        <span class="activity-card-meta">{{ activity.schedule_label }}</span>
+        {% if activity.location %}<span class="activity-card-meta">{{ activity.location }}</span>{% endif %}
+      </a>
+    {% else %}
+      <a class="activity-card-box activity-card-box--empty" href="{{ url_for(endpoint) }}" tabindex="-1" aria-hidden="true">
+        <span class="activity-card-meta">Nessuna attività in programma</span>
+      </a>
+    {% endif %}
+  {% endmacro %}
+
+  <section class="activity-cards d-none d-md-grid">
+    {% for label, endpoint, key in activity_tabs %}
       <div class="activity-card">
-        {% if activity %}
-          <a class="activity-card-box activity-card-box--event" style="--event-color: {{ activity.color }}" href="{{ url_for('calendar.activity_detail', activity_id=activity.id) }}">
-            <span class="activity-card-kicker">Prossimo</span>
-            <span class="activity-card-title">{{ activity.title }}</span>
-            <span class="activity-card-meta">{{ activity.schedule_label }}</span>
-            {% if activity.location %}<span class="activity-card-meta">{{ activity.location }}</span>{% endif %}
-          </a>
-        {% else %}
-          <a class="activity-card-box activity-card-box--empty" href="{{ url_for(endpoint) }}" tabindex="-1" aria-hidden="true">
-            <span class="activity-card-meta">Nessuna attività in programma</span>
-          </a>
-        {% endif %}
+        {{ activity_box(upcoming[key], endpoint) }}
         <a class="btn btn-brand activity-card-btn" href="{{ url_for(endpoint) }}">{{ label }}</a>
       </div>
     {% endfor %}
+  </section>
+
+  <section class="activity-tabs d-md-none" data-swipe-tabs aria-label="Prossimi appuntamenti">
+    <div class="activity-tabs-nav" role="tablist">
+      {% for label, endpoint, key in activity_tabs %}
+        <button class="activity-tabs-btn{% if loop.first %} active{% endif %}" type="button" role="tab" id="activity-tab-{{ key }}" data-bs-toggle="pill" data-bs-target="#activity-pane-{{ key }}" aria-controls="activity-pane-{{ key }}" aria-selected="{{ 'true' if loop.first else 'false' }}">{{ label }}</button>
+      {% endfor %}
+    </div>
+    <div class="tab-content">
+      {% for label, endpoint, key in activity_tabs %}
+        <div class="tab-pane fade{% if loop.first %} show active{% endif %}" id="activity-pane-{{ key }}" role="tabpanel" aria-labelledby="activity-tab-{{ key }}" tabindex="0">
+          {{ activity_box(upcoming[key], endpoint) }}
+          <a class="activity-tabs-link" href="{{ url_for(endpoint) }}">Tutto su {{ label|lower }} <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      {% endfor %}
+    </div>
   </section>
 
   <section class="news-section">

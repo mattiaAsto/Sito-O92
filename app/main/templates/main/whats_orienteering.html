@@ -1,17 +1,16 @@
 {% extends "main/base.html" %}
+{% import "main/_swipe_tabs.html" as swipe %}
 
 {% block title %}Cos'è la CO | Orientisti 92 Piano di Magadino{% endblock %}
 
 {% block content %}
-  {% set advanced_documents = [
-    ("Competenze orientistiche (Swiss Orienteering)", "swiss_orienteering_competencies_21.pdf"),
-    ("Descrizione dei punti IOF", "iof_control_descriptions.pdf"),
-    ("Legenda cartina bosco", "forest_map_legend.pdf"),
-    ("Legenda cartina città", "city_map_legend.pdf")
-  ] %}
   <section class="page-section orienteering-page">
     <h1 class="page-title">COS'È LA CO</h1>
 
+    <div class="swipe-tabs" data-swipe-tabs>
+      {{ swipe.nav('co', [('origins', 'Origini'), ('how', 'Come funziona'), ('champions', 'Campioni'), ('resources', 'Risorse')]) }}
+      <div class="tab-content">
+    <div {{ swipe.pane('co', 'origins', True) }}>
     <section class="orienteering-section">
       <h2 class="page-subtitle">Da dove viene?</h2>
       <p>La CO nasce nei paesi nordici, dove è uno sport nazionale. In Svizzera è esplosa dopo gli anni ’50 e oggi conta circa 6'000 orientisti attivi: fino a 2'000 ai grandi appuntamenti nazionali e spesso 400 partenti in Ticino. Nel mondo il re delle gare estive è l’O-Ringen, la 5 giorni svedese che raduna fino a 20'000 partecipanti. Una festa grande come una città!</p>
@@ -35,7 +34,9 @@
         </figure>
       </div>
     </section>
+    </div>
 
+    <div {{ swipe.pane('co', 'how') }}>
     <section class="orienteering-section">
       <h2 class="page-subtitle">Come funziona?</h2>
       <p>Ricevi una cartina con un percorso segnato: una serie di punti di controllo da toccare in ordine, scegliendo tu la strada. Sul terreno ogni punto è segnalato da una lanterna arancione e bianca. Dritto, aggirando l’ostacolo o seguendo il sentiero? Decidi tu, e vince chi sceglie meglio e corre più veloce!</p>
@@ -52,7 +53,9 @@
         <p>Gambe, testa e bussola. Al resto ci pensiamo noi!</p>
       </article>
     </section>
+    </div>
 
+    <div {{ swipe.pane('co', 'champions') }}>
     <section class="orienteering-section orienteering-disciplines">
       <h2 class="page-subtitle">Che discipline ci sono?</h2>
       <p>Scopri tutte le discipline e le gare di orienteering.</p>
@@ -70,14 +73,16 @@
         <figcaption>Mondiali Lettonia, 2018</figcaption>
       </figure>
     </section>
+    </div>
 
+    <div {{ swipe.pane('co', 'resources') }}>
     <section class="orienteering-section orienteering-resources">
       <h2 class="page-subtitle">Per gli avanzati</h2>
       <div class="who-documents">
-        {% for label, file in advanced_documents %}
-          <a class="who-document" href="{{ url_for('main.static', filename='pdf/whats_orienteering/' ~ file) }}" target="_blank" rel="noopener noreferrer">
+        {% for doc in advanced_documents %}
+          <a class="who-document" href="{{ url_for(doc.blueprint ~ '.static', filename=doc.filename) }}" target="_blank" rel="noopener noreferrer">
             <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
-            <span>{{ label }}</span>
+            <span>{{ doc.label }}</span>
             <i class="fa-solid fa-arrow-up-right-from-square who-document-external" aria-hidden="true"></i>
           </a>
         {% endfor %}
@@ -87,12 +92,17 @@
     <section class="orienteering-section orienteering-resources">
       <h2 class="page-subtitle">Salute</h2>
       <div class="who-documents">
-        <a class="who-document" href="{{ url_for('main.static', filename='pdf/whats_orienteering/ticks_flyer_ti.pdf') }}" target="_blank" rel="noopener noreferrer">
+        {% for doc in ticks_documents %}
+        <a class="who-document" href="{{ url_for(doc.blueprint ~ '.static', filename=doc.filename) }}" target="_blank" rel="noopener noreferrer">
           <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
-          <span>Informazioni sulle zecche in Ticino</span>
+          <span>{{ doc.label }}</span>
           <i class="fa-solid fa-arrow-up-right-from-square who-document-external" aria-hidden="true"></i>
         </a>
+        {% endfor %}
       </div>
     </section>
+    </div>
+      </div>
+    </div>
   </section>
 {% endblock %}

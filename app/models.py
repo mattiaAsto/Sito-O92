@@ -79,6 +79,21 @@ class CalendarActivity(db.Model):
         return f"{starts:%d.%m.%Y %H:%M} – {ends:%d.%m.%Y %H:%M}"
 
     @property
+    def date_label(self):
+        """Date only (or date range for multi-day activities)."""
+        starts, ends = self.starts_at, self.ends_at
+        if starts.date() == ends.date():
+            return starts.strftime("%d.%m.%Y")
+        return f"{starts:%d.%m.} – {ends:%d.%m.%Y}"
+
+    @property
+    def hours_label(self):
+        """Hours only, without the date (None for races)."""
+        if self.activity_type == "gara":
+            return None
+        return f"{self.starts_at:%H:%M} – {self.ends_at:%H:%M}"
+
+    @property
     def time_label(self):
         """Short time shown inside calendar cells (None for races)."""
         if self.activity_type == "gara":

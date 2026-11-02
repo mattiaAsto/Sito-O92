@@ -192,12 +192,12 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertIn(b"Abbigliamento usato", empty_response.data)
         self.assertIn(b"/static/shop/pdf/materiale_o-92_0525.pdf", empty_response.data)
         self.assertIn(b"/shop/materiale/pigiami", empty_response.data)
-        self.assertIn(b"/static/shop/img/materiale/pigiama-maglia.jpg", empty_response.data)
+        self.assertIn(b"/static/shop/img/materiale/pigiama-maglia-fronte.jpg", empty_response.data)
         for slug in ("pigiami", "training", "maglia-bucata", "borse", "vari"):
             self.assertEqual(self.client.get(f"/shop/materiale/{slug}").status_code, 200)
         self.assertEqual(self.client.get("/shop/materiale/nope").status_code, 404)
         self.assertEqual(
-            self.client.get("/static/shop/img/materiale/pigiama-maglia.jpg").status_code, 200
+            self.client.get("/static/shop/img/materiale/pigiama-pantaloni-retro.jpg").status_code, 200
         )
         self.assertIn(
             b"/static/shop/pdf/materiale_o-92_0525.pdf", self.client.get("/links").data
@@ -434,6 +434,13 @@ class ApplicationTestCase(unittest.TestCase):
         with self.assertRaises(IntegrityError):
             db.session.commit()
         db.session.rollback()
+
+    def test_annual_calendar_pdf_is_linked_and_served(self):
+        url = "/static/calendar/pdf/calendario_annuale_2026.pdf"
+
+        self.assertEqual(self.client.get(url).status_code, 200)
+        for page in ("/calendar", "/links"):
+            self.assertIn(url, self.client.get(page).get_data(as_text=True))
 
     def test_calendar_activity_rejects_invalid_category_type(self):
         activity = CalendarActivity(

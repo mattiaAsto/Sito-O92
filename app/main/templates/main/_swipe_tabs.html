@@ -1,0 +1,10 @@
+{# Phone-only tabs (pill selector + swipe). Wrap in <div class="swipe-tabs" data-swipe-tabs> with nav() then <div class="tab-content"> holding one pane per tab. #}
+{% macro nav(prefix, tabs) %}
+  <div class="activity-tabs-nav swipe-tabs-nav" role="tablist">
+    {% for key, label in tabs %}
+      <button class="activity-tabs-btn{% if loop.first %} active{% endif %}" type="button" role="tab" id="{{ prefix }}-tab-{{ key }}" data-bs-toggle="pill" data-bs-target="#{{ prefix }}-pane-{{ key }}" aria-controls="{{ prefix }}-pane-{{ key }}" aria-selected="{{ 'true' if loop.first else 'false' }}">{{ label }}</button>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro pane(prefix, key, first=False) %}class="tab-pane fade{% if first %} show active{% endif %}" id="{{ prefix }}-pane-{{ key }}" role="tabpanel" aria-labelledby="{{ prefix }}-tab-{{ key }}"{% endmacro %}

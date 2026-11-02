@@ -62,7 +62,9 @@ body {
   margin-left: 8px;
   white-space: normal;
   line-height: 1.15;
-  font-size: 0.9rem;
+  font-family: "Brush Script MT", "Brush Script Std", cursive;
+  font-weight: 400;
+  font-size: 1.6rem;
 }
 
 .navbar-brand {
@@ -71,7 +73,7 @@ body {
 
 @media (min-width: 768px) {
   .brand-name {
-    font-size: 1rem;
+    font-size: 1.9rem;
   }
 }
 
@@ -360,7 +362,15 @@ body {
 
   .hero-actions {
     justify-content: center;
-    gap: 0.75rem;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+  }
+
+  .hero-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.6rem 0.5rem;
+    white-space: nowrap;
   }
 
   .hero-art {
@@ -517,7 +527,35 @@ body {
 }
 
 .upcoming-event-meta {
+  display: flex;
+  flex-direction: column;
   font-size: 0.85rem;
+}
+
+@media (max-width: 767.98px) {
+  .upcoming-event-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .upcoming-event-meta span + span::before {
+    content: "\00b7";
+    margin: 0 0.4rem;
+  }
+  .upcoming-events-grid {
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .upcoming-event-card {
+    min-height: 0;
+    gap: 0.15rem;
+    padding: 0.7rem 1rem;
+  }
+
+  .upcoming-event-title {
+    font-size: 1rem;
+  }
 }
 
 .page-section .news-card {
@@ -578,6 +616,39 @@ body {
   margin-top: 0.4rem;
   font-size: 0.9rem;
   color: var(--color-700);
+}
+
+/* Icons for links typed in markdown, chosen from the href type */
+.news-article a[href^="http"]::before,
+.news-article a[href^="mailto:"]::before,
+.news-article a[href$=".pdf" i]::before,
+.news-article a[href$=".xls" i]::before,
+.news-article a[href$=".xlsx" i]::before,
+.news-article a[href$=".csv" i]::before {
+  display: inline-block;
+  margin-right: 0.35em;
+  font-family: "Font Awesome 6 Free";
+  font-size: 0.85em;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.news-article a[href^="http"]::before {
+  content: "\f0c1";
+}
+
+.news-article a[href^="mailto:"]::before {
+  content: "\f0e0";
+}
+
+.news-article a[href$=".pdf" i]::before {
+  content: "\f1c1";
+}
+
+.news-article a[href$=".xls" i]::before,
+.news-article a[href$=".xlsx" i]::before,
+.news-article a[href$=".csv" i]::before {
+  content: "\f1c3";
 }
 
 .sponsors {
@@ -819,20 +890,24 @@ body {
 }
 
 .who-hero {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
   align-items: stretch;
-  overflow: hidden;
-  border-radius: 0 20px 20px 0;
-  background: var(--color-50);
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
+.who-hero > :only-child {
+  grid-column: 1 / -1;
+}
+
 .who-hero-copy {
-  flex: 1 1 420px;
   display: flex;
   align-items: center;
-  min-height: clamp(200px, 24vw, 285px);
+  min-height: clamp(240px, 28vw, 340px);
   padding: clamp(1.25rem, 3vw, 2rem);
+  border-radius: 20px;
+  background: var(--color-50);
 }
 
 .who-hero-copy .who-lead {
@@ -844,13 +919,13 @@ body {
 }
 
 .who-slideshow {
-  flex: 0 1 390px;
   width: 100%;
-  height: clamp(200px, 24vw, 285px);
+  min-height: clamp(240px, 28vw, 340px);
   margin: 0;
   position: relative;
   overflow: hidden;
-  background: transparent;
+  border-radius: 20px;
+  background: var(--color-50);
 }
 
 .who-slideshow .carousel-inner,
@@ -861,7 +936,7 @@ body {
 .who-slideshow .carousel-item img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .who-slideshow .carousel-indicators {
@@ -904,7 +979,7 @@ body {
   position: relative;
   overflow: hidden;
   border: 0;
-  border-radius: 0 20px 20px 0;
+  border-radius: 20px;
   background: #111;
 }
 
@@ -1085,7 +1160,7 @@ body {
 
 .who-document > i:first-child {
   color: var(--brand);
-  font-size: 1.25rem;
+  font-size: 1.6rem;
 }
 
 .who-document-external {
@@ -1371,22 +1446,21 @@ body {
 
 @media (max-width: 767.98px) {
   .who-hero {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
     margin-bottom: 1.5rem;
   }
 
-  .who-hero-copy {
-    flex-basis: auto;
+  .who-slideshow {
+    order: -1;
     min-height: 0;
-    padding: 1.25rem;
+    height: auto;
+    aspect-ratio: 4 / 3;
   }
 
-  .who-slideshow {
-    flex-basis: auto;
-    max-width: 100%;
-    height: clamp(180px, 55vw, 240px);
+  .who-hero-copy {
+    min-height: 0;
+    padding: 1.25rem;
   }
 
   .who-slideshow-modal .modal-dialog {
@@ -1399,6 +1473,15 @@ body {
 
   .schedule-grid {
     grid-template-columns: 1fr;
+  }
+
+  .schedule-tabs .schedule-day {
+    display: none;
+  }
+
+  .schedule-tabs .schedule-time {
+    margin-top: 0.25rem;
+    font-weight: 600;
   }
 
   .orienteering-facts,
@@ -1517,12 +1600,70 @@ body {
 }
 
 @media (max-width: 767.98px) {
-  .activity-cards {
-    grid-template-columns: 1fr;
+  .activity-tabs {
+    margin-top: 1.5rem;
   }
 
-  .activity-card-box {
-    min-height: 120px;
+  .activity-tabs-nav {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+    padding: 0.25rem;
+    background: var(--color-50);
+    border: 1px solid var(--color-400);
+    border-radius: 999px;
+  }
+
+  .activity-tabs-btn {
+    flex: 1 1 0;
+    min-height: 44px;
+    padding: 0.4rem 0.5rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .activity-tabs-btn.active {
+    background: var(--brand);
+    color: #fff;
+  }
+
+  .activity-tabs .activity-card-box {
+    min-height: 130px;
+  }
+
+  .activity-tabs-link {
+    display: block;
+    margin-top: 0.6rem;
+    padding: 0.4rem 0;
+    text-align: right;
+    font-weight: 600;
+    color: var(--color-800);
+    text-decoration: none;
+  }
+}
+
+/* Tablet: keep the hero text clear of the artwork */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .hero-text {
+    position: static;
+    padding: 1rem 0 0 4%;
+  }
+
+  .hero-art {
+    aspect-ratio: 3 / 1;
+  }
+
+  .hero-art img {
+    width: 80%;
+    margin: -14% 0 0 auto;
+  }
+
+  .site-navbar .nav-link {
+    white-space: nowrap;
   }
 }
 
@@ -1723,6 +1864,7 @@ body {
 
 .shop-item-media-contain {
   background: #fff;
+  padding: 0.5rem;
 }
 
 .shop-item-media-contain img {
@@ -2165,7 +2307,7 @@ body {
   border: 6px solid var(--color-400);
   background: #fdf9f4;
   box-shadow: 6px 8px 22px rgba(0, 0, 0, 0.2);
-  min-height: 24rem;
+  height: 26rem;
 }
 
 .book-page {
@@ -2260,8 +2402,26 @@ body {
 }
 
 .book-excerpt {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
   font-family: Georgia, "Times New Roman", serif;
   line-height: 1.6;
+}
+
+.book-page-right {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.book-chapter,
+.book-chapter-sub {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 
 .book-read {
@@ -2270,17 +2430,132 @@ body {
   color: var(--accent);
 }
 
+/* Page turn: a clone of the page rotates around the spine (3D), the real content is swapped by JS */
+.book-open {
+  position: relative;
+  perspective: 3200px;
+}
+
+.book-open.turn-in-open { animation: book-in-open 0.45s ease-out; }
+
+@keyframes book-in-open {
+  from { transform: scale(0.94); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.book-flipper {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 50%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.book-flipper.flip-next { animation: book-flip-next 0.75s cubic-bezier(0.45, 0.05, 0.25, 1) forwards; }
+.book-flipper.flip-prev { animation: book-flip-prev 0.75s cubic-bezier(0.45, 0.05, 0.25, 1) forwards; }
+
+@keyframes book-flip-next {
+  from { transform: rotateY(0deg); box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1); }
+  50% { box-shadow: -14px 0 30px rgba(0, 0, 0, 0.3); }
+  to { transform: rotateY(-180deg); box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1); }
+}
+
+@keyframes book-flip-next-m {
+  from { transform: rotateY(0deg); opacity: 1; }
+  60% { opacity: 1; }
+  to { transform: rotateY(-100deg); opacity: 0; }
+}
+
+@keyframes book-flip-prev-m {
+  from { transform: rotateY(-100deg); opacity: 0; }
+  40% { opacity: 1; }
+  to { transform: rotateY(0deg); opacity: 1; }
+}
+
+@keyframes book-flip-prev {
+  from { transform: rotateY(-180deg); box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1); }
+  50% { box-shadow: -14px 0 30px rgba(0, 0, 0, 0.3); }
+  to { transform: rotateY(0deg); box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1); }
+}
+
+.book-flip-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow: hidden;
+  backface-visibility: hidden;
+  background: #fdf9f4;
+}
+
+.book-flip-face .book-page {
+  flex: 1;
+  min-width: 0;
+}
+
+.book-flip-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(270deg, #fdf9f4 70%, #f1e6d6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-open.turn-in-open { animation: none; }
+}
+
 @media (max-width: 640px) {
   .book-open {
     grid-template-columns: 1fr;
   }
 
   .book-page-left {
-    border-right: 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-    padding: 1.25rem;
+    display: none;
   }
 
+  .book-open {
+    height: 30rem;
+  }
+
+  .book-flipper {
+    left: 0;
+    width: 100%;
+  }
+
+  .book-flipper.flip-next { animation-name: book-flip-next-m; }
+  .book-flipper.flip-prev { animation-name: book-flip-prev-m; }
+
+  .book-nav {
+    gap: 0.4rem;
+  }
+
+  .book-nav .btn {
+    flex: 1 1 0;
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .book-nav-count {
+    order: 3;
+    flex: 0 0 100%;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+
+  .blog-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .blog-actions .btn {
+    margin: 0;
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
 }
 
 .blog-cover img {
@@ -2442,6 +2717,7 @@ body {
 
 /* Calendar grid (shared by /calendar and /furgoni) */
 
+.calendar-pdf { max-width: 1100px; margin: 0 auto 1rem; }
 .calendar-deadlines { max-width: 1100px; margin: 0 auto 1.5rem; }
 .calendar-deadlines h2 { font-size: 1.15rem; margin-bottom: .5rem; }
 .calendar-deadlines ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
@@ -2542,4 +2818,113 @@ body {
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: 0.35rem;
+}
+
+/* Phone header: logo, name and burger on a single row */
+@media (max-width: 767.98px) {
+  .site-navbar .container-fluid {
+    flex-wrap: wrap;
+  }
+
+  .site-navbar .navbar-brand {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-right: 0;
+    padding: 0.35rem 0;
+  }
+
+  .site-navbar .brand-name {
+    font-size: 1.35rem;
+    line-height: 1.1;
+  }
+
+  .site-navbar .navbar-toggler {
+    flex: 0 0 auto;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .bottom-nav .nav-link {
+    padding: 8px 4px;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .site-navbar .brand-name {
+    font-size: 1.15rem;
+  }
+}
+
+/* Swipe tabs: selector + panes on phones, plain stacked sections on wide screens */
+@media (min-width: 768px) {
+  .swipe-tabs:not(.swipe-tabs-always) > .swipe-tabs-nav {
+    display: none;
+  }
+
+  .swipe-tabs:not(.swipe-tabs-always),
+  .swipe-tabs:not(.swipe-tabs-always) > .tab-content,
+  .swipe-tabs:not(.swipe-tabs-always) > .tab-content > .tab-pane {
+    display: contents;
+    opacity: 1;
+  }
+
+  .swipe-tabs > .tab-content.activities-grid {
+    display: grid;
+  }
+
+  /* Opt-in: keep the tab selector on wide screens too */
+  .swipe-tabs-always > .swipe-tabs-nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0.5rem auto 2rem;
+    padding: 0.25rem;
+    background: var(--color-50);
+    border: 1px solid var(--color-400);
+    border-radius: 999px;
+  }
+
+  .swipe-tabs-always .activity-tabs-btn {
+    min-height: 44px;
+    padding: 0.4rem 1.5rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .swipe-tabs-always .activity-tabs-btn.active {
+    background: var(--brand);
+    color: #fff;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .swipe-tabs-nav {
+    position: relative;
+    margin: 0.5rem 0 1.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .swipe-tabs-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .swipe-tabs-nav .activity-tabs-btn {
+    flex: 1 0 auto;
+    padding: 0.4rem 1rem;
+    white-space: nowrap;
+  }
+
+  .swipe-tabs .swipe-pane-title {
+    display: none;
+  }
+}
+
+.links-sponsors {
+  grid-template-columns: minmax(0, 210px);
 }

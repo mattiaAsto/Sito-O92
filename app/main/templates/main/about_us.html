@@ -3,33 +3,6 @@
 {% block title %}Chi siamo | Orientisti 92 Piano di Magadino{% endblock %}
 
 {% block content %}
-  {% set committee = [
-    ("Presidente", "Reto Depedrini", "Rivera"),
-    ("Vicepresidente, padrinato", "Carla Bolis", "Camorino"),
-    ("Coord. attività sportive, resp. furgoni e noleggi", "Alain Astori", "Cugnasco"),
-    ("Controllo all. cartine e resp. archivio foto", "Feliciano Pawlowski", "Rivera"),
-    ("Responsabile attività", "Alessandro Bolis", "Camorino"),
-    ("Responsabile materiale", "Roberta De Maria", None),
-    ("Responsabile G+S", "Tito Balestra", None),
-    ("Membro", "Marzio Bianchi", None),
-    ("Membro giovane", "Davide De Giorgi", None),
-    ("Membro giovane", "Marta Riso", None)
-  ] %}
-  {% set other_roles = [
-    ("Responsabile finanze", "Elio Derighetti", "Arcegno"),
-    ("Responsabile magazzino", "Alessandro Pawlowski", "Rivera"),
-    ("Responsabile iscrizioni", "Stefano Maddalena", "Bironico"),
-    ("Membro CTCO", "Tiziano Boiani", "Cadenazzo"),
-    ("Responsabile sito internet", "Mattia Astori", "Cugnasco")
-  ] %}
-  {% set monitors = ["Alain Astori", "Alessandro Juorno", "Alina Vecsey", "Mattia Astori", "Giulia Maddalena"] %}
-  {% set documents = [
-    ("Statuto", "statutes_20251017.pdf"),
-    ("Regolamento", "regulations_2025.pdf"),
-    ("Carta etica nello sport", "sports_code_of_ethics.pdf"),
-    ("ABC della O-92", "o92_abc.pdf"),
-    ("Padrinato 2026", "sponsorship_2026.pdf")
-  ] %}
   <section class="page-section who-page">
     <h1 class="page-title">CHI SIAMO</h1>
 
@@ -38,7 +11,7 @@
         <p class="who-lead">Dal 10 luglio 1992 facciamo correre e orientare il Piano di Magadino e oltre. Siamo nati da un gruppo di orientisti già in azione nella Società Atletica VIS NOVA, e da allora non ci siamo più fermati.</p>
       </div>
       {% if slideshow_images %}
-        <div id="whoSlideshow" class="carousel slide who-slideshow" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="false">
+        <div id="whoSlideshow" class="carousel slide who-slideshow" data-bs-ride="carousel" data-bs-interval="6000" data-bs-pause="false">
           {% if slideshow_images|length > 1 %}
             <div class="carousel-indicators">
               {% for image in slideshow_images %}
@@ -74,7 +47,7 @@
           <div class="modal-content">
             <h2 class="visually-hidden" id="whoSlideshowModalTitle">Slideshow della società</h2>
             <button type="button" class="btn-close btn-close-white who-slideshow-modal-close" data-bs-dismiss="modal" aria-label="Chiudi slideshow"></button>
-            <div id="whoSlideshowExpanded" class="carousel slide who-slideshow-expanded" data-bs-interval="3000" data-bs-pause="false">
+            <div id="whoSlideshowExpanded" class="carousel slide who-slideshow-expanded" data-bs-interval="6000" data-bs-pause="false">
               <div class="carousel-inner">
                 {% for image in slideshow_images %}
                   <div class="carousel-item{% if loop.first %} active{% endif %}">
@@ -111,11 +84,11 @@
     <details class="who-accordion">
       <summary class="contact-title">Comitato attuale</summary>
       <div class="who-people-grid">
-        {% for role, name, location in committee %}
+        {% for person in committee %}
           <article class="contact-person">
-            <p class="contact-person-role">{{ role }}</p>
-            <p class="contact-person-name">{{ name }}</p>
-            {% if location %}<p class="contact-person-location">{{ location }}</p>{% endif %}
+            <p class="contact-person-role">{{ person.role }}</p>
+            <p class="contact-person-name">{{ person.name }}</p>
+            {% if person.location %}<p class="contact-person-location">{{ person.location }}</p>{% endif %}
           </article>
         {% endfor %}
       </div>
@@ -124,11 +97,11 @@
     <details class="who-accordion">
       <summary class="contact-title">Altri compiti</summary>
       <div class="who-people-grid">
-        {% for role, name, location in other_roles %}
+        {% for person in other_roles %}
           <article class="contact-person">
-            <p class="contact-person-role">{{ role }}</p>
-            <p class="contact-person-name">{{ name }}</p>
-            {% if location %}<p class="contact-person-location">{{ location }}</p>{% endif %}
+            <p class="contact-person-role">{{ person.role }}</p>
+            <p class="contact-person-name">{{ person.name }}</p>
+            {% if person.location %}<p class="contact-person-location">{{ person.location }}</p>{% endif %}
           </article>
         {% endfor %}
       </div>
@@ -146,10 +119,10 @@
     <section class="who-static-documents">
       <h2 class="page-subtitle contact-title">Documenti</h2>
       <div class="who-documents">
-        {% for label, file in documents %}
-          <a class="who-document" href="{{ url_for('main.static', filename='pdf/who_are_we/' ~ file) }}" target="_blank" rel="noopener noreferrer">
+        {% for doc in documents %}
+          <a class="who-document" href="{{ url_for(doc.blueprint ~ '.static', filename=doc.filename) }}" target="_blank" rel="noopener noreferrer">
             <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
-            <span>{{ label }}</span>
+            <span>{{ doc.label }}</span>
             <i class="fa-solid fa-arrow-up-right-from-square who-document-external" aria-hidden="true"></i>
           </a>
         {% endfor %}
@@ -170,7 +143,7 @@
 
         const mainCarousel = bootstrap.Carousel.getOrCreateInstance(slideshow);
         const expandedCarousel = bootstrap.Carousel.getOrCreateInstance(expandedSlideshow, {
-          interval: 3000,
+          interval: 6000,
           pause: false,
         });
         const activeIndex = (carousel) => Array.from(

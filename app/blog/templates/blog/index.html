@@ -5,7 +5,7 @@
 
 {% block content %}
   <section class="page-section">
-    <h1 class="page-title">Racconti dall'o-92</h1>
+    <h1 class="page-title">Racconti dall'O-92</h1>
 
     <div class="book-stage" id="libro">
       <button type="button" class="book-cover" id="bookCover" aria-controls="bookOpen" aria-expanded="false"{% if book_open and latest %} hidden{% endif %}>
@@ -34,22 +34,22 @@
         </div>
         <nav class="book-nav" id="bookNav" aria-label="Sfoglia i capitoli"{% if not book_open %} hidden{% endif %}>
           {% if chapter > 1 %}
-            <a class="btn btn-brand-outline" href="{{ url_for('blog.index', capitolo=chapter - 1) }}#libro">&laquo; Capitolo precedente</a>
+            <a class="btn btn-brand-outline" href="{{ url_for('blog.index', capitolo=chapter - 1) }}#libro">&laquo; <span class="d-none d-sm-inline">Capitolo </span>precedente</a>
           {% else %}
-            <span class="btn btn-brand-outline disabled">&laquo; Capitolo precedente</span>
+            <span class="btn btn-brand-outline disabled">&laquo; <span class="d-none d-sm-inline">Capitolo </span>precedente</span>
           {% endif %}
           <span class="book-nav-count">Capitolo {{ chapter }} di {{ total }}</span>
           {% if chapter < total %}
-            <a class="btn btn-brand-outline" href="{{ url_for('blog.index', capitolo=chapter + 1) }}#libro">Capitolo successivo &raquo;</a>
+            <a class="btn btn-brand-outline" href="{{ url_for('blog.index', capitolo=chapter + 1) }}#libro"><span class="d-none d-sm-inline">Capitolo </span>successivo &raquo;</a>
           {% else %}
-            <span class="btn btn-brand-outline disabled">Capitolo successivo &raquo;</span>
+            <span class="btn btn-brand-outline disabled"><span class="d-none d-sm-inline">Capitolo </span>successivo &raquo;</span>
           {% endif %}
         </nav>
       {% endif %}
     </div>
 
-    <p class="text-center mt-4">
-      {% if latest %}<a class="btn btn-brand-outline" href="#capitoli">Agli altri capitoli &raquo;</a>{% endif %}
+    <p class="text-center mt-4 blog-actions">
+      {% if latest %}<a class="btn btn-brand-outline" href="#capitoli">Altri capitoli &raquo;</a>{% endif %}
       {% if current_user.is_authenticated %}
         <a class="btn btn-brand" href="{{ url_for('blog.create') }}">Scrivi un racconto</a>
         <a class="btn btn-brand-outline" href="{{ url_for('blog.mine') }}">I miei racconti</a>
@@ -84,8 +84,19 @@
       var open = document.getElementById("bookOpen");
       var close = document.getElementById("bookClose");
       if (!open) return;
+      var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var cache = {};
+
+      function animate(cls) {
+        if (reduced) return;
+        open.classList.remove("turn-in-open");
+        void open.offsetWidth;
+        open.classList.add(cls);
+      }
+
       function toggle(show) {
         open.hidden = !show;
+        if (show) { animate("turn-in-open"); fit(); }
         cover.hidden = show;
         var nav = document.getElementById("bookNav");
         if (nav) nav.hidden = !show;
@@ -93,6 +104,97 @@
       }
       cover.addEventListener("click", function () { toggle(true); });
       close.addEventListener("click", function () { toggle(false); });
+
+      // Chapters are fetched in the background and cached, so turning a page needs no reload
+      function load(url) {
+        if (!cache[url]) {
+          cache[url] = fetch(url, { credentials: "same-origin" })
+            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+            .then(function (html) { return new DOMParser().parseFromString(html, "text/html"); })
+            .catch(function (e) { delete cache[url]; throw e; });
+        }
+        return cache[url];
+      }
+
+      function prefetchNeighbours() {
+        document.querySelectorAll("#bookNav a").forEach(function (a) { load(a.href).catch(function () {}); });
+      }
+
+      // The book has a fixed height: show as many excerpt lines as fit, then an ellipsis
+      function fit() {
+        open.querySelectorAll(".book-excerpt").forEach(function (el) {
+          if (!el.clientHeight) return;
+          var lh = parseFloat(getComputedStyle(el).lineHeight);
+          el.style.webkitLineClamp = Math.max(1, Math.floor(el.clientHeight / lh));
+        });
+      }
+      window.addEventListener("resize", fit);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+
+      var busy = false;
+
+      function makeFlipper(frontPage, dir) {
+        var flipper = document.createElement("div");
+        flipper.className = "book-flipper flip-" + dir;
+        var front = document.createElement("div");
+        front.className = "book-flip-face book-flip-front";
+        front.appendChild(frontPage);
+        var back = document.createElement("div");
+        back.className = "book-flip-face book-flip-back";
+        flipper.appendChild(front);
+        flipper.appendChild(back);
+        return flipper;
+      }
+
+      function turn(url, dir, push) {
+        if (busy) return;
+        busy = true;
+        load(url).then(function (doc) {
+          var page = open.querySelector(".book-page-right");
+          var nav = document.getElementById("bookNav");
+          var nextPage = doc.querySelector("#bookOpen .book-page-right");
+          var nextNav = doc.getElementById("bookNav");
+          if (!page || !nav || !nextPage || !nextNav) throw new Error("layout");
+          nextPage = document.importNode(nextPage, true);
+
+          function apply() {
+            if (page.isConnected) page.replaceWith(nextPage);
+            nav.innerHTML = nextNav.innerHTML;
+            fit();
+            prefetchNeighbours();
+            busy = false;
+          }
+          if (push) history.pushState({ book: true }, "", url);
+          if (reduced) { apply(); return; }
+
+          // next: the old page lifts off over the new one; prev: the new page lands on the old one
+          var flipper = makeFlipper(dir === "next" ? page.cloneNode(true) : nextPage.cloneNode(true), dir);
+          open.appendChild(flipper);
+          fit();
+          if (dir === "next") apply();
+          flipper.addEventListener("animationend", function () {
+            if (dir === "prev") apply();
+            flipper.remove();
+            busy = false;
+          }, { once: true });
+        }).catch(function () { window.location.href = url; });
+      }
+
+      document.getElementById("bookNav").addEventListener("click", function (event) {
+        var link = event.target.closest("a");
+        if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.button) return;
+        event.preventDefault();
+        turn(link.href, link.textContent.indexOf("successivo") !== -1 ? "next" : "prev", true);
+      });
+
+      window.addEventListener("popstate", function () {
+        var url = location.href;
+        var current = open.querySelector(".book-chapter-number").textContent.match(/\d+/);
+        var target = new URL(url).searchParams.get("capitolo");
+        turn(url, target && current && +target < +current[0] ? "prev" : "next", false);
+      });
+
+      if (!open.hidden) { fit(); prefetchNeighbours(); }
     })();
   </script>
 {% endblock %}
