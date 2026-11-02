@@ -26,7 +26,7 @@
       <div class="vans-card">
         <i class="fa-solid fa-van-shuttle" aria-hidden="true"></i>
         <p class="vans-card-name">{{ vans.trafic }}</p>
-        <p>9 posti &middot; Monte Carasso</p>
+        <p>9 posti &middot; Cugnasco</p>
       </div>
       <div class="vans-card">
         <i class="fa-solid fa-van-shuttle" aria-hidden="true"></i>
@@ -35,39 +35,9 @@
       </div>
     </div>
 
-    <p>Nel <a href="#calendario">calendario occupazione</a> è indicata l'occupazione di massima dei due furgoni. Per nuove richieste, domande o verifiche puoi usare il <a href="#richiesta">formulario online</a> o scrivere a <a href="mailto:{{ vans_email }}">{{ vans_email }}</a>.</p>
+    <p>Nel <a class="contact-mail" href="#calendario">calendario occupazione</a> è indicata l'occupazione di massima dei due furgoni. Per nuove richieste, domande o verifiche puoi usare il <a class="contact-mail" href="#richiesta">formulario online</a> o scrivere a <a class="contact-mail" href="mailto:{{ vans_email }}">{{ vans_email }}</a>.</p>
   </section>
 
-  <section id="richiesta" class="contact-section vans-request">
-    <div class="vans-links">
-      <a class="vans-link" href="{{ config.TRANSPORT_SHEET_URL }}" target="_blank" rel="noopener noreferrer">
-        <i class="fa-solid fa-link" aria-hidden="true"></i><span>Organizzazione trasporti O-92 &ndash; Cugnasco</span>
-      </a>
-      {% for label, path, icon in documents %}
-        <a class="vans-link" href="{{ url_for('vans.static', filename=path) }}" target="_blank" rel="noopener noreferrer">
-          <i class="fa-solid fa-link" aria-hidden="true"></i><span>{{ label }}</span>
-        </a>
-      {% endfor %}
-      <p class="vans-links-note">Prima di prenotare, dai un'occhiata al calendario occupazioni qua sotto!</p>
-    </div>
-
-    <div class="contact-form-col vans-form-col">
-      <form method="post" action="{{ url_for('vans.index', _anchor='richiesta') }}" novalidate>
-        {{ request_form.hidden_tag() }}
-        {{ field(request_form.email, autocomplete="email") }}
-        <div class="vans-phone">
-          {{ field(request_form.phone_prefix, placeholder="07x", autocomplete="tel-country-code") }}
-          {{ field(request_form.phone_number, placeholder="xxx xx xx", autocomplete="tel-national") }}
-        </div>
-        <div class="vans-dates">
-          {{ field(request_form.start_date) }}
-          {{ field(request_form.end_date) }}
-        </div>
-        {{ field(request_form.message, rows=2) }}
-        {{ request_form.submit(class="btn btn-brand contact-submit") }}
-      </form>
-    </div>
-  </section>
   <section id="calendario" class="vans-calendar">
     <h2 class="contact-title">Calendario occupazione</h2>
     <div class="calendar-controls">
@@ -124,4 +94,34 @@
     {% endif %}
   </section>
 
+  <section id="richiesta" class="contact-section vans-request">
+    <div class="vans-links">
+      <a class="vans-link" href="{{ config.TRANSPORT_SHEET_URL }}" target="_blank" rel="noopener noreferrer">
+        <i class="fa-solid fa-link" aria-hidden="true"></i><span>Organizzazione trasporti O-92 &ndash; Cugnasco</span>
+      </a>
+      {% for label, path, icon in documents %}
+        <a class="vans-link" href="{{ url_for('vans.static', filename=path) }}" target="_blank" rel="noopener noreferrer">
+          <i class="fa-solid fa-link" aria-hidden="true"></i><span>{{ label }}</span>
+        </a>
+      {% endfor %}
+      <p class="vans-links-note">Prima di prenotare, dai un'occhiata al calendario occupazioni qua sopra!</p>
+    </div>
+
+    <div class="contact-form-col vans-form-col">
+      <form method="post" action="{{ url_for('vans.index', _anchor='richiesta') }}" novalidate>
+        {{ request_form.hidden_tag() }}
+        {{ field(request_form.email, autocomplete="email") }}
+        <div class="vans-phone">
+          {{ field(request_form.phone_prefix, placeholder="07x", autocomplete="tel-country-code") }}
+          {{ field(request_form.phone_number, placeholder="xxx xx xx", autocomplete="tel-national") }}
+        </div>
+        <div class="vans-dates">
+          {{ field(request_form.start_date) }}
+          {{ field(request_form.end_date) }}
+        </div>
+        {{ field(request_form.message, rows=2) }}
+        {{ request_form.submit(class="btn btn-brand contact-submit") }}
+      </form>
+    </div>
+  </section>
 {% endblock %}
