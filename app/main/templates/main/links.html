@@ -44,7 +44,8 @@
     ("Carta etica nello sport", "who_are_we", "sports_code_of_ethics.pdf"),
     ("Padrinato 2026", "who_are_we", "sponsorship_2026.pdf"),
     ("Regolamento", "who_are_we", "regulations_2025.pdf"),
-    ("Statuto", "who_are_we", "statutes_20251017.pdf")
+    ("Statuto", "who_are_we", "statutes_20251017.pdf"),
+    ("Materiale O-92 a magazzino", "shop", "materiale_o-92_0525.pdf")
   ] %}
   <section class="page-section links-page">
     <h1 class="page-title">LINKS UTILI</h1>
@@ -85,7 +86,8 @@
       <ul class="links-grid">
         {% for label, folder, file in documents %}
           <li>
-            <a class="links-card links-document-card" href="{{ url_for('main.static', filename='pdf/' ~ folder ~ '/' ~ file) }}" target="_blank" rel="noopener noreferrer">
+            {% set doc_url = url_for('shop.static', filename='pdf/' ~ file) if folder == 'shop' else url_for('main.static', filename='pdf/' ~ folder ~ '/' ~ file) %}
+            <a class="links-card links-document-card" href="{{ doc_url }}" target="_blank" rel="noopener noreferrer">
               <i class="fa-regular fa-file-pdf" aria-hidden="true"></i>
               <span>{{ label }}</span>
               <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>

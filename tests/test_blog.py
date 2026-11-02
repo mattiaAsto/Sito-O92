@@ -148,6 +148,54 @@ class BlogTestCase(unittest.TestCase):
         self.assertIn("(…)", page)
         self.assertNotIn("**", page)
 
+    def test_book_chapter_navigation(self):
+        admin = self.client_for("admin@example.com")
+        for title in ("Primo", "Secondo", "Terzo"):
+            self.create_post(admin, title=title)
+        anon = self.client_for()
+        default = anon.get("/blog/").get_data(as_text=True)
+        self.assertIn("Capitolo 1 di 3", default)
+        self.assertIn("Terzo", default.split('id="bookOpen"')[1].split("book-nav")[0])
+        self.assertIn("capitolo=2", default)
+        self.assertNotIn("capitolo=0", default)
+        last = anon.get("/blog/?capitolo=3").get_data(as_text=True)
+        self.assertIn("Capitolo 3 di 3", last)
+        self.assertIn("Primo", last.split('id="bookOpen"')[1].split("book-nav")[0])
+        self.assertNotIn("capitolo=4", last)
+        self.assertIn("Capitolo 3 di 3", anon.get("/blog/?capitolo=99").get_data(as_text=True))
+        self.assertIn("Capitolo 1 di 3", anon.get("/blog/?capitolo=0").get_data(as_text=True))
+
+    def test_image_size_from_title_and_preview(self):
+        self.create_post(
+            self.client_for("admin@example.com"),
+            text='![a](Foto Uno.PNG "piccola")\n\n![b](Foto Uno.PNG "40%")\n\n![c](Foto Uno.PNG "boh")\n\n![d](Foto Uno.PNG)',
+        )
+        page = self.client_for().get("/blog/1").get_data(as_text=True)
+        self.assertIn('width="50%"', page)
+        self.assertIn('width="40%"', page)
+        article = page.split("news-article")[1].split("</article>")[0]
+        self.assertEqual(article.count("width="), 2)
+
+        client = self.client_for("author@example.com")
+        response = client.post(
+            "/blog/preview",
+            data={
+                "title": "Bozza",
+                "text": '![x](Foto Uno.PNG "media")\n\n![y](mancante.jpg)',
+                "photo_names": '["foto uno.png"]',
+                "has_cover": "1",
+            },
+        )
+        data = response.get_json()
+        self.assertIn('src="#photo-0"', data["html"])
+        self.assertIn('width="70%"', data["html"])
+        self.assertIn("Bozza", data["html"])
+        self.assertIn('id="previewCover"', data["html"])
+        self.assertEqual(data["missing"], ["mancante.jpg"])
+        with self.app.app_context():
+            self.assertEqual(BlogPost.query.count(), 1)
+        self.assertEqual(self.client_for().post("/blog/preview").status_code, 302)
+
     def test_pending_is_admin_only(self):
         self.assertEqual(self.client_for("author@example.com").get("/blog/pending").status_code, 403)
         self.assertEqual(self.client_for("admin@example.com").get("/blog/pending").status_code, 200)

@@ -2,58 +2,342 @@
 
 {% block title %}Scrivi un racconto | Orientisti 92 Piano di Magadino{% endblock %}
 
-{% macro field_block(field, help=None) %}
-  <div class="mb-3">
-    {{ field.label(class="form-label") }}
-    {{ field(class="form-control" ~ (" is-invalid" if field.errors else "")) }}
-    {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
-    {% for error in field.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-  </div>
+{% macro errors(field) %}
+  {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
 {% endmacro %}
 
 {% block content %}
-  <section class="page-section">
+  <section class="page-section blog-editor">
     <a class="news-back" href="{{ url_for('blog.index') }}">&laquo; blog</a>
     <h1 class="page-title">Scrivi un racconto</h1>
-    <form method="post" enctype="multipart/form-data">
+    <p class="text-center text-muted">Segui i 4 passi. Puoi vedere l'anteprima prima di pubblicare.</p>
+
+    <form method="post" enctype="multipart/form-data" id="blogForm">
       {{ form.hidden_tag() }}
 
-      {{ field_block(form.title) }}
-      {{ field_block(form.summary, "Breve frase mostrata sotto il titolo, anche nell'elenco del blog.") }}
-      {{ field_block(form.text) }}
+      <div class="editor-step">
+        <h2 class="editor-step-title"><span>1</span> Titolo</h2>
+        {{ form.title(class="form-control form-control-lg" ~ (" is-invalid" if form.errors.get("title") else ""), placeholder="Es. Capitolo o-Ringen 2026") }}
+        {{ errors(form.title) }}
+        {{ form.summary(class="form-control mt-2", placeholder="Una frase sotto il titolo (facoltativa). Es. 1500 km, meta Göteborg") }}
+        {{ errors(form.summary) }}
+      </div>
 
-      <details class="md-guide mb-4">
-        <summary>Come formattare il testo (markdown)</summary>
-        <table class="table table-sm mt-2">
-          <thead><tr><th>Scrivi</th><th>Risultato</th></tr></thead>
-          <tbody>
-            <tr><td><code>## Titolo di sezione</code></td><td>Titolo di sezione (usa <code>###</code> per uno più piccolo)</td></tr>
-            <tr><td><code>**grassetto**</code></td><td><strong>grassetto</strong></td></tr>
-            <tr><td><code>*corsivo*</code></td><td><em>corsivo</em></td></tr>
-            <tr><td><code>[testo del link](https://esempio.ch)</code></td><td>Link cliccabile</td></tr>
-            <tr><td><code>- primo<br>- secondo</code></td><td>Elenco puntato (con una riga vuota prima)</td></tr>
-            <tr><td><code>&gt; citazione</code></td><td>Citazione</td></tr>
-            <tr><td><code>---</code></td><td>Linea di separazione</td></tr>
-            <tr><td><code>![descrizione](foto.jpg)</code></td><td>Foto nel testo: scrivi il nome di un file caricato in "Foto del racconto". La descrizione appare come didascalia se la foto è da sola su una riga.</td></tr>
-          </tbody>
-        </table>
-        <p class="mb-0">Per andare a capo basta premere Invio; per separare i paragrafi lascia una riga vuota.</p>
-      </details>
+      <div class="editor-step">
+        <h2 class="editor-step-title"><span>2</span> Foto</h2>
+        <p class="text-muted mb-2">Scegli le foto del tuo racconto: puoi aggiungerne quante vuoi, anche in momenti diversi.</p>
+        <input type="file" id="photoPicker" name="photos" multiple accept="image/*" hidden>
+        <button type="button" class="btn btn-brand" id="addPhotos"><i class="fas fa-images"></i> Aggiungi foto</button>
+        {{ errors(form.photos) }}
+        <div id="photoList" class="editor-photos"></div>
 
-      <fieldset class="upload-box mb-3">
-        <legend class="fs-6 fw-bold">Immagine di copertina</legend>
-        {{ field_block(form.cover, "Facoltativa. Mostrata nell'elenco del blog e in cima al racconto; non fa parte del testo.") }}
-      </fieldset>
+        <p class="text-muted mt-3 mb-2">Facoltativo: una foto di copertina, mostrata in cima al racconto e nell'elenco.</p>
+        <input type="file" id="coverPicker" name="cover" accept="image/*" hidden>
+        <button type="button" class="btn btn-brand-outline btn-sm" id="addCover"><i class="fas fa-image"></i> Scegli copertina</button>
+        <span id="coverName" class="ms-2 small text-muted">nessuna copertina</span>
+        {{ errors(form.cover) }}
+      </div>
 
-      <fieldset class="upload-box mb-3">
-        <legend class="fs-6 fw-bold">Foto del racconto</legend>
-        {{ field_block(form.photos, "Le immagini da usare dentro il testo. Caricarle non basta: scrivi nel testo ![descrizione](nome-file.jpg). Puoi selezionare più file insieme.") }}
-      </fieldset>
+      <div class="editor-step">
+        <h2 class="editor-step-title"><span>3</span> Racconto</h2>
+        <div class="editor-toolbar" role="toolbar" aria-label="Formattazione">
+          <button type="button" data-wrap="**" title="Testo in grassetto"><strong>B</strong> Grassetto</button>
+          <button type="button" data-wrap="*" title="Testo in corsivo"><em>I</em> Corsivo</button>
+          <button type="button" data-line="## " title="Titolo di sezione">Titolo</button>
+          <button type="button" data-line="- " title="Elenco puntato">Elenco</button>
+          <button type="button" data-line="> " title="Citazione">Citazione</button>
+          <button type="button" id="linkButton" title="Link a un sito">Link</button>
+        </div>
+        {{ form.text(class="form-control editor-text" ~ (" is-invalid" if form.errors.get("text") else ""), rows=16, placeholder="Scrivi qui il tuo racconto. Per andare a capo premi Invio; per separare i paragrafi lascia una riga vuota.") }}
+        {{ errors(form.text) }}
+        <div class="editor-tray">
+          <p class="editor-tray-title mb-1"><i class="fas fa-images"></i> Le tue foto: clicca su una foto per inserirla nel testo, dove si trova il cursore</p>
+          <p id="trayEmpty" class="text-muted small mb-0">Non hai ancora aggiunto foto. <button type="button" class="btn btn-link p-0 align-baseline" id="trayAdd">Aggiungi foto</button></p>
+          <div id="photoTray" class="editor-tray-list"></div>
+        </div>
 
-      {% if not current_user.is_admin %}
-        <p class="text-muted small">Il tuo nome sarà visibile come autore. Il racconto verrà pubblicato dopo la verifica di un amministratore.</p>
-      {% endif %}
-      {{ form.submit(class="btn btn-brand") }}
+        <details class="md-guide mt-3">
+          <summary>Aiuto sulla formattazione (per esperti)</summary>
+          <table class="table table-sm mt-2">
+            <thead><tr><th>Scrivi</th><th>Risultato</th></tr></thead>
+            <tbody>
+              <tr><td><code>## Titolo di sezione</code></td><td>Titolo di sezione (<code>###</code> per uno più piccolo)</td></tr>
+              <tr><td><code>**grassetto**</code> / <code>*corsivo*</code></td><td><strong>grassetto</strong> / <em>corsivo</em></td></tr>
+              <tr><td><code>[testo](https://esempio.ch)</code></td><td>Link cliccabile</td></tr>
+              <tr><td><code>- primo<br>- secondo</code></td><td>Elenco puntato (con una riga vuota prima)</td></tr>
+              <tr><td><code>&gt; citazione</code></td><td>Citazione</td></tr>
+              <tr><td><code>---</code></td><td>Linea di separazione</td></tr>
+              <tr><td><code>![didascalia](foto.jpg "piccola")</code></td><td>Foto con dimensione: <code>piccola</code> (50%), <code>media</code> (70%), <code>grande</code> (85%), <code>intera</code> (100%) oppure una percentuale come <code>"40%"</code>. La didascalia compare se la foto è da sola su una riga.</td></tr>
+            </tbody>
+          </table>
+        </details>
+      </div>
+
+      <div class="editor-step">
+        <h2 class="editor-step-title"><span>4</span> Controlla e pubblica</h2>
+        {% if not current_user.is_admin %}
+          <p class="text-muted small">Il tuo nome sarà visibile come autore. Il racconto verrà pubblicato dopo la verifica di un amministratore.</p>
+        {% endif %}
+        <div class="d-flex flex-wrap gap-2">
+          <button type="button" class="btn btn-brand-outline btn-lg" id="previewButton" data-url="{{ url_for('blog.preview') }}"><i class="fas fa-eye"></i> Anteprima</button>
+          {{ form.submit(class="btn btn-brand btn-lg", value="Pubblica") }}
+        </div>
+      </div>
     </form>
+
+    <div id="previewBox" class="blog-preview-box" hidden>
+      <p class="blog-preview-label">Anteprima (non ancora salvata)</p>
+      <div id="previewWarning" class="alert alert-warning" hidden></div>
+      <div id="previewContent"></div>
+    </div>
   </section>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      var form = document.getElementById("blogForm");
+      var text = form.querySelector('[name="text"]');
+      var photoPicker = document.getElementById("photoPicker");
+      var coverPicker = document.getElementById("coverPicker");
+      var list = document.getElementById("photoList");
+      var MAX_PHOTOS = 30;
+      var photos = [];
+      var urls = [];
+      var SIZES = [["", "Intera (100%)"], ["grande", "Grande (85%)"], ["media", "Media (70%)"], ["piccola", "Piccola (50%)"]];
+
+      /* ---- text editing helpers ---- */
+      function replaceSelection(before, selected, after) {
+        var start = text.selectionStart, end = text.selectionEnd;
+        text.value = text.value.slice(0, start) + before + selected + after + text.value.slice(end);
+        text.focus();
+        text.selectionStart = start + before.length;
+        text.selectionEnd = start + before.length + selected.length;
+      }
+
+      form.querySelectorAll("[data-wrap]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          var mark = button.dataset.wrap;
+          var selected = text.value.slice(text.selectionStart, text.selectionEnd) || "testo";
+          replaceSelection(mark, selected, mark);
+        });
+      });
+
+      form.querySelectorAll("[data-line]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          var prefix = button.dataset.line;
+          var start = text.value.lastIndexOf("\n", text.selectionStart - 1) + 1;
+          var needsBlank = start > 0 && text.value.slice(Math.max(0, start - 2), start) !== "\n\n";
+          text.value = text.value.slice(0, start) + (needsBlank ? "\n" : "") + prefix + text.value.slice(start);
+          var pos = start + (needsBlank ? 1 : 0) + prefix.length;
+          text.focus();
+          text.selectionStart = text.selectionEnd = pos;
+        });
+      });
+
+      document.getElementById("linkButton").addEventListener("click", function () {
+        var url = prompt("Indirizzo del sito (es. https://www.o92.ch):");
+        if (!url) return;
+        var selected = text.value.slice(text.selectionStart, text.selectionEnd) || "clicca qui";
+        replaceSelection("[", selected, "](" + url + ")");
+      });
+
+      function insertAtCursor(snippet) {
+        var start = text.selectionStart, end = text.selectionEnd;
+        text.value = text.value.slice(0, start) + snippet + text.value.slice(end);
+        text.focus();
+        text.selectionStart = text.selectionEnd = start + snippet.length;
+      }
+
+      /* ---- photos ---- */
+      var tray = document.getElementById("photoTray");
+      var trayEmpty = document.getElementById("trayEmpty");
+
+      function insertPhoto(photo, caption, size) {
+        var label = (caption || "").replace(/[\[\]]/g, "");
+        var title = size ? ' "' + size + '"' : "";
+        var pos = text.selectionStart;
+        var before = pos > 0 && text.value.slice(pos - 2, pos) !== "\n\n" ? (text.value.charAt(pos - 1) === "\n" ? "\n" : "\n\n") : "";
+        insertAtCursor(before + "![" + label + "](" + photo.file.name + title + ")\n\n");
+        updateUsage();
+      }
+
+      function updateUsage() {
+        document.querySelectorAll("[data-name]").forEach(function (el) {
+          el.hidden = text.value.indexOf("](" + el.dataset.name) === -1;
+        });
+      }
+      text.addEventListener("input", updateUsage);
+
+      function syncInput() {
+        var transfer = new DataTransfer();
+        photos.forEach(function (p) { transfer.items.add(p.file); });
+        photoPicker.files = transfer.files;
+      }
+
+      function render() {
+        urls.forEach(URL.revokeObjectURL);
+        urls = [];
+        list.innerHTML = "";
+        tray.innerHTML = "";
+        trayEmpty.hidden = photos.length > 0;
+        photos.forEach(function (photo, index) {
+          var url = URL.createObjectURL(photo.file);
+          urls.push(url);
+
+          var thumb = document.createElement("button");
+          thumb.type = "button";
+          thumb.className = "editor-tray-item";
+          thumb.title = "Inserisci nel testo";
+          var thumbImg = document.createElement("img");
+          thumbImg.src = url;
+          thumbImg.alt = photo.file.name;
+          thumb.appendChild(thumbImg);
+          var plus = document.createElement("span");
+          plus.textContent = "+ Inserisci";
+          thumb.appendChild(plus);
+          var thumbUsed = document.createElement("em");
+          thumbUsed.dataset.name = photo.file.name;
+          thumbUsed.textContent = "✓ Nel testo";
+          thumb.appendChild(thumbUsed);
+          thumb.addEventListener("click", function () { insertPhoto(photo, "", ""); });
+          tray.appendChild(thumb);
+
+          var item = document.createElement("div");
+          item.className = "editor-photo";
+
+          var img = document.createElement("img");
+          img.src = url;
+          img.alt = "";
+          item.appendChild(img);
+
+          var body = document.createElement("div");
+          body.className = "editor-photo-body";
+
+          var name = document.createElement("div");
+          name.className = "editor-photo-name";
+          name.textContent = photo.file.name;
+          body.appendChild(name);
+
+          var caption = document.createElement("input");
+          caption.type = "text";
+          caption.className = "form-control form-control-sm";
+          caption.placeholder = "Didascalia (facoltativa)";
+          body.appendChild(caption);
+
+          var row = document.createElement("div");
+          row.className = "d-flex flex-wrap gap-2 mt-2";
+          var size = document.createElement("select");
+          size.className = "form-select form-select-sm w-auto";
+          SIZES.forEach(function (s) {
+            var option = document.createElement("option");
+            option.value = s[0];
+            option.textContent = s[1];
+            size.appendChild(option);
+          });
+          row.appendChild(size);
+
+          var insert = document.createElement("button");
+          insert.type = "button";
+          insert.className = "btn btn-brand btn-sm";
+          insert.textContent = "Inserisci nel testo";
+          insert.addEventListener("click", function () {
+            insertPhoto(photo, caption.value, size.value);
+          });
+          row.appendChild(insert);
+
+          var used = document.createElement("span");
+          used.className = "editor-photo-used";
+          used.dataset.name = photo.file.name;
+          used.textContent = "✓ Nel testo";
+          row.appendChild(used);
+
+          var remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "btn btn-outline-danger btn-sm";
+          remove.textContent = "Rimuovi";
+          remove.addEventListener("click", function () {
+            photos.splice(index, 1);
+            syncInput();
+            render();
+          });
+          row.appendChild(remove);
+
+          body.appendChild(row);
+          item.appendChild(body);
+          list.appendChild(item);
+        });
+        updateUsage();
+      }
+
+      document.getElementById("trayAdd").addEventListener("click", function () { photoPicker.click(); });
+
+      function safeName(name) {
+        return name.replace(/[()"\[\]]/g, "_");
+      }
+
+      document.getElementById("addPhotos").addEventListener("click", function () { photoPicker.click(); });
+      photoPicker.addEventListener("change", function () {
+        var chosen = Array.prototype.slice.call(photoPicker.files);
+        chosen.forEach(function (file) {
+          var clean = new File([file], safeName(file.name), { type: file.type });
+          var duplicate = photos.some(function (p) {
+            return p.file.name === clean.name && p.file.size === clean.size;
+          });
+          if (!duplicate && photos.length < MAX_PHOTOS) photos.push({ file: clean });
+        });
+        syncInput();
+        render();
+      });
+
+      document.getElementById("addCover").addEventListener("click", function () { coverPicker.click(); });
+      coverPicker.addEventListener("change", function () {
+        document.getElementById("coverName").textContent =
+          coverPicker.files.length ? coverPicker.files[0].name : "nessuna copertina";
+      });
+
+      /* ---- preview ---- */
+      var button = document.getElementById("previewButton");
+      var box = document.getElementById("previewBox");
+      var content = document.getElementById("previewContent");
+      var warning = document.getElementById("previewWarning");
+      var previewUrls = [];
+
+      button.addEventListener("click", function () {
+        var files = photos.map(function (p) { return p.file; });
+        var data = new FormData();
+        data.append("csrf_token", form.querySelector('input[name="csrf_token"]').value);
+        ["title", "summary", "text"].forEach(function (name) {
+          data.append(name, form.querySelector('[name="' + name + '"]').value);
+        });
+        data.append("photo_names", JSON.stringify(files.map(function (f) { return f.name; })));
+        data.append("has_cover", coverPicker.files.length ? "1" : "0");
+        button.disabled = true;
+
+        fetch(button.dataset.url, { method: "POST", body: data, credentials: "same-origin" })
+          .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then(function (result) {
+            previewUrls.forEach(URL.revokeObjectURL);
+            previewUrls = [];
+            content.innerHTML = result.html;
+            content.querySelectorAll('img[src^="#photo-"]').forEach(function (img) {
+              var file = files[parseInt(img.getAttribute("src").slice(7), 10)];
+              if (file) { var u = URL.createObjectURL(file); previewUrls.push(u); img.src = u; }
+            });
+            var cover = document.getElementById("previewCover");
+            if (cover && coverPicker.files.length) {
+              var c = URL.createObjectURL(coverPicker.files[0]); previewUrls.push(c); cover.src = c;
+            }
+            warning.hidden = !result.missing.length;
+            warning.textContent = result.missing.length
+              ? "Immagini nel testo senza una foto caricata: " + result.missing.join(", ")
+              : "";
+            box.hidden = false;
+            box.scrollIntoView({ behavior: "smooth" });
+          })
+          .catch(function () { alert("Impossibile generare l'anteprima. Riprova."); })
+          .finally(function () { button.disabled = false; });
+      });
+    })();
+  </script>
 {% endblock %}

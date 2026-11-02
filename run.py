@@ -121,7 +121,7 @@ def create_test_blog_posts():
     from app.storage import save_image
 
     author = db.session.execute(db.select(User)).scalars().first()
-    second_author = User(first_name="Sara", last_name="Bianchi", email="sara@test.com")
+    second_author = User(first_name="Marco", last_name="Bianchi", email="marco@test.com")
     second_author.set_password("12345678")
     db.session.add(second_author)
     db.session.flush()
@@ -232,6 +232,7 @@ def reset_database():
 
 if __name__ == "__main__":
     reset_database()
+    print("Database reset, main running...")
 
     # Development server: reload templates and refresh the browser on file changes.
     app.config["TEMPLATES_AUTO_RELOAD"] = True

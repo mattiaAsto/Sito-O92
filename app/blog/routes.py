@@ -1,6 +1,9 @@
+from datetime import datetime
 from functools import wraps
+import json
+from zoneinfo import ZoneInfo
 
-from flask import abort, current_app, flash, redirect, render_template, url_for
+from flask import abort, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.blog import blog
@@ -42,10 +45,22 @@ def index():
         per_page=PER_PAGE,
         error_out=False,
     )
+    verified = BlogPost.is_verified.is_(True)
+    total = db.session.scalar(db.select(db.func.count()).select_from(BlogPost).where(verified))
+    # Chapter 1 is the newest; "next" moves towards older chapters.
+    requested = request.args.get("capitolo", type=int)
+    chapter = min(max(requested, 1), total) if requested is not None and total else 1
     latest = db.session.execute(
-        db.select(BlogPost).where(BlogPost.is_verified.is_(True)).order_by(*newest_first()).limit(1)
+        db.select(BlogPost).where(verified).order_by(*newest_first()).offset(chapter - 1).limit(1)
     ).scalar_one_or_none()
-    return render_template("blog/index.html", page=page, latest=latest)
+    return render_template(
+        "blog/index.html",
+        page=page,
+        latest=latest,
+        chapter=chapter,
+        total=total,
+        book_open=requested is not None,
+    )
 
 
 @blog.route("/mine")
@@ -127,6 +142,28 @@ def create():
                 )
             return redirect(url_for("blog.detail", post_id=post.id))
     return render_template("blog/create.html", form=form)
+
+
+@blog.route("/preview", methods=["POST"])
+@login_required
+def preview():
+    """Render a draft exactly like the final page, without saving anything."""
+    try:
+        names = json.loads(request.form.get("photo_names", "[]"))
+    except ValueError:
+        names = []
+    names = [n for n in names if isinstance(n, str)][:MAX_PHOTOS]
+    html = render_template(
+        "blog/_preview.html",
+        title=(request.form.get("title") or "").strip(),
+        summary=(request.form.get("summary") or "").strip(),
+        text=request.form.get("text") or "",
+        photo_names=names,
+        has_cover=request.form.get("has_cover") == "1",
+        author=current_user,
+        now_label=datetime.now(ZoneInfo("Europe/Zurich")).strftime("%d.%m.%Y"),
+    )
+    return {"html": html, "missing": missing_photo_names(request.form.get("text") or "", names)}
 
 
 @blog.route("/<int:post_id>")

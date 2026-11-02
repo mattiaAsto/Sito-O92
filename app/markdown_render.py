@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 from app.storage import media_url
 
 _ABSOLUTE_URL = re.compile(r"^([a-z][a-z0-9+.-]*:|//|/)", re.IGNORECASE)
-_IMAGE_REF = re.compile(r"!\[[^\]]*\]\(\s*([^)\s]+)")
+_IMAGE_REF = re.compile(r'!\[[^\]]*\]\(\s*([^)"]+?)\s*(?:"[^"]*")?\s*\)')
 
 
 def photo_key(name):
@@ -36,17 +36,40 @@ def _news_image_filter(article):
     for image in article.images:
         stored.setdefault(photo_key(image.original_name), image.filename)
 
+    return _image_filter(
+        lambda key: media_url(f"{article.storage_prefix}/{stored[key]}") if key in stored else None
+    )
+
+
+def _image_filter(resolve):
     def attribute_filter(tag, attr, value):
         if tag != "img" or attr != "src":
             return value
         if _ABSOLUTE_URL.match(value):
             return value
-        filename = stored.get(photo_key(value))
-        if not filename:
-            return None
-        return media_url(f"{article.storage_prefix}/{filename}")
+        return resolve(photo_key(value))
 
     return attribute_filter
+
+
+SIZE_NAMES = {"piccola": 50, "media": 70, "grande": 85, "intera": 100}
+_IMG_TITLE = re.compile(r'<img\b[^>]*?\btitle="([^"]*)"[^>]*>')
+
+
+def _apply_sizes(html):
+    """Turn an image title such as "piccola" or "40%" into a width attribute."""
+
+    def replace(match):
+        label = match.group(1).strip().lower().rstrip("%").strip()
+        percent = SIZE_NAMES.get(label)
+        if percent is None and label.isdigit():
+            percent = min(max(int(label), 5), 100)
+        if percent is None:
+            return match.group(0)
+        tag = re.sub(r'\s*\btitle="[^"]*"', "", match.group(0), count=1)
+        return tag[:-1].rstrip("/ ") + f' width="{percent}%">'
+
+    return _IMG_TITLE.sub(replace, html)
 
 
 _STANDALONE_IMG = re.compile(r'<p>\s*(<img\b[^>]*>)\s*</p>')
@@ -68,17 +91,31 @@ def _captioned(html):
 _IMAGE_LINE = re.compile(r"^[ \t]*(!\[[^\]]*\]\([^)]*\))[ \t]*$", re.MULTILINE)
 
 
+def _render(text, attribute_filter):
+    text = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    text = _IMAGE_LINE.sub(r"\n\1\n", text)  # an image on its own line is its own block
+    html = markdown.markdown(text, extensions=["extra", "sane_lists", "nl2br"])
+    clean = nh3.clean(_apply_sizes(html), attribute_filter=attribute_filter)
+    return Markup(_captioned(clean))
+
+
 def render_news_markdown(text, article):
     """Render a post's markdown to sanitized HTML.
 
     Images written with the name of an uploaded photo, e.g. ![alt](photo.jpg), are
-    replaced with that photo's stored URL.
+    replaced with that photo's stored URL. A title sets the size: ![alt](photo.jpg "piccola").
     """
-    text = (text or "").replace("\r\n", "\n").replace("\r", "\n")
-    text = _IMAGE_LINE.sub(r"\n\1\n", text)  # an image on its own line is its own block
-    html = markdown.markdown(text, extensions=["extra", "sane_lists", "nl2br"])
-    clean = nh3.clean(html, attribute_filter=_news_image_filter(article))
-    return Markup(_captioned(clean))
+    return _render(text, _news_image_filter(article))
+
+
+def render_preview_markdown(text, photo_names):
+    """Same rendering as the final page; photos become #photo-<n> placeholders for the browser."""
+    indexes = {}
+    for index, name in enumerate(photo_names):
+        indexes.setdefault(photo_key(name), index)
+    return _render(
+        text, _image_filter(lambda key: f"#photo-{indexes[key]}" if key in indexes else None)
+    )
 
 
 render_blog_markdown = render_news_markdown

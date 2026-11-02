@@ -7,8 +7,8 @@
   <section class="page-section">
     <h1 class="page-title">Racconti dall'o-92</h1>
 
-    <div class="book-stage" id="bookStage">
-      <button type="button" class="book-cover" id="bookCover" aria-controls="bookOpen" aria-expanded="false">
+    <div class="book-stage" id="libro">
+      <button type="button" class="book-cover" id="bookCover" aria-controls="bookOpen" aria-expanded="false"{% if book_open and latest %} hidden{% endif %}>
         <img class="book-cover-logo" src="{{ url_for('main.static', filename='pictures/O-92_Logo.png') }}" alt="">
         <span class="book-cover-title">Il giro del mondo in 92 lanterne</span>
         <span class="book-cover-subtitle">racconti di chi grazie alla CO vive esperienze indimenticabili</span>
@@ -16,7 +16,7 @@
       </button>
 
       {% if latest %}
-        <div class="book-open" id="bookOpen" hidden>
+        <div class="book-open" id="bookOpen"{% if not book_open %} hidden{% endif %}>
           <div class="book-page book-page-left">
             <img class="book-page-logo" src="{{ url_for('main.static', filename='pictures/O-92_Logo.png') }}" alt="">
             <p class="book-page-title">Il giro del mondo in 92 lanterne</p>
@@ -24,6 +24,7 @@
             <button type="button" class="book-close" id="bookClose">chiudi il libro</button>
           </div>
           <a class="book-page book-page-right" href="{{ url_for('blog.detail', post_id=latest.id) }}">
+            <span class="book-chapter-number">Capitolo {{ chapter }}</span>
             <span class="book-chapter">{{ latest.title }}</span>
             {% if latest.summary %}<span class="book-chapter-sub">{{ latest.summary }}</span>{% endif %}
             <span class="book-byline">a cura di {{ latest.author.first_name }} {{ latest.author.last_name[:1] }}., {{ latest.created_at.strftime("%d.%m.%Y") }}</span>
@@ -31,6 +32,19 @@
             <span class="book-read">continua a leggere &raquo;</span>
           </a>
         </div>
+        <nav class="book-nav" id="bookNav" aria-label="Sfoglia i capitoli"{% if not book_open %} hidden{% endif %}>
+          {% if chapter > 1 %}
+            <a class="btn btn-brand-outline" href="{{ url_for('blog.index', capitolo=chapter - 1) }}#libro">&laquo; Capitolo precedente</a>
+          {% else %}
+            <span class="btn btn-brand-outline disabled">&laquo; Capitolo precedente</span>
+          {% endif %}
+          <span class="book-nav-count">Capitolo {{ chapter }} di {{ total }}</span>
+          {% if chapter < total %}
+            <a class="btn btn-brand-outline" href="{{ url_for('blog.index', capitolo=chapter + 1) }}#libro">Capitolo successivo &raquo;</a>
+          {% else %}
+            <span class="btn btn-brand-outline disabled">Capitolo successivo &raquo;</span>
+          {% endif %}
+        </nav>
       {% endif %}
     </div>
 
@@ -73,6 +87,8 @@
       function toggle(show) {
         open.hidden = !show;
         cover.hidden = show;
+        var nav = document.getElementById("bookNav");
+        if (nav) nav.hidden = !show;
         cover.setAttribute("aria-expanded", show ? "true" : "false");
       }
       cover.addEventListener("click", function () { toggle(true); });

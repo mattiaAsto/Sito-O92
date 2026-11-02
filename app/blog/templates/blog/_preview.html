@@ -1,0 +1,9 @@
+<article class="news-article blog-preview">
+  <p class="news-date text-muted mb-1">{{ now_label }} · di {{ author.first_name }} {{ author.last_name }}</p>
+  <h1>{{ title or "(senza titolo)" }}</h1>
+  {% if summary %}<p class="lead">{{ summary }}</p>{% endif %}
+  {% if has_cover %}
+    <figure class="blog-cover"><img id="previewCover" alt="{{ title }}"></figure>
+  {% endif %}
+  {{ text | blog_preview(photo_names) }}
+</article>

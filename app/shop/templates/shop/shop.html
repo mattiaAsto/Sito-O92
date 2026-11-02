@@ -7,8 +7,13 @@
 <section class="shop-hero mb-4 d-flex flex-wrap justify-content-between align-items-end gap-2">
   <div>
     <h1 class="h2 mb-1">Shop</h1>
-    <p class="text-muted mb-0">Abbigliamento della squadra e capi usati messi in vendita dai membri.</p>
-  </div>
+    <p class="text-muted mb-0">Abbigliamento della società e capi usati messi in vendita dai soci.</p>
+        <p class="mb-0 mt-1">
+          <a class="shop-pdf-link" href="{{ url_for('shop.static', filename=materials_pdf) }}" target="_blank" rel="noopener noreferrer">
+            <i class="fa-regular fa-file-pdf" aria-hidden="true"></i> Lista del materiale O-92 (PDF)
+          </a>
+        </p>
+      </div>
   {% if current_user.is_authenticated %}
     <div class="d-flex flex-wrap gap-2">
       <a class="btn btn-brand btn-sm" href="{{ url_for('shop.create') }}">Vendi un articolo</a>
@@ -25,9 +30,37 @@
 <section class="mb-5" aria-labelledby="team-clothes-title">
   <div class="mb-3">
     <p class="shop-eyebrow mb-1">Collezione ufficiale</p>
-    <h2 class="h3 mb-0" id="team-clothes-title">Abbigliamento del team</h2>
+    <h2 class="h3 mb-0" id="team-clothes-title">Abbigliamento ufficiale</h2>
   </div>
-  {{ product_grid(team_products, "Al momento non ci sono articoli del team nel catalogo.") }}
+  <div class="shop-grid">
+    {% for item in official_materials %}
+      <a class="shop-item" href="{{ url_for('shop.material', slug=item.slug) }}">
+        <span class="shop-item-media shop-item-media-contain">
+          {% if item.images %}
+            <img src="{{ url_for('shop.static', filename=item.images[0]) }}" alt="{{ item.name }}" loading="lazy">
+          {% else %}
+            <span class="shop-item-placeholder" aria-hidden="true"><i class="fas fa-shirt"></i></span>
+          {% endif %}
+          <span class="shop-ribbon shop-ribbon-official">Team</span>
+        </span>
+        <span class="shop-item-body">
+          <span class="shop-item-category">{{ item.prices | map(attribute=0) | join(" · ") }}</span>
+          <span class="shop-item-name">{{ item.name }}</span>
+          <span class="shop-item-footer">
+            <span class="shop-price">{% if item.has_range %}da {% endif %}CHF {{ item.from_price }}</span>
+          </span>
+        </span>
+      </a>
+    {% endfor %}
+  </div>
+  <p class="small text-muted mt-3 mb-0">
+    Per informazioni o ordinazioni contatta {{ materials_contact_name }}:
+    <a href="mailto:{{ materials_contact_email }}">{{ materials_contact_email }}</a>.
+    Secondo l’art. 11 del regolamento, i nuovi soci possono acquistare il materiale con forti sconti dopo aver partecipato regolarmente agli allenamenti e ad almeno metà delle gare TMO della stagione (il comitato può concedere deroghe).
+  </p>
+  {% if team_products %}
+    <div class="mt-4">{{ product_grid(team_products, "") }}</div>
+  {% endif %}
 </section>
 
 <section class="mb-4" aria-labelledby="used-clothes-title">

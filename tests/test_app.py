@@ -188,8 +188,20 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertIn("shop", self.app.blueprints)
         self.assertIn(b"/static/main/css/style.css", empty_response.data)
         self.assertIn(b'href="/shop"', empty_response.data)
-        self.assertIn(b"Abbigliamento del team", empty_response.data)
+        self.assertIn(b"Abbigliamento ufficiale", empty_response.data)
         self.assertIn(b"Abbigliamento usato", empty_response.data)
+        self.assertIn(b"/static/shop/pdf/materiale_o-92_0525.pdf", empty_response.data)
+        self.assertIn(b"/shop/materiale/pigiami", empty_response.data)
+        self.assertIn(b"/static/shop/img/materiale/pigiama-maglia.jpg", empty_response.data)
+        for slug in ("pigiami", "training", "maglia-bucata", "borse", "vari"):
+            self.assertEqual(self.client.get(f"/shop/materiale/{slug}").status_code, 200)
+        self.assertEqual(self.client.get("/shop/materiale/nope").status_code, 404)
+        self.assertEqual(
+            self.client.get("/static/shop/img/materiale/pigiama-maglia.jpg").status_code, 200
+        )
+        self.assertIn(
+            b"/static/shop/pdf/materiale_o-92_0525.pdf", self.client.get("/links").data
+        )
 
         seller = User(email="s@x.ch", first_name="Sara", last_name="Rossi")
         seller.set_password("12345678")
@@ -217,13 +229,12 @@ class ApplicationTestCase(unittest.TestCase):
 
         response = self.client.get("/shop")
         self.assertEqual(response.status_code, 200)
-        team_section = response.data.index(b"Abbigliamento del team")
+        team_section = response.data.index(b"Abbigliamento ufficiale")
         used_section = response.data.index(b"Abbigliamento usato")
         self.assertLess(team_section, used_section)
         self.assertIn(b"Maglia da orientamento", response.data)
         self.assertIn(b"Giacca da gara usata", response.data)
         self.assertIn(b"CHF 49.90", response.data)
-        self.assertNotIn(b"Al momento non ci sono articoli del team", response.data)
         self.assertNotIn(b"Al momento non ci sono capi usati", response.data)
 
     def test_calendar_blueprint_loads_activity_data_and_renders_details_route(self):

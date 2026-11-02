@@ -1,0 +1,72 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ item.name }} | Shop | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+<article class="shop-detail">
+  <a class="news-back" href="{{ url_for('shop.index') }}">&laquo; shop</a>
+
+  <div class="shop-detail-grid">
+    <div class="shop-gallery">
+      <div class="shop-gallery-main shop-item-media-contain">
+        {% if item.images %}
+          <img id="shopMainImage" src="{{ url_for('shop.static', filename=item.images[0]) }}" alt="{{ item.name }}">
+        {% else %}
+          <span class="shop-item-placeholder" aria-hidden="true"><i class="fas fa-shirt"></i></span>
+        {% endif %}
+      </div>
+      {% if item.images | length > 1 %}
+        <div class="shop-gallery-thumbs">
+          {% for image in item.images %}
+            <button type="button" class="shop-thumb{% if loop.first %} active{% endif %}" data-src="{{ url_for('shop.static', filename=image) }}" aria-label="Foto {{ loop.index }}">
+              <img src="{{ url_for('shop.static', filename=image) }}" alt="" loading="lazy">
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="shop-detail-info">
+      <p class="shop-eyebrow mb-1">Abbigliamento ufficiale</p>
+      <h1 class="h2">{{ item.name }}</h1>
+      <p class="shop-description">{{ item.note }}</p>
+
+      <h2 class="h6">Prezzi</h2>
+      <ul class="shop-material-prices">
+        {% for label, price in item.prices %}
+          <li><span>{{ label }}</span><span class="shop-price">CHF {{ price }}</span></li>
+        {% endfor %}
+      </ul>
+
+      {% if item.sizes %}
+        <h2 class="h6">Taglie ancora disponibili</h2>
+        <ul class="shop-material-sizes">
+          {% for label, sizes in item.sizes %}<li>{{ label }}: {{ sizes }}</li>{% endfor %}
+        </ul>
+        <p class="text-muted small">Da verificare su richiesta.</p>
+      {% endif %}
+
+      <div class="shop-seller">
+        <h2 class="h6">Interessato?</h2>
+        <p class="mb-2">Per informazioni o ordinazioni contatta {{ materials_contact_name }}.</p>
+        <p class="mb-2"><i class="fas fa-envelope"></i> <a href="mailto:{{ materials_contact_email }}">{{ materials_contact_email }}</a></p>
+        <a class="shop-pdf-link small" href="{{ url_for('shop.static', filename=materials_pdf) }}" target="_blank" rel="noopener noreferrer">
+          <i class="fa-regular fa-file-pdf" aria-hidden="true"></i> Lista completa del materiale (PDF)
+        </a>
+      </div>
+    </div>
+  </div>
+</article>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    document.querySelectorAll(".shop-thumb").forEach(function (button) {
+      button.addEventListener("click", function () {
+        document.getElementById("shopMainImage").src = button.dataset.src;
+        document.querySelectorAll(".shop-thumb").forEach(function (b) { b.classList.remove("active"); });
+        button.classList.add("active");
+      });
+    });
+  </script>
+{% endblock %}

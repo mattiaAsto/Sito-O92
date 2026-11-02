@@ -56,11 +56,17 @@ def create_app(test_config=None):
 
     from app.models import User
 
-    from app.markdown_render import plain_excerpt, render_blog_markdown, render_text_markdown
+    from app.markdown_render import (
+        plain_excerpt,
+        render_blog_markdown,
+        render_preview_markdown,
+        render_text_markdown,
+    )
 
     app.jinja_env.filters["excerpt"] = plain_excerpt
     app.jinja_env.filters["news_markdown"] = render_text_markdown
     app.jinja_env.filters["blog_markdown"] = render_blog_markdown
+    app.jinja_env.filters["blog_preview"] = render_preview_markdown
 
     @login_manager.user_loader
     def load_user(user_id):

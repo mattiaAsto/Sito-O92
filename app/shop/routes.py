@@ -6,6 +6,13 @@ from flask_login import current_user, login_required
 from app.extensions import db
 from app.models import Product, ProductImage
 from app.shop import shop
+from app.shop.catalog import (
+    MATERIALS_BY_SLUG,
+    MATERIALS_CONTACT_EMAIL,
+    MATERIALS_CONTACT_NAME,
+    MATERIALS_PDF,
+    OFFICIAL_MATERIALS,
+)
 from app.shop.forms import MAX_PHOTOS, ProductForm
 from app.storage import InvalidImage, get_storage, prepare_image, save_image
 
@@ -42,6 +49,24 @@ def index():
         "shop/shop.html",
         team_products=[p for p in products if p.is_official_clothing],
         used_products=[p for p in products if not p.is_official_clothing],
+        official_materials=OFFICIAL_MATERIALS,
+        materials_pdf=MATERIALS_PDF,
+        materials_contact_name=MATERIALS_CONTACT_NAME,
+        materials_contact_email=MATERIALS_CONTACT_EMAIL,
+    )
+
+
+@shop.route("/shop/materiale/<slug>")
+def material(slug):
+    item = MATERIALS_BY_SLUG.get(slug)
+    if item is None:
+        abort(404)
+    return render_template(
+        "shop/material.html",
+        item=item,
+        materials_pdf=MATERIALS_PDF,
+        materials_contact_name=MATERIALS_CONTACT_NAME,
+        materials_contact_email=MATERIALS_CONTACT_EMAIL,
     )
 
 
