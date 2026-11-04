@@ -155,8 +155,11 @@ def toggle_visibility(album_id):
             current_app.logger.exception("Loading album photos failed")
             flash("Non è stato possibile caricare le foto dell'album da Dropbox.", "error")
         else:
-            album.is_visible = True
-            db.session.commit()
+            if not album.photos:
+                flash("Nessuna foto riconosciuta in questo album: resta nascosto.", "error")
+            else:
+                album.is_visible = True
+                db.session.commit()
     target = request.form.get("next", "")
     return redirect(target if target.startswith("/") and not target.startswith("//") else url_for("photos.manage"))
 

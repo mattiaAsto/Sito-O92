@@ -13,7 +13,10 @@ from flask import current_app
 
 API_URL = "https://api.dropboxapi.com/2"
 CONTENT_URL = "https://content.dropboxapi.com/2"
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tif", ".tiff"}
+IMAGE_EXTENSIONS = {
+    ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tif", ".tiff", ".heic",
+    ".cr2", ".cr3", ".nef", ".arw", ".dng", ".raf", ".orf", ".rw2",  # camera RAW
+}
 THUMBNAIL_SIZES = {"small": "w480h320", "large": "w2048h1536"}
 TIMEOUT = 20
 DISCOVERY_WORKERS = 8
