@@ -17,15 +17,16 @@ app = create_app()
 def create_test_user():
     # Testing only: never ship this account with a real database.
     user = User(
-        first_name="Test",
+        first_name="Admin",
         last_name="Admin",
-        email="1@admin.com",
+        email="webmaster@o-92.ch",
         is_admin=True,
         is_photo_manager=True,
         is_van_manager=True,
         is_news_manager=True,
+        is_calendar_manager=True,
     )
-    user.set_password("12345678")
+    user.set_password("admin@o-92.ch")
     db.session.add(user)
     db.session.commit()
 

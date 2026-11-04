@@ -62,7 +62,10 @@ python EXPORT.py
 
 This creates `site-preview.zip` in the project directory. Choose another destination with
 `python EXPORT.py --output path/to/preview.zip`. Extract the archive and open `index.html`;
-the exported calendar includes its current activity data. Forms and other server-dependent
+the exported calendar includes its current activity data. Set `export_small_screen_version = True`
+at the top of `EXPORT.py` (or pass `--small-screen`) to also include `mobile.html`, which shows the
+site in a 390 px phone-sized frame so the small-screen layout can be reviewed on a desktop.
+Dropbox photos are fetched when reachable; unreachable ones are skipped with a warning. Forms and other server-dependent
 features are visual-only, and third-party fonts/icons/framework assets still require internet access.
 
 ## Extensions

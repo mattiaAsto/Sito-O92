@@ -50,6 +50,13 @@
     <section class="links-group">
       <h2 class="page-subtitle contact-title swipe-pane-title">Lista di tutti i documenti</h2>
       <ul class="links-grid">
+        <li>
+          <a class="links-card links-document-card" href="{{ config.TRANSPORT_SHEET_URL }}" target="_blank" rel="noopener noreferrer">
+            <i class="fa-regular fa-file-excel" aria-hidden="true"></i>
+            <span>Riservazione trasporto (Organizzazione trasporti O-92 – Cugnasco)</span>
+            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+          </a>
+        </li>
         {% for doc in documents %}
           <li>
             <a class="links-card links-document-card" href="{{ url_for(doc.blueprint ~ '.static', filename=doc.filename) }}" target="_blank" rel="noopener noreferrer">

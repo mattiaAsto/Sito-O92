@@ -54,3 +54,16 @@ class StaticExportTestCase(unittest.TestCase):
             self.assertIn("Static export activity", calendar)
             self.assertIn("staticEvents !== null", calendar)
             self.assertIn("activity/0/index.html", calendar)
+            self.assertNotIn("mobile.html", names)
+            for page in ("blog/index.html", "photos/index.html", "vans/index.html"):
+                self.assertIn(page, names)
+
+    def test_small_screen_version_adds_phone_preview(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            archive_path = Path(temp_dir) / "preview.zip"
+            export_site(self.app, archive_path, small_screen_version=True)
+
+            with zipfile.ZipFile(archive_path) as archive:
+                mobile = archive.read("mobile.html").decode("utf-8")
+
+            self.assertIn('src="index.html"', mobile)

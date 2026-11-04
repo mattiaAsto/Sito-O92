@@ -48,6 +48,14 @@
     {{ swipe.nav('vans', [('calendar', 'Calendario'), ('documents', 'Documenti'), ('request', 'Richiesta')]) }}
     <div class="tab-content">
   <div {{ swipe.pane('vans', 'calendar', True) }}>
+  <div class="vans-transport">
+    <a class="who-document" href="{{ config.TRANSPORT_SHEET_URL }}" target="_blank" rel="noopener noreferrer">
+      <i class="fa-regular fa-file-excel" aria-hidden="true"></i>
+      <span>Riservazione trasporto</span>
+      <i class="fa-solid fa-arrow-up-right-from-square who-document-external" aria-hidden="true"></i>
+    </a>
+  </div>
+
   <section id="calendario" class="vans-calendar">
     <h2 class="contact-title swipe-pane-title">Calendario occupazione</h2>
     <div class="calendar-controls">
@@ -64,7 +72,7 @@
           <div class="calendar-day-number">{{ day.date.day }}</div>
           <div class="calendar-day-events">
             {% for b in day.bookings %}
-              <div class="calendar-event vans-event" style="--event-color: {{ van_colors[b.van] }}; border-left-color: {{ van_colors[b.van] }}" title="{{ vans[b.van] }}{% if can_manage and b.note %} – {{ b.note }}{% endif %}">
+              <div class="calendar-event vans-event" style="--event-color: {{ van_colors[b.van] }}" title="{{ vans[b.van] }}{% if can_manage and b.note %} – {{ b.note }}{% endif %}">
                 <span class="calendar-event-title">{{ vans[b.van] }}</span>
                 <span class="calendar-event-time">non disponibile</span>
                 {% if can_manage %}

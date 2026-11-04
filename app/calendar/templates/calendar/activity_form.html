@@ -1,0 +1,73 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ "Modifica attività" if activity else "Nuova attività" }} | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% macro field_block(field, help=None) %}
+  <div class="mb-3">
+    {{ field.label(class="form-label") }}
+    {{ field(class="form-control" ~ (" is-invalid" if field.errors else ""), **kwargs) }}
+    {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
+    {% for error in field.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+  </div>
+{% endmacro %}
+
+{% block content %}
+  <section class="page-section">
+    <p><a href="{{ url_for('calendar.activity_detail', activity_id=activity.id) if activity else url_for('calendar.calendario') }}"><i class="fas fa-chevron-left" aria-hidden="true"></i> {{ "Attività" if activity else "Calendario" }}</a></p>
+    <h1 class="page-title">{{ "Modifica attività" if activity else "Nuova attività" }}</h1>
+
+    <form method="post" id="activity-form">
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        {{ form.category.label(class="form-label") }}
+        {{ form.category(class="form-select" ~ (" is-invalid" if form.category.errors else "")) }}
+        {% for error in form.category.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+      </div>
+      {{ field_block(form.title) }}
+      <div class="row">
+        <div class="col-md-6">{{ field_block(form.starts_at) }}</div>
+        <div class="col-md-6">{{ field_block(form.ends_at) }}</div>
+      </div>
+      {{ field_block(form.location) }}
+      <div class="row">
+        <div class="col-md-6">{{ field_block(form.latitude, "Es. 46.1605 (usata per la mappa).", step="any") }}</div>
+        <div class="col-md-6">{{ field_block(form.longitude, "Es. 8.9360. Lascia vuote entrambe per non mostrare la mappa.", step="any") }}</div>
+      </div>
+      {{ field_block(form.description, rows=5) }}
+
+      <div id="inscription-field">
+        {{ field_block(form.inscription_delay_date, "Solo per gare e attività.") }}
+      </div>
+
+      {% if not activity %}
+        <div id="repeat-field">
+          {{ field_block(form.weekly_repeats, "Solo per gli allenamenti: numero di settimane (1 = una sola volta). Ogni occorrenza è uguale alla prima, spostata di 7 giorni.", min=1, max=52) }}
+        </div>
+      {% endif %}
+
+      {{ form.submit(class="btn btn-brand") }}
+    </form>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    (() => {
+      const trainingCategories = {{ training_categories|tojson }};
+      const category = document.getElementById("category");
+      const inscription = document.getElementById("inscription-field");
+      const repeat = document.getElementById("repeat-field");
+
+      function update() {
+        const isTraining = trainingCategories.includes(category.value);
+        inscription.hidden = isTraining;
+        if (repeat) repeat.hidden = !isTraining;
+      }
+
+      category.addEventListener("change", update);
+      update();
+    })();
+  </script>
+{% endblock %}

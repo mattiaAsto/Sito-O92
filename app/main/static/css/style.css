@@ -587,8 +587,9 @@ body {
   text-decoration: none;
 }
 
-.news-back:hover {
-  color: var(--color-900);
+.news-back:hover,
+.news-back:focus-visible {
+  color: var(--accent);
 }
 
 .news-pager {
@@ -1155,7 +1156,7 @@ body {
   color: var(--color-900);
   font-weight: 600;
   text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .who-document > i:first-child {
@@ -1171,10 +1172,9 @@ body {
 
 .who-document:hover,
 .who-document:focus-visible {
-  transform: translateY(-2px);
   border-color: var(--brand);
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
-  color: var(--color-950);
+  background-color: var(--color-50);
+  color: var(--accent);
 }
 
 .activities-grid {
@@ -1853,13 +1853,14 @@ body {
 }
 
 .shop-pdf-link {
-  color: var(--accent);
+  color: var(--brand);
   font-weight: 600;
   text-decoration: none;
 }
 
-.shop-pdf-link:hover {
-  text-decoration: underline;
+.shop-pdf-link:hover,
+.shop-pdf-link:focus-visible {
+  color: var(--accent);
 }
 
 .shop-item-media-contain {
@@ -2703,7 +2704,7 @@ body {
 
 .vans-link:hover,
 .vans-link:focus-visible {
-  color: var(--color-600);
+  color: var(--accent);
 }
 
 .vans-links-note {
@@ -2718,13 +2719,20 @@ body {
 /* Calendar grid (shared by /calendar and /furgoni) */
 
 .calendar-pdf { max-width: 1100px; margin: 0 auto 1rem; }
+.calendar-manage { max-width: 1100px; margin: 0 auto 1rem; }
+.calendar-event-wrap { position: relative; }
+.calendar-event--managed { padding-right: 1.1rem; }
+.calendar-event-delete { position: absolute; top: .1rem; right: .25rem; margin: 0; }
+.calendar-event-delete button { border: 0; padding: 0; background: transparent; color: #495057; line-height: 1; font-size: 1rem; }
+.calendar-event-delete button:hover { color: #dc3545; }
+@media (max-width: 767.98px) { .calendar-event-delete { display: none; } .calendar-event--managed { padding-right: 0; } }
 .calendar-deadlines { max-width: 1100px; margin: 0 auto 1.5rem; }
 .calendar-deadlines h2 { font-size: 1.15rem; margin-bottom: .5rem; }
 .calendar-deadlines ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
-.calendar-deadlines li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem 1rem; padding: .4rem .7rem; border-left: 4px solid #c0392b; background: #fdecea; border-radius: .2rem; }
-.calendar-deadlines li a { color: #7b1e14; font-weight: 700; text-decoration: none; }
-.calendar-deadlines li a:hover, .calendar-deadlines li a:focus { color: #7b1e14; text-decoration: underline; }
-.calendar-deadlines li span { color: #a93226; font-size: .9rem; }
+.calendar-deadlines li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem 1rem; padding: .4rem .7rem; background: #E9A59C; border-radius: .2rem; }
+.calendar-deadlines li a { color: #4a1510; font-weight: 700; text-decoration: none; }
+.calendar-deadlines li a:hover, .calendar-deadlines li a:focus { color: #4a1510; text-decoration: underline; }
+.calendar-deadlines li span { color: #5c1c15; font-size: .9rem; }
 
 .calendar-controls { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; margin-bottom: 1rem; }
 .calendar-controls h2, .calendar-controls h3 { margin: 0; text-align: center; font-size: 1.25rem; text-transform: capitalize; }
@@ -2740,9 +2748,9 @@ body {
 .calendar-day--today { box-shadow: inset 0 0 0 2px var(--color-400, #F9A825); }
 .calendar-day-number { margin-bottom: .25rem; font-size: .8rem; font-weight: 700; }
 .calendar-day-events { display: grid; gap: .2rem; }
-.calendar-event { display: block; padding: .2rem .35rem; border-left: 3px solid; border-radius: .2rem; background: color-mix(in srgb, var(--event-color) 20%, white); color: #27313d; font-size: .78rem; line-height: 1.3; text-decoration: none; overflow-wrap: anywhere; }
-.calendar-event:hover, .calendar-event:focus { background: color-mix(in srgb, var(--event-color) 32%, white); color: #27313d; }
-.calendar-event-time { display: block; font-size: .72rem; color: #495057; }
+.calendar-event { display: block; padding: .2rem .35rem; border-radius: .2rem; background: var(--event-color); color: #1f2933; font-size: .78rem; line-height: 1.3; text-decoration: none; overflow-wrap: anywhere; }
+.calendar-event:hover, .calendar-event:focus { background: var(--event-color); filter: brightness(.93); color: #1f2933; }
+.calendar-event-time { display: block; font-size: .72rem; color: #1f2933; opacity: .8; }
 .calendar-event-meta { display: none; }
 .calendar-event-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 767.98px) {
@@ -2750,7 +2758,7 @@ body {
   .calendar-day { min-height: 56px; padding: .2rem; }
   .calendar-day-number { font-size: .72rem; text-align: center; }
   .calendar-day-events { gap: .15rem; }
-  .calendar-event { height: .7rem; padding: 0; border-left-width: 0; border-radius: .2rem; background: var(--event-color); }
+  .calendar-event { height: .7rem; padding: 0; border-radius: .2rem; background: var(--event-color); }
   .calendar-event:hover, .calendar-event:focus { background: var(--event-color); filter: brightness(.9); }
   .calendar-event > span { display: none; }
 }
@@ -2927,4 +2935,69 @@ body {
 
 .links-sponsors {
   grid-template-columns: minmax(0, 210px);
+}
+
+.vans-transport {
+  max-width: 900px;
+  margin: 0 auto 2rem;
+}
+
+.vans-transport .who-document {
+  display: inline-flex;
+}
+
+/* Shop lists on phones: compact horizontal rows (thumbnail left, text right) */
+@media (max-width: 767.98px) {
+  .shop-grid {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .shop-grid .shop-item {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .shop-grid .shop-item:hover {
+    transform: none;
+  }
+
+  .shop-grid .shop-item-media {
+    flex: 0 0 96px;
+    width: 96px;
+    aspect-ratio: auto;
+    min-height: 96px;
+  }
+
+  .shop-grid .shop-item-media-contain {
+    padding: 0.25rem;
+  }
+
+  .shop-grid .shop-item-placeholder {
+    font-size: 2rem;
+  }
+
+  .shop-grid .shop-ribbon {
+    top: 0.3rem;
+    left: 0.3rem;
+    padding: 0.05rem 0.45rem;
+    font-size: 0.65rem;
+  }
+
+  .shop-grid .shop-ribbon-official {
+    left: auto;
+    right: 0.3rem;
+  }
+
+  .shop-grid .shop-item-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: center;
+    gap: 0.1rem;
+    padding: 0.6rem 0.85rem;
+  }
+
+  .shop-grid .shop-item-name {
+    line-height: 1.25;
+  }
 }

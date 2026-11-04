@@ -145,6 +145,7 @@ class User(UserMixin, db.Model):
     is_photo_manager = db.Column(db.Boolean, nullable=False, default=False, server_default='0')
     is_van_manager = db.Column(db.Boolean, nullable=False, default=False, server_default='0')
     is_news_manager = db.Column(db.Boolean, nullable=False, default=False, server_default='0')
+    is_calendar_manager = db.Column(db.Boolean, nullable=False, default=False, server_default='0')
 
     def set_password(self, password):
         self.password = generate_password_hash(password).encode("utf-8")

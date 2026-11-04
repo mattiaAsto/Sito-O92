@@ -39,6 +39,7 @@ def create_app(test_config=None):
     from app.photos import photos
     from app.shop import shop
     from app.storage import init_storage, media_url
+    from app.user import user
     from app.vans import vans
 
     init_storage(app)
@@ -53,6 +54,7 @@ def create_app(test_config=None):
     app.register_blueprint(shop)
     app.register_blueprint(vans)
     app.register_blueprint(auth, url_prefix="/auth")
+    app.register_blueprint(user, url_prefix="/user")
 
     from app.models import User
 

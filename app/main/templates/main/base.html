@@ -18,9 +18,9 @@
     ] %}
     {% macro extra_items() %}
       <li><a class="dropdown-item" href="{{ url_for('calendar.calendario') }}"><i class="fas fa-calendar-days"></i> Calendario</a></li>
-      <li><a class="dropdown-item" href="{{ url_for('main.links') }}"><i class="fas fa-link"></i> Links</a></li>
       <li><a class="dropdown-item" href="{{ url_for('shop.index') }}"><i class="fas fa-bag-shopping"></i> Shop</a></li>
       <li><a class="dropdown-item" href="{{ url_for('blog.index') }}"><i class="fas fa-book-open"></i> Blog</a></li>
+      <li><a class="dropdown-item" href="{{ url_for('main.links') }}"><i class="fas fa-link"></i> Links</a></li>
       <li><a class="dropdown-item" href="{{ url_for('main.contatti') }}"><i class="fas fa-envelope"></i> Contatti</a></li>
       <li><hr class="dropdown-divider"></li>
       {% if current_user.is_authenticated and current_user.is_news_manager %}
@@ -43,6 +43,7 @@
         <li><a class="dropdown-item" href="{{ url_for('shop.pending') }}"><i class="fas fa-check-double"></i> Annunci da verificare</a></li>
       {% endif %}
       {% if current_user.is_authenticated %}
+        <li><a class="dropdown-item" href="{{ url_for('user.profile') }}"><i class="fas fa-user"></i> Il mio profilo</a></li>
         <li>
           <form action="{{ url_for('auth.logout') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

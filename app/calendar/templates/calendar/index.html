@@ -6,6 +6,12 @@
   <section class="page-section">
     <h1 class="page-title">CALENDARIO</h1>
 
+    {% if can_manage %}
+      <p class="calendar-manage">
+        <a class="btn btn-brand" href="{{ url_for('calendar.create_activity') }}">Nuova attività</a>
+      </p>
+    {% endif %}
+
     <p class="calendar-pdf">
       <a href="{{ url_for('calendar.static', filename='pdf/calendario_annuale_2026.pdf') }}" target="_blank" rel="noopener noreferrer">
         <i class="fa-regular fa-file-pdf" aria-hidden="true"></i> Scarica il calendario annuale 2026 (PDF)
@@ -62,6 +68,27 @@
       const staticEvents = {{ static_events|default(none)|tojson }};
       const eventUrl = {{ url_for("calendar.events")|tojson }};
       const detailUrlTemplate = {{ url_for("calendar.activity_detail", activity_id=0)|tojson }};
+      const canManage = {{ (can_manage|default(false))|tojson }};
+      const deleteUrlTemplate = {{ url_for("calendar.delete_activity", activity_id=0)|tojson }};
+      const csrfToken = {{ (csrf_token() if can_manage|default(false) else "")|tojson }};
+
+      function makeDeleteForm(event) {
+        const form = makeElement("form", "calendar-event-delete");
+        form.method = "post";
+        form.action = deleteUrlTemplate.replace("/0/", `/${event.id}/`);
+        const token = document.createElement("input");
+        token.type = "hidden";
+        token.name = "csrf_token";
+        token.value = csrfToken;
+        const button = makeElement("button", "", "×");
+        button.type = "submit";
+        button.setAttribute("aria-label", `Elimina attività ${event.title}`);
+        form.append(token, button);
+        form.addEventListener("submit", (submitEvent) => {
+          if (!confirm("Eliminare questa attività?")) submitEvent.preventDefault();
+        });
+        return form;
+      }
       const staticDetailUrlTemplate = "activity/0/index.html";
       const weekdays = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
       let displayedMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -120,12 +147,18 @@
               ? detailUrlTemplate.replace(/0$/, String(event.id))
               : staticDetailUrlTemplate.replace("/0/", `/${event.id}/`);
             link.style.setProperty("--event-color", event.color);
-            link.style.borderLeftColor = event.color;
             link.title = `${event.title} (${event.category_label})`;
             link.setAttribute("aria-label", link.title);
             link.append(makeElement("span", "calendar-event-title", event.title));
             if (event.time) link.append(makeElement("span", "calendar-event-time", event.time));
-            dayEvents.append(link);
+            if (!canManage) {
+              dayEvents.append(link);
+              return;
+            }
+            const wrap = makeElement("div", "calendar-event-wrap");
+            link.classList.add("calendar-event--managed");
+            wrap.append(link, makeDeleteForm(event));
+            dayEvents.append(wrap);
           });
           cell.append(dayEvents);
           grid.append(cell);

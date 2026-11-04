@@ -11,8 +11,8 @@ VANS = {
 }
 
 VAN_COLORS = {
-    "trafic": "#8a4b0f",
-    "vivaro": "#2f5d8c",
+    "trafic": "#F2B35E",
+    "vivaro": "#7FB7BE",
 }
 
 

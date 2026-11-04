@@ -1,0 +1,56 @@
+{% extends "main/base.html" %}
+
+{% block title %}Il mio profilo | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('auth.static', filename='css/forms.css') }}">
+{% endblock %}
+
+{% macro field(f, autocomplete) %}
+  <div class="mb-3">
+    {{ f.label(class="form-label") }}
+    {{ f(class="form-control" ~ (" is-invalid" if f.errors else ""), autocomplete=autocomplete) }}
+    {% for error in f.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+  </div>
+{% endmacro %}
+
+{% block content %}
+  <div class="row justify-content-center g-4">
+    <div class="col-12 col-lg-5">
+      <div class="auth-card">
+        <h1 class="auth-title">I miei dati</h1>
+        <form class="auth-form" method="post" action="{{ url_for('user.edit_profile') }}" novalidate>
+          {{ profile_form.hidden_tag() }}
+          {{ field(profile_form.first_name, "given-name") }}
+          {{ field(profile_form.last_name, "family-name") }}
+          {{ field(profile_form.email, "email") }}
+          {{ profile_form.submit(class="btn btn-brand w-100") }}
+        </form>
+      </div>
+    </div>
+    <div class="col-12 col-lg-5">
+      <div class="auth-card mb-4">
+        <h2 class="auth-title">Cambia password</h2>
+        <form class="auth-form" method="post" action="{{ url_for('user.change_password') }}" novalidate>
+          {{ password_form.hidden_tag() }}
+          {{ field(password_form.current_password, "current-password") }}
+          {{ field(password_form.new_password, "new-password") }}
+          {{ field(password_form.confirm_password, "new-password") }}
+          {{ password_form.submit(class="btn btn-brand w-100") }}
+        </form>
+      </div>
+      <div class="auth-card">
+        <h2 class="auth-title">Permessi</h2>
+        <ul class="list-unstyled mb-0">
+          {% for p in permissions %}
+            <li class="mb-2">
+              <i class="fas {{ 'fa-check text-success' if p.granted else 'fa-times text-muted' }}"></i>
+              <strong>{{ p.label }}</strong>
+              <div class="text-muted small">{{ p.description }}</div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}
