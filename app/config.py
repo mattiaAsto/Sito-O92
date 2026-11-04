@@ -5,7 +5,7 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = (
         os.getenv("DB_COMPLETE_URL") or os.getenv("DATABASE_URL") or "sqlite:///app.db"
-    )
+    ).replace("postgres://", "postgresql://", 1)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAX_CONTENT_LENGTH = 32 * 1024 * 1024  # uploaded photos
     STORAGE_BACKEND = os.getenv("STORAGE_BACKEND", "local")
