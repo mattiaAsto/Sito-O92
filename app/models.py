@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 from flask_login import UserMixin
 from sqlalchemy import CheckConstraint, Numeric
+from sqlalchemy.dialects import mysql
 from sqlalchemy.types import LargeBinary
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -290,7 +291,7 @@ class BlogPost(db.Model):
     )
     title = db.Column(db.String(200), nullable=False)
     summary = db.Column(db.String(300))
-    text = db.Column(db.Text(length=2**24 - 1), nullable=False)  # markdown
+    text = db.Column(db.Text().with_variant(mysql.MEDIUMTEXT(), "mysql"), nullable=False)  # markdown
     cover_filename = db.Column(db.String(255))  # stored name inside the post's folder
     is_verified = db.Column(db.Boolean, nullable=False, default=False, server_default="0", index=True)
     created_at = db.Column(
