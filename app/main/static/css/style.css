@@ -2272,7 +2272,7 @@ body {
 }
 
 .book-cover:hover {
-  transform: rotate(-1deg) scale(1.02);
+  transform: scale(1.04);
 }
 
 .book-cover[hidden],
@@ -2935,8 +2935,15 @@ body {
   }
 }
 
-.links-sponsors {
-  grid-template-columns: minmax(0, 210px);
+.links-grid.links-sponsors {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 210px));
+  justify-content: center;
+}
+
+@media (max-width: 575.98px) {
+  .links-grid.links-sponsors {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .vans-transport {

@@ -1,4 +1,5 @@
 from datetime import datetime
+import hashlib
 from zoneinfo import ZoneInfo
 
 from flask_login import UserMixin
@@ -263,6 +264,10 @@ class Album(db.Model):
         "Photo", back_populates="album", cascade="all, delete-orphan", order_by="Photo.taken_at, Photo.id"
     )
 
+    @property
+    def cache_token(self):
+        return hashlib.sha1(self.cover_path.encode("utf-8")).hexdigest()[:10]
+
 
 class Photo(db.Model):
     """A photo inside an album; the image itself stays on Dropbox and is proxied by the site."""
@@ -278,6 +283,11 @@ class Photo(db.Model):
     taken_at = db.Column(db.DateTime, nullable=False)
 
     album = db.relationship("Album", back_populates="photos")
+
+    @property
+    def cache_token(self):
+        # Changes with the Dropbox path, so reused ids never show another photo's cached image.
+        return hashlib.sha1(self.dropbox_path.encode("utf-8")).hexdigest()[:10]
 
 
 class BlogPost(db.Model):

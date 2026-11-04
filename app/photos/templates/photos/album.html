@@ -11,8 +11,8 @@
     <div class="text-center mb-3">{{ feature_form(album, request.path) }}</div>
     <div class="photo-grid">
       {% for photo in album.photos %}
-        <a href="{{ url_for('photos.image', photo_id=photo.id, size='large') }}" target="_blank" rel="noopener">
-          <img src="{{ url_for('photos.image', photo_id=photo.id, size='small') }}" alt="{{ photo.name }}" loading="lazy">
+        <a href="{{ url_for('photos.image', photo_id=photo.id, size='large', v=photo.cache_token) }}" target="_blank" rel="noopener">
+          <img src="{{ url_for('photos.image', photo_id=photo.id, size='small', v=photo.cache_token) }}" alt="{{ photo.name }}" loading="lazy">
         </a>
       {% endfor %}
     </div>

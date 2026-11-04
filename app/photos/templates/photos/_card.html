@@ -2,7 +2,7 @@
   <a class="photo-album-card" href="{{ url_for('photos.album', album_id=album.id) }}">
     <span class="photo-album-cover">
       {% if album.cover_path %}
-        <img src="{{ url_for('photos.cover', album_id=album.id, size='small') }}" alt="" loading="lazy">
+        <img src="{{ url_for('photos.cover', album_id=album.id, size='small', v=album.cache_token) }}" alt="" loading="lazy">
       {% else %}
         <i class="far fa-images"></i>
       {% endif %}

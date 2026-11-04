@@ -33,7 +33,11 @@ class Config:
         "?rlkey=o3vax0pgi2svl5r40bevwsj5v&e=1&dl=0",
     )
     DROPBOX_UPLOAD_URL = "https://www.dropbox.com/request/dxyytZyQd0h8PufJkxk3"
-    DROPBOX_API_KEY = os.getenv("DROPBOX_API_KEY")  # Dropbox access token
+    DROPBOX_API_KEY = os.getenv("DROPBOX_API_KEY")  # short-lived access token (expires in ~4h)
+    # Preferred: a refresh token lets the site renew its own access token.
+    DROPBOX_APP_KEY = os.getenv("DROPBOX_APP_KEY")
+    DROPBOX_APP_SECRET = os.getenv("DROPBOX_APP_SECRET")
+    DROPBOX_REFRESH_TOKEN = os.getenv("DROPBOX_REFRESH_TOKEN")
 
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"

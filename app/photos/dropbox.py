@@ -2,6 +2,7 @@
 import hashlib
 import json
 import re
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
@@ -23,10 +24,37 @@ class DropboxError(Exception):
     pass
 
 
+_token = {"value": None, "expires": 0.0}
+_token_lock = threading.Lock()
+
+
+def _access_token():
+    """Use the refresh token (renewed automatically) if configured, else the static key."""
+    config = current_app.config
+    if not config.get("DROPBOX_REFRESH_TOKEN"):
+        token = config.get("DROPBOX_API_KEY")
+        if not token:
+            raise DropboxError("DROPBOX_API_KEY non configurata")
+        return token
+    with _token_lock:
+        if _token["value"] and time.time() < _token["expires"]:
+            return _token["value"]
+        response = requests.post(
+            "https://api.dropboxapi.com/oauth2/token",
+            data={"grant_type": "refresh_token", "refresh_token": config["DROPBOX_REFRESH_TOKEN"]},
+            auth=(config.get("DROPBOX_APP_KEY") or "", config.get("DROPBOX_APP_SECRET") or ""),
+            timeout=TIMEOUT,
+        )
+        if not response.ok:
+            raise DropboxError(f"rinnovo del token non riuscito ({response.status_code})")
+        data = response.json()
+        _token["value"] = data["access_token"]
+        _token["expires"] = time.time() + int(data.get("expires_in", 14400)) - 120
+        return _token["value"]
+
+
 def _headers(extra=None):
-    token = current_app.config.get("DROPBOX_API_KEY")
-    if not token:
-        raise DropboxError("DROPBOX_API_KEY non configurata")
+    token = _access_token()
     return {"Authorization": f"Bearer {token}", **(extra or {})}
 
 
