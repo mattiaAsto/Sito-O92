@@ -64,8 +64,7 @@ class CalendarManagementTestCase(unittest.TestCase):
             "starts_at": start.strftime("%Y-%m-%dT%H:%M"),
             "ends_at": (start + timedelta(hours=4)).strftime("%Y-%m-%dT%H:%M"),
             "location": "Aarau",
-            "latitude": "47.39",
-            "longitude": "8.04",
+            "coordinates": "47°23'24.0\"N 8°02'24.0\"E",
             "description": "",
             "inscription_delay_date": (date.today() + timedelta(days=5)).isoformat(),
             "weekly_repeats": "1",
@@ -114,6 +113,8 @@ class CalendarManagementTestCase(unittest.TestCase):
                 db.select(CalendarActivity).filter_by(title="Nuova gara")
             ).scalar_one()
             self.assertEqual(created.activity_type, "gara")
+            self.assertAlmostEqual(created.latitude, 47.39, places=4)
+            self.assertAlmostEqual(created.longitude, 8.04, places=4)
             self.assertIsNotNone(created.inscription_delay_date)
 
     def test_weekly_training_series_and_no_delay_for_trainings(self):
@@ -138,7 +139,7 @@ class CalendarManagementTestCase(unittest.TestCase):
         client = self.client_for("manager@example.com")
         for overrides in (
             {"ends_at": "2000-01-01T00:00"},
-            {"latitude": ""},
+            {"coordinates": "non valide"},
             {"category": "training_friday"},
             {"inscription_delay_date": (date.today() + timedelta(days=99)).isoformat()},
             {"category": "race_ticino", "weekly_repeats": "3"},

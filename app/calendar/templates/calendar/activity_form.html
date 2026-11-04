@@ -30,10 +30,7 @@
         <div class="col-md-6">{{ field_block(form.ends_at) }}</div>
       </div>
       {{ field_block(form.location) }}
-      <div class="row">
-        <div class="col-md-6">{{ field_block(form.latitude, "Es. 46.1605 (usata per la mappa).", step="any") }}</div>
-        <div class="col-md-6">{{ field_block(form.longitude, "Es. 8.9360. Lascia vuote entrambe per non mostrare la mappa.", step="any") }}</div>
-      </div>
+      {{ field_block(form.coordinates, "Incolla da Google Maps, es. 46°09'04.9\"N 8°56'29.7\"E (anche decimali). Lascia vuoto per non mostrare la mappa.", placeholder="46°09'04.9\"N 8°56'29.7\"E") }}
       {{ field_block(form.description, rows=5) }}
 
       <div id="inscription-field">

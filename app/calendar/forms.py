@@ -1,7 +1,6 @@
 from wtforms import (
     DateField,
     DateTimeLocalField,
-    FloatField,
     IntegerField,
     SelectField,
     StringField,
@@ -11,6 +10,7 @@ from wtforms import (
 from wtforms.validators import DataRequired, Length, NumberRange, Optional, ValidationError
 
 from app.auth.forms import ItalianForm
+from app.calendar.coordinates import parse_coordinates
 from app.calendar.palette import ACTIVITY_CATEGORIES
 
 MAX_WEEKLY_REPEATS = 52
@@ -32,11 +32,8 @@ class ActivityForm(ItalianForm):
     starts_at = DateTimeLocalField("Inizio", format="%Y-%m-%dT%H:%M", validators=[DataRequired()])
     ends_at = DateTimeLocalField("Fine", format="%Y-%m-%dT%H:%M", validators=[DataRequired()])
     location = StringField("Luogo", filters=[_strip], validators=[Optional(), Length(max=200)])
-    latitude = FloatField(
-        "Latitudine", validators=[Optional(), NumberRange(min=-90, max=90)]
-    )
-    longitude = FloatField(
-        "Longitudine", validators=[Optional(), NumberRange(min=-180, max=180)]
+    coordinates = StringField(
+        "Coordinate Maps", filters=[_strip], validators=[Optional(), Length(max=100)]
     )
     description = TextAreaField("Descrizione", filters=[_strip], validators=[Optional()])
     inscription_delay_date = DateField(
@@ -62,9 +59,15 @@ class ActivityForm(ItalianForm):
         if self.starts_at.data and field.data and field.data < self.starts_at.data:
             raise ValidationError("La fine non può precedere l'inizio.")
 
-    def validate_longitude(self, field):
-        if (self.latitude.data is None) != (field.data is None):
-            raise ValidationError("Inserisci sia latitudine che longitudine, oppure nessuna delle due.")
+    def validate_coordinates(self, field):
+        if not field.data:
+            return
+        try:
+            parse_coordinates(field.data)
+        except ValueError:
+            raise ValidationError(
+                "Formato non valido. Incolla le coordinate da Google Maps, es. 46°09'04.9\"N 8°56'29.7\"E"
+            )
 
     def validate_inscription_delay_date(self, field):
         if field.data is None:

@@ -5,6 +5,7 @@ from flask import abort, flash, jsonify, redirect, render_template, request, url
 from flask_login import current_user, login_required
 
 from app.calendar import calendar
+from app.calendar.coordinates import format_coordinates, parse_coordinates
 from app.calendar.forms import ActivityForm
 from app.calendar.palette import ACTIVITY_CATEGORIES
 from app.calendar.services import get_calendar_activities, get_upcoming_inscription_deadlines
@@ -38,8 +39,10 @@ def _apply_form(activity, form):
     activity.starts_at = form.starts_at.data
     activity.ends_at = form.ends_at.data
     activity.location = form.location.data or None
-    activity.latitude = form.latitude.data
-    activity.longitude = form.longitude.data
+    if form.coordinates.data:
+        activity.latitude, activity.longitude = parse_coordinates(form.coordinates.data)
+    else:
+        activity.latitude = activity.longitude = None
     activity.inscription_delay_date = (
         None if activity.activity_type == "allenamento" else form.inscription_delay_date.data
     )
@@ -93,6 +96,8 @@ def create_activity():
 def edit_activity(activity_id):
     activity = db.get_or_404(CalendarActivity, activity_id)
     form = ActivityForm(obj=activity, allow_repeat=False)
+    if request.method == "GET":
+        form.coordinates.data = format_coordinates(activity.latitude, activity.longitude)
     if form.validate_on_submit():
         _apply_form(activity, form)
         db.session.commit()
