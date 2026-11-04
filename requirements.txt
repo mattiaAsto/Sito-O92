@@ -14,3 +14,4 @@ Markdown==3.11.2
 nh3==0.3.7
 Pillow==13.0.0
 requests==2.32.5
+gunicorn==23.0.0
