@@ -3010,3 +3010,29 @@ body {
     line-height: 1.25;
   }
 }
+
+.photo-manage-list {
+  list-style: none;
+  padding: 0;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.photo-manage-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.photo-manage-title {
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.photo-manage-list .photo-feature-form {
+  margin: 0;
+  flex: 0 0 auto;
+}

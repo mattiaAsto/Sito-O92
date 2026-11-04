@@ -255,9 +255,9 @@ class Album(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     dropbox_path = db.Column(db.String(500), nullable=False, unique=True)  # relative to the shared folder
     title = db.Column(db.String(255), nullable=False)
-    cover_path = db.Column(db.String(600), nullable=False)  # first photo, relative to the shared folder
-    is_featured = db.Column(db.Boolean, nullable=False, default=False, server_default="0", index=True)
-    date = db.Column(db.DateTime, nullable=False, index=True)  # from the folder name, else newest photo
+    cover_path = db.Column(db.String(600))  # first photo; set when the album is made visible
+    is_visible = db.Column(db.Boolean, nullable=False, default=False, server_default="0", index=True)
+    date = db.Column(db.DateTime, nullable=False, index=True)  # from the folder name (year/month)
     photos_loaded_at = db.Column(db.DateTime)  # when the full photo list was last read from Dropbox
 
     photos = db.relationship(
@@ -266,7 +266,7 @@ class Album(db.Model):
 
     @property
     def cache_token(self):
-        return hashlib.sha1(self.cover_path.encode("utf-8")).hexdigest()[:10]
+        return hashlib.sha1((self.cover_path or "").encode("utf-8")).hexdigest()[:10]
 
 
 class Photo(db.Model):

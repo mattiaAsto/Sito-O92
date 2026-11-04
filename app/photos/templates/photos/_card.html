@@ -12,13 +12,13 @@
   </a>
 {% endmacro %}
 
-{% macro feature_form(album, next_url) %}
+{% macro visibility_form(album, next_url) %}
   {% if current_user.is_authenticated and (current_user.is_photo_manager or current_user.is_admin) %}
-    <form method="post" action="{{ url_for('photos.toggle_featured', album_id=album.id) }}" class="photo-feature-form">
+    <form method="post" action="{{ url_for('photos.toggle_visibility', album_id=album.id) }}" class="photo-feature-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="next" value="{{ next_url }}">
-      <button type="submit" class="btn btn-sm {{ 'btn-brand' if album.is_featured else 'btn-brand-outline' }}">
-        {{ 'In evidenza' if album.is_featured else 'Metti in evidenza' }}
+      <button type="submit" class="btn btn-sm {{ 'btn-brand' if album.is_visible else 'btn-brand-outline' }}">
+        {{ 'Visibile - nascondi' if album.is_visible else 'Mostra nella galleria' }}
       </button>
     </form>
   {% endif %}

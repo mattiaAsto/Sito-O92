@@ -33,6 +33,7 @@ class Config:
         "?rlkey=o3vax0pgi2svl5r40bevwsj5v&e=1&dl=0",
     )
     DROPBOX_UPLOAD_URL = "https://www.dropbox.com/request/dxyytZyQd0h8PufJkxk3"
+    DROPBOX_ALBUM_DEPTH = int(os.getenv("DROPBOX_ALBUM_DEPTH", "2"))  # folders below the root, e.g. year/album
     DROPBOX_API_KEY = os.getenv("DROPBOX_API_KEY")  # short-lived access token (expires in ~4h)
     # Preferred: a refresh token lets the site renew its own access token.
     DROPBOX_APP_KEY = os.getenv("DROPBOX_APP_KEY")

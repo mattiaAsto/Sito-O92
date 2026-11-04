@@ -27,22 +27,22 @@ def photo_manager_required(view):
 
 
 def sync_albums(remote):
-    """Make the albums table match the discovered folders, keeping featured flags and loaded photos."""
+    """Make the albums table match the Dropbox folders, keeping visibility and loaded photos."""
     existing = {a.dropbox_path: a for a in db.session.execute(db.select(Album)).scalars()}
     for path, album in existing.items():
         if path not in remote:
             db.session.delete(album)
-    for path, (title, cover, date) in remote.items():
+    for path, (title, date) in remote.items():
         album = existing.get(path)
         if album is None:
             album = Album(dropbox_path=path)
             db.session.add(album)
-        album.title, album.cover_path, album.date = title, cover, date
+        album.title, album.date = title, date
     db.session.commit()
 
 
 def load_album_photos(album):
-    """Read this album's photos from Dropbox; only done when someone opens it."""
+    """Read this album's photos from Dropbox; only done for visible albums."""
     items = fetch_album_photos(album.dropbox_path)
     by_path = {p.dropbox_path: p for p in album.photos}
     wanted = {path for path, _, _ in items}
@@ -55,28 +55,47 @@ def load_album_photos(album):
             album.photos.append(Photo(dropbox_path=path, name=name, taken_at=taken))
         else:
             photo.name, photo.taken_at = name, taken
-    album.photos_loaded_at = datetime.now(ZoneInfo("Europe/Zurich")).replace(tzinfo=None)
+    album.photos.sort(key=lambda p: (p.taken_at, p.name))
+    album.cover_path = album.photos[0].dropbox_path if album.photos else None
+    album.photos_loaded_at = _now()
     db.session.commit()
+
+
+def _now():
+    return datetime.now(ZoneInfo("Europe/Zurich")).replace(tzinfo=None)
+
+
+def _is_manager():
+    return current_user.is_authenticated and (current_user.is_photo_manager or current_user.is_admin)
 
 
 @photos.route("/")
 def index():
     page = db.paginate(
-        db.select(Album).order_by(Album.date.desc(), Album.id.desc()),
+        db.select(Album).where(Album.is_visible.is_(True)).order_by(Album.date.desc(), Album.id.desc()),
         per_page=PER_PAGE,
         error_out=False,
     )
     return render_template("photos/index.html", page=page)
 
 
+@photos.route("/manage")
+@photo_manager_required
+def manage():
+    page = db.paginate(
+        db.select(Album).order_by(Album.date.desc(), Album.id.desc()),
+        per_page=100,
+        error_out=False,
+    )
+    return render_template("photos/manage.html", page=page)
+
+
 @photos.route("/album/<int:album_id>")
 def album(album_id):
     album = db.get_or_404(Album, album_id)
-    stale = (
-        album.photos_loaded_at is None
-        or datetime.now(ZoneInfo("Europe/Zurich")).replace(tzinfo=None) - album.photos_loaded_at > REFRESH_AFTER
-    )
-    if stale:
+    if not album.is_visible and not _is_manager():
+        abort(404)
+    if album.photos_loaded_at is None or _now() - album.photos_loaded_at > REFRESH_AFTER:
         try:
             load_album_photos(album)
         except Exception:
@@ -87,13 +106,8 @@ def album(album_id):
     return render_template("photos/album.html", album=album)
 
 
-@photos.route("/cover/<int:album_id>/<size>")
-def cover(album_id, size):
-    album = db.get_or_404(Album, album_id)
-    return _thumbnail_response(album.cover_path, size)
-
 def _thumbnail_response(path, size):
-    if size not in ("small", "large"):
+    if size not in ("small", "large") or not path:
         abort(404)
     try:
         result = fetch_thumbnail(path, size)
@@ -106,19 +120,45 @@ def _thumbnail_response(path, size):
     return Response(data, content_type=content_type, headers={"Cache-Control": "public, max-age=86400"})
 
 
+@photos.route("/cover/<int:album_id>/<size>")
+def cover(album_id, size):
+    album = db.get_or_404(Album, album_id)
+    if not album.is_visible and not _is_manager():
+        abort(404)
+    return _thumbnail_response(album.cover_path, size)
+
+
 @photos.route("/image/<int:photo_id>/<size>")
 def image(photo_id, size):
     photo = db.get_or_404(Photo, photo_id)
+    if not photo.album.is_visible and not _is_manager():
+        abort(404)
     return _thumbnail_response(photo.dropbox_path, size)
 
-@photos.route("/album/<int:album_id>/feature", methods=["POST"])
+
+@photos.route("/album/<int:album_id>/visibility", methods=["POST"])
 @photo_manager_required
-def toggle_featured(album_id):
+def toggle_visibility(album_id):
     album = db.get_or_404(Album, album_id)
-    album.is_featured = not album.is_featured
-    db.session.commit()
+    if album.is_visible:
+        album.is_visible = False
+        db.session.commit()
+    else:
+        # Photos are read from Dropbox only now; if that fails the album stays hidden.
+        try:
+            load_album_photos(album)
+            if album.cover_path:
+                # Create the cover thumbnail now, so the gallery shows it immediately.
+                fetch_thumbnail(album.cover_path, "small")
+        except Exception:
+            db.session.rollback()
+            current_app.logger.exception("Loading album photos failed")
+            flash("Non è stato possibile caricare le foto dell'album da Dropbox.", "error")
+        else:
+            album.is_visible = True
+            db.session.commit()
     target = request.form.get("next", "")
-    return redirect(target if target.startswith("/") and not target.startswith("//") else url_for("photos.index"))
+    return redirect(target if target.startswith("/") and not target.startswith("//") else url_for("photos.manage"))
 
 
 @photos.route("/sync", methods=["POST"])
@@ -136,10 +176,7 @@ def sync():
         flash("Sincronizzazione con Dropbox non riuscita.", "error")
     else:
         if remote:
-                        flash(f"Sincronizzati {len(remote)} album da Dropbox.", "success")
+            flash(f"Trovati {len(remote)} album su Dropbox. Scegli quali mostrare.", "success")
         else:
-            flash(
-                "Nessun album trovato: la cartella Dropbox non contiene foto.",
-                "error",
-            )
-    return redirect(url_for("main.foto"))
+            flash("Nessun album trovato nella cartella Dropbox.", "error")
+    return redirect(url_for("photos.manage"))

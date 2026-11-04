@@ -123,11 +123,9 @@ def chi_siamo():
 
 @main.route("/gallery")
 def foto():
-    # Featured albums if the photo managers picked any, otherwise the most recent ones.
-    query = db.select(Album).order_by(Album.date.desc(), Album.id.desc())
-    albums = db.session.execute(query.where(Album.is_featured.is_(True))).scalars().all()
-    if not albums:
-        albums = db.session.execute(query.limit(12)).scalars().all()
+    # Only albums a photo manager made visible; the gallery is empty if there are none.
+    query = db.select(Album).where(Album.is_visible.is_(True)).order_by(Album.date.desc(), Album.id.desc())
+    albums = db.session.execute(query.limit(12)).scalars().all()
     return render_template(
         "main/gallery.html",
         albums=albums,

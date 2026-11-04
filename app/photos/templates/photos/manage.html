@@ -1,0 +1,39 @@
+{% extends "main/base.html" %}
+{% from "photos/_card.html" import visibility_form with context %}
+
+{% block title %}Gestione album | Orientisti 92 Piano di Magadino{% endblock %}
+
+{% block content %}
+  <section class="page-section">
+    <a class="news-back" href="{{ url_for('main.foto') }}">&laquo; foto</a>
+    <h1 class="page-title">Gestione album</h1>
+    <p class="text-center">
+      Gli album sono le cartelle di Dropbox. Le foto di un album vengono caricate solo quando lo mostri nella galleria.
+    </p>
+    <form method="post" action="{{ url_for('photos.sync') }}" class="text-center mb-3">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-brand btn-sm" type="submit">Cerca nuovi album su Dropbox</button>
+    </form>
+    {% if page.items %}
+      <ul class="photo-manage-list">
+        {% for album in page.items %}
+          <li>
+            <span class="photo-manage-title">
+              <a href="{{ url_for('photos.album', album_id=album.id) }}">{{ album.title }}</a>
+            </span>
+            {{ visibility_form(album, request.full_path) }}
+          </li>
+        {% endfor %}
+      </ul>
+      {% if page.pages > 1 %}
+        <nav class="news-pager" aria-label="Pagine album">
+          {% if page.has_prev %}<a href="{{ url_for('photos.manage', page=page.prev_num) }}">&laquo; più recenti</a>{% endif %}
+          <span>{{ page.page }} / {{ page.pages }}</span>
+          {% if page.has_next %}<a href="{{ url_for('photos.manage', page=page.next_num) }}">meno recenti &raquo;</a>{% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <p class="text-center text-muted">Nessun album: premi "Cerca nuovi album su Dropbox".</p>
+    {% endif %}
+  </section>
+{% endblock %}

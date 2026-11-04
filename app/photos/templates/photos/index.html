@@ -1,5 +1,5 @@
 {% extends "main/base.html" %}
-{% from "photos/_card.html" import album_card, feature_form  with context%}
+{% from "photos/_card.html" import album_card with context%}
 
 {% block title %}Tutti gli album | Orientisti 92 Piano di Magadino{% endblock %}
 
@@ -10,10 +10,7 @@
     {% if page.items %}
       <div class="photo-album-grid">
         {% for album in page.items %}
-          <div>
-            {{ album_card(album) }}
-            {{ feature_form(album, request.full_path) }}
-          </div>
+          {{ album_card(album) }}
         {% endfor %}
       </div>
       {% if page.pages > 1 %}

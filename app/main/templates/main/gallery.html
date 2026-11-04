@@ -21,7 +21,7 @@
       <form method="post" action="{{ url_for('photos.sync') }}" class="text-center mb-3">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button class="btn btn-brand-outline btn-sm" type="submit">Sincronizza con Dropbox</button>
-        <a class="btn btn-brand-outline btn-sm" href="{{ url_for('photos.index') }}">Gestisci album in evidenza</a>
+        <a class="btn btn-brand-outline btn-sm" href="{{ url_for('photos.manage') }}">Scegli gli album da mostrare</a>
       </form>
     {% endif %}
     {% if albums %}

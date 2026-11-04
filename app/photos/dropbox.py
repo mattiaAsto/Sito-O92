@@ -16,7 +16,6 @@ CONTENT_URL = "https://content.dropboxapi.com/2"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tif", ".tiff"}
 THUMBNAIL_SIZES = {"small": "w480h320", "large": "w2048h1536"}
 TIMEOUT = 20
-DISCOVERY_PAGE = 25
 DISCOVERY_WORKERS = 8
 
 
@@ -67,13 +66,13 @@ def _post(url, **kwargs):
         time.sleep(min(int(response.headers.get("Retry-After", 1)), 10))
 
 
-def _list_folder(path, first_page_only=False):
+def _list_folder(path):
     """Yield the entries of a folder (path relative to the shared link, '' is the root)."""
     endpoint = "/files/list_folder"
     body = {
         "path": path,
         "shared_link": {"url": current_app.config["DROPBOX_FOLDER_URL"]},
-        "limit": DISCOVERY_PAGE if first_page_only else 2000,
+        "limit": 2000,
     }
     while True:
         response = _post(API_URL + endpoint, headers=_headers(), json=body)
@@ -81,7 +80,7 @@ def _list_folder(path, first_page_only=False):
             raise DropboxError(f"errore Dropbox {response.status_code}")
         data = response.json()
         yield from data["entries"]
-        if first_page_only or not data.get("has_more"):
+        if not data.get("has_more"):
             return
         endpoint = "/files/list_folder/continue"
         body = {"cursor": data["cursor"]}
@@ -111,39 +110,27 @@ def _date_from_path(path):
 
 
 def fetch_albums():
-    """Return {album path: (title, cover path, date)} without reading whole albums.
+    """Return {album path: (title, date)} for the album folders, without reading any photo.
 
-    Every folder (at any depth) that directly contains images is an album. Only the first
-    page of each folder is listed, which is enough to find a cover photo and sub-folders.
-    Folders are read level by level, several at a time.
+    Albums are the folders ALBUM_DEPTH levels below the shared folder (default: year/album).
+    Only folder names are listed, one level at a time, several folders in parallel.
     """
     app = current_app._get_current_object()
+    depth = app.config["DROPBOX_ALBUM_DEPTH"]
 
-    def scan(path):
+    def subfolders(path):
         with app.app_context():
-            subfolders, cover, newest = [], None, None
-            for entry in _list_folder(path, first_page_only=True):
-                if entry[".tag"] == "folder":
-                    subfolders.append(f"{path}/{entry['name']}")
-                elif _is_image(entry):
-                    taken = _parse_time(entry["client_modified"])
-                    if cover is None:
-                        cover = f"{path}/{entry['name']}"
-                    newest = max(newest or taken, taken)
-            return path, subfolders, cover, newest
+            return [f"{path}/{e['name']}" for e in _list_folder(path) if e[".tag"] == "folder"]
 
-    albums = {}
     level = [""]
     with ThreadPoolExecutor(max_workers=DISCOVERY_WORKERS) as pool:
-        while level:
-            next_level = []
-            for path, subfolders, cover, newest in pool.map(scan, level):
-                next_level.extend(subfolders)
-                if cover:
-                    title = path.strip("/").replace("/", " / ") or "Altre foto"
-                    albums[path] = (title, cover, _date_from_path(path) or newest)
-            level = next_level
-    return albums
+        for _ in range(depth):
+            level = [child for children in pool.map(subfolders, level) for child in children]
+
+    now = datetime.now()
+    return {
+        path: (path.strip("/").replace("/", " / "), _date_from_path(path) or now) for path in level
+    }
 
 def fetch_album_photos(path):
     """Return [(photo path, name, taken_at), ...] for a single album folder."""
