@@ -30,12 +30,12 @@
 
     <div class="vans-cards">
       <div class="vans-card">
-        <i class="fa-solid fa-van-shuttle" aria-hidden="true"></i>
+        <div class="vans-card-photo"><img class="vans-card-photo-contain" src="{{ url_for('vans.static', filename='pictures/renault.png') }}" alt="{{ vans.trafic }}" loading="lazy"></div>
         <p class="vans-card-name">{{ vans.trafic }}</p>
         <p>9 posti &middot; Cugnasco</p>
       </div>
       <div class="vans-card">
-        <i class="fa-solid fa-van-shuttle" aria-hidden="true"></i>
+        <div class="vans-card-photo"><img src="{{ url_for('vans.static', filename='pictures/opel.jpeg') }}" alt="{{ vans.vivaro }}" loading="lazy"></div>
         <p class="vans-card-name">{{ vans.vivaro }}</p>
         <p>9 posti &middot; Bironico (Monteceneri)</p>
       </div>

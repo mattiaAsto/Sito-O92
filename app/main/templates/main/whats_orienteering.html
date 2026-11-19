@@ -8,7 +8,7 @@
     <h1 class="page-title">COS'È LA CO</h1>
 
     <div class="swipe-tabs" data-swipe-tabs>
-      {{ swipe.nav('co', [('origins', 'Origini'), ('how', 'Come funziona'), ('champions', 'Campioni'), ('resources', 'Risorse')]) }}
+      {{ swipe.nav('co', [('origins', 'Origini'), ('how', 'Come funziona'), ('disciplines', 'Discipline'), ('champions', 'Campioni'), ('resources', 'Risorse')]) }}
       <div class="tab-content">
     <div {{ swipe.pane('co', 'origins', True) }}>
     <section class="orienteering-section">
@@ -55,13 +55,15 @@
     </section>
     </div>
 
-    <div {{ swipe.pane('co', 'champions') }}>
+    <div {{ swipe.pane('co', 'disciplines') }}>
     <section class="orienteering-section orienteering-disciplines">
       <h2 class="page-subtitle">Che discipline ci sono?</h2>
-      <p>Scopri tutte le discipline e le gare di orienteering.</p>
+      <p>Scopri tutte le discipline e le gare di corsa d'orientamento.</p>
       <a class="btn btn-brand orienteering-link" href="{{ url_for('main.gare') }}">Scopri le gare</a>
     </section>
+    </div>
 
+    <div {{ swipe.pane('co', 'champions') }}>
     <section class="orienteering-section orienteering-champions">
       <div class="orienteering-champions-copy">
         <h2 class="page-subtitle">Chi sono i campioni?</h2>

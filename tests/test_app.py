@@ -126,7 +126,7 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertNotIn(b"ignored.txt", response.data)
         self.assertIn(b"data-bs-slide=\"next\"", response.data)
         self.assertIn(b'data-bs-target="#whoSlideshowModal"', response.data)
-        self.assertEqual(response.data.count(b'data-bs-interval="3000"'), 2)
+        self.assertEqual(response.data.count(b'data-bs-interval="6000"'), 2)
 
     def test_links_page_lists_all_documents(self):
         response = self.client.get("/links")
