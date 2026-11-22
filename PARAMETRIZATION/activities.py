@@ -74,7 +74,7 @@ ACTIVITIES = [
     {
         "tab": "Natale",
         "title": "Cena natalizia",
-        "description": "Come da tradizione, ci ritroviamo per rivivere i momenti più belli dell’anno, tirare le somme della stagione e ringraziare chi ci ha dato una mano. Non può mancare l’ambito premio Güz (a chi l’ha combinata più grossa!) e, per finire, ciò che ci riesce meglio dopo una corsa: mangiare!",
+        "description": "Come da tradizione, ci ritroviamo per rivivere i momenti più belli dell’anno, tirare le somme della stagione e ringraziare chi ci ha dato una mano. Non può mancare l’ambito premio Güzz (a chi l’ha combinata più grossa!) e, per finire, ciò che ci riesce meglio dopo una corsa: mangiare!",
         "caption": "Ascona-Monte Verità, 2025",
         "image": "ascona_monte_verita_2025.jpg",
     },
