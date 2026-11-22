@@ -95,6 +95,7 @@ def gare():
         "activities/races.html",
         upcoming_activities=upcoming_activities,
         disciplines=DISCIPLINES,
+        documents=page_documents("races"),
     )
 
 

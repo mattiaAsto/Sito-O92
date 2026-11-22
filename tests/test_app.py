@@ -169,6 +169,22 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertIn(b'href="https://ol-events.ch"', response.data)
         self.assertIn(b'Iscrizioni online', response.data)
 
+    def test_race_documents_are_linked_and_served(self):
+        registration = "/static/main/pdf/races_info/tutorial%20O-92%20iscrizioni%202025.pdf"
+        accommodation = "/static/main/pdf/races_info/info%20NOTTI%202026.pdf"
+        links = self.client.get("/links").get_data(as_text=True)
+        races = self.client.get("/races").get_data(as_text=True)
+        calendar = "/static/calendar/pdf/calendario_annuale_2026.pdf"
+        self.assertLess(links.index(calendar), links.index(registration))
+        self.assertLess(links.index(registration), links.index(accommodation))
+        self.assertLess(links.index(accommodation), links.index("newcomers_info_2022.pdf"))
+        for path in (registration, accommodation):
+            with self.subTest(path=path):
+                self.assertIn(path, races)
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                response.close()
+
     def test_miscellaneous_pdfs_are_linked_from_their_pages(self):
         documents_by_page = {
             "/what-is-orienteering": (

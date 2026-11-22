@@ -18,6 +18,7 @@ FOLDERS = {
     "contacts": ("main", "pdf/contacts/"),                    # app/main/static/pdf/contacts/
     "whats_orienteering": ("main", "pdf/whats_orienteering/"),  # app/main/static/pdf/whats_orienteering/
     "who_are_we": ("main", "pdf/who_are_we/"),                # app/main/static/pdf/who_are_we/
+    "races_info": ("main", "pdf/races_info/"),                # app/main/static/pdf/races_info/
     "shop": ("shop", "pdf/"),                                 # app/shop/static/pdf/
     "calendar": ("calendar", "pdf/"),                         # app/calendar/static/pdf/
     "vans": ("vans", "pdf/"),                                 # app/vans/static/pdf/
@@ -25,6 +26,8 @@ FOLDERS = {
 
 DOCUMENTS = {
     "calendar_2026": {"label": "Calendario annuale 2026", "folder": "calendar", "file": "calendario_annuale_2026.pdf"},
+    "race_registration": {"label": "Come iscriversi alle gare (2025)", "folder": "races_info", "file": "tutorial O-92 iscrizioni 2025.pdf"},
+    "race_accommodation": {"label": "Informazioni sui pernottamenti (2026)", "folder": "races_info", "file": "info NOTTI 2026.pdf"},
     "newcomers_info": {"label": "Informazioni per i nuovi soci", "folder": "contacts", "file": "newcomers_info_2022.pdf"},
     "swiss_competencies": {"label": "Competenze orientistiche (Swiss Orienteering)", "folder": "whats_orienteering", "file": "swiss_orienteering_competencies_21.pdf"},
     "iof_descriptions": {"label": "Descrizione dei punti IOF", "folder": "whats_orienteering", "file": "iof_control_descriptions.pdf"},
@@ -44,7 +47,7 @@ DOCUMENTS = {
 # page -> document keys, in display order
 PAGE_DOCUMENTS = {
     "links": [
-        "calendar_2026", "newcomers_info", "swiss_competencies", "iof_descriptions",
+        "calendar_2026", "race_registration", "race_accommodation", "newcomers_info", "swiss_competencies", "iof_descriptions",
         "ticks_flyer", "forest_legend", "city_legend", "abc", "ethics", "sponsorship",
         "regulations", "statutes", "materials_stock",
     ],
@@ -52,6 +55,7 @@ PAGE_DOCUMENTS = {
     "whats_orienteering_advanced": ["swiss_competencies", "iof_descriptions", "forest_legend", "city_legend"],
     "whats_orienteering_ticks": ["ticks_flyer"],
     "contact": ["newcomers_info"],
+    "races": ["race_registration", "race_accommodation"],
     "vans": ["van_terms", "van_third_party"],
 }
 

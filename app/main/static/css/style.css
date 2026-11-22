@@ -1394,9 +1394,6 @@ body {
 .orienteering-link {
   border-radius: 999px;
   padding: 0.6rem 1.5rem;
-  --bs-btn-color: #fff;
-  --bs-btn-hover-color: #fff;
-  --bs-btn-active-color: #fff;
 }
 
 .orienteering-champions {
@@ -1796,6 +1793,13 @@ body {
 .contact-form-col {
   flex: 1 1 340px;
   max-width: 420px;
+}
+
+.contact-form-col form {
+  padding: 1.5rem;
+  border: 1px solid var(--color-200);
+  border-radius: 12px;
+  background: #fff;
 }
 
 .contact-title {
