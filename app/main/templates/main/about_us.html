@@ -128,11 +128,54 @@
         {% endfor %}
       </div>
     </section>
+
+    <section class="who-history" aria-labelledby="who-history-title">
+      <h2 class="page-subtitle contact-title" id="who-history-title">I primi vent’anni</h2>
+      <p>Alcuni ricordi dei primi anni della nostra società, tra gare, premiazioni e momenti insieme.</p>
+      {% set history_photos = [
+        ("o92 i primi 20anni_1.jpg", "Soci in tenuta da gara davanti al Cervino"),
+        ("o92 i primi 20anni_2.jpg", "Giovani orientisti sul podio durante una premiazione"),
+        ("o92 i primi 20anni_3.jpg", "Orientista con una cartina accanto a una lanterna nel bosco"),
+        ("o92 i primi 20anni_4.jpg", "Giovani orientisti premiati insieme sul podio"),
+        ("o92 i primi 20anni_5.jpg", "Orientisti alla partenza di una gara nel bosco"),
+        ("o92 i primi 20anni_6.jpg", "Orientista con una medaglia"),
+        ("o92 i primi 20anni_7.jpg", "Orientista in gara con il Cervino sullo sfondo"),
+        ("o92 i primi 20anni_8.jpg", "Gruppo di giovani della società insieme al parco giochi"),
+        ("o92 i primi 20anni_9.jpg", "Socio accanto a un furgone della società")
+      ] %}
+      <p class="who-history-hint"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Scorri per vedere tutte le foto</p>
+      <div class="who-history-photos" role="region" aria-label="Foto dei primi vent’anni" tabindex="0">
+        {% for filename, description in history_photos %}
+          {% set photo_url = url_for('main.static', filename='pictures/who_are_we/' ~ filename) %}
+          <a class="who-history-photo" href="{{ photo_url }}" target="_blank" rel="noopener" data-bs-toggle="modal" data-bs-target="#whoHistoryModal">
+            <img src="{{ photo_url }}" alt="{{ description }}" loading="lazy" decoding="async">
+          </a>
+        {% endfor %}
+      </div>
+      <div class="modal fade who-slideshow-modal who-history-modal" id="whoHistoryModal" tabindex="-1" aria-labelledby="whoHistoryModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <h2 class="visually-hidden" id="whoHistoryModalTitle">Foto dei primi vent’anni</h2>
+            <button type="button" class="btn-close btn-close-white who-slideshow-modal-close" data-bs-dismiss="modal" aria-label="Chiudi foto"></button>
+            <img alt="">
+          </div>
+        </div>
+      </div>
+    </section>
   </section>
 {% endblock %}
 
 {% block scripts %}
   {{ super() }}
+  <script>
+    document.getElementById("whoHistoryModal").addEventListener("show.bs.modal", (event) => {
+      const link = event.relatedTarget;
+      const image = link.querySelector("img");
+      const expandedImage = event.currentTarget.querySelector("img");
+      expandedImage.src = link.href;
+      expandedImage.alt = image.alt;
+    });
+  </script>
   {% if slideshow_images %}
     <script>
       (() => {

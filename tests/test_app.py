@@ -128,6 +128,21 @@ class ApplicationTestCase(unittest.TestCase):
         self.assertIn(b'data-bs-target="#whoSlideshowModal"', response.data)
         self.assertEqual(response.data.count(b'data-bs-interval="6000"'), 2)
 
+    def test_who_we_are_historical_photos_are_separate_from_slideshow(self):
+        response = self.client.get("/about-us")
+        self.assertEqual(response.status_code, 200)
+        history = response.data.split(b'<section class="who-history"', 1)[1]
+        self.assertNotIn(b"pictures/who_are_we/", response.data.split(b'<section class="who-history"', 1)[0])
+        self.assertEqual(history.count(b'data-bs-target="#whoHistoryModal"'), 9)
+        self.assertIn(b'id="whoHistoryModal"', history)
+        for number in range(1, 10):
+            with self.subTest(photo=number):
+                path = f"/static/main/pictures/who_are_we/o92%20i%20primi%2020anni_{number}.jpg"
+                self.assertIn(path.encode(), history)
+                photo = self.client.get(path)
+                self.assertEqual(photo.status_code, 200)
+                photo.close()
+
     def test_links_page_lists_all_documents(self):
         response = self.client.get("/links")
         self.assertEqual(response.status_code, 200)
