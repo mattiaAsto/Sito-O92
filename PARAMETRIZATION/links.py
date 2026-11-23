@@ -30,7 +30,7 @@ LINK_GROUPS = [
             {"label": "Classifiche live TMO", "href": "https://www.classifiche.asti-ticino.ch"},
             {"label": "Classifiche live gare nazionali", "href": "https://www.picotiming.ch"},
             {"label": "La più grande mappa di orienteering del mondo", "href": "https://www.o-map.ch"},
-            {"label": "SIAC Service", "href": "https://www.sportident.com"},
+            {"label": "Sport ident", "href": "https://www.sportident.com"},
             {"label": "Svizzera su carta di CO", "href": "https://www.mapant.ch"},
             {"label": "Analisi gare di CO svizzere (Olana)", "href": "https://www.ol.zimaa.ch"},
         ],
