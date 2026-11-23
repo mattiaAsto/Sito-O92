@@ -4,10 +4,12 @@ PEOPLE
 "Chi siamo" page (app/main/routes.py -> chi_siamo()): COMMITTEE, OTHER_ROLES, MONITORS
 "Contatti" page  (app/main/routes.py -> contatti()):  CONTACTS
 
-Add / edit / remove a dictionary (or a name) and redeploy.
+Add / edit / remove a dictionary (or a name in MONITORS) and redeploy.
 "location", "email" and "phone" may be None.
 E-mails are written with "(at)" instead of "@" to avoid spam bots.
 If a person changes role, update both pages when the role appears in both.
+
+Add monitor names as strings to the MONITORS list below.
 
 Slideshow in "Chi siamo": copy the images (.png .jpg .jpeg .webp .gif, ~950x340 px)
 in app/main/static/pictures/slideshow/ - they are picked up automatically, sorted by name.
@@ -34,7 +36,34 @@ OTHER_ROLES = [
     {"role": "Responsabile sito internet", "name": "Mattia Astori", "location": "Cugnasco"},
 ]
 
-MONITORS = ["Alain Astori", "Alessandro Juorno", "Alina Vecsey", "Mattia Astori", "Giulia Maddalena"]
+MONITORS = [
+    "Alain Astori",
+    "Mattia Astori",
+    "Tito Balestra",
+    "Marzio Bianchi",
+    "Alessandro Bolis",
+    "Carla Bolis",
+    "Nicolas Borgeaud",
+    "Arianna Cambianica",
+    "Filippo Cantoreggi",
+    "Sergio Cantoreggi",
+    "Roberta De Maria",
+    "Elia Depedrini",
+    "Laura Depedrini",
+    "Sara Fonti",
+    "Aline Gaberell",
+    "Florian Howald",
+    "Alessandro Juorno",
+    "Massimo Juorno",
+    "Alice Maddalena",
+    "Giulia Maddalena",
+    "Stefano Maddalena",
+    "Lisa Matasci",
+    "Marta Riso",
+    "Patrick Rossetti",
+    "Sandy Rusconi",
+    "Alina Vecsey",
+]
 
 CONTACTS = [
     {"role": "Responsabile attività", "name": "Alessandro Bolis", "email": "alessandro.bolis3(at)gmail.com", "phone": None},

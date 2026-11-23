@@ -100,6 +100,18 @@ class ApplicationTestCase(unittest.TestCase):
                 self.assertIn(document.encode(), response.data)
                 document_response.close()
 
+    def test_trainer_list_displays_configured_names_without_icons(self):
+        trainers = ["Anna Example", "Bruno Example"]
+        with patch("app.main.routes.MONITORS", trainers):
+            response = self.client.get("/about-us")
+
+        self.assertEqual(response.status_code, 200)
+        markup = response.get_data(as_text=True).split('<ul class="who-monitors">', 1)[1].split("</ul>", 1)[0]
+        self.assertEqual(markup.count("<li>"), len(trainers))
+        for trainer in trainers:
+            self.assertIn(f"<li>{trainer}</li>", markup)
+        self.assertNotIn("<i ", markup)
+
     def test_who_we_are_slideshow_uses_supported_images(self):
         with TemporaryDirectory() as temp_dir:
             slideshow_folder = Path(temp_dir) / "pictures" / "slideshow"

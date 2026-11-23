@@ -13,9 +13,9 @@ To add a club:
 CLUBS = [
     {"label": "ASCO Lugano", "href": "https://www.asco-lugano.ch", "logo": "ASCO.png"},
     {"label": "CO AGET Lugano", "href": "https://www.coaget.ch", "logo": "CO AGET.png"},
-    {"label": "CO UTOE Bellinzona", "href": "https://www.utoe.ch/co", "logo": "CO UTOE.png"},
+    {"label": "CO UTOE Bellinzona", "href": "https://utoe.ch/?page_id=1890", "logo": "CO UTOE.png"},
     {"label": "GOLD Savosa", "href": "https://www.gold-savosa.ch", "logo": "GOLD.png"},
-    {"label": "GOV Valmaggia", "href": "https://www.gov-valmaggia.ch", "logo": "GOV.png"},
+    {"label": "GOV Valmaggia", "href": "https://www.gov-vallemaggia.ch", "logo": "GOV.png"},
     {"label": "SCOM Mendrisio", "href": "https://www.scom-mendrisio.ch", "logo": "SCOM.png"},
     {"label": "UNITAS Malcantone", "href": "https://sites.google.com/view/unitascaslano", "logo": "UNITAS.png"},
 ]

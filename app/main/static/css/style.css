@@ -1189,28 +1189,20 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.75rem 2.5rem;
+  padding-bottom: 1rem;
 }
 
 .who-monitors {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
-  gap: 0.75rem;
+  gap: 0.25rem 1rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .who-monitors li {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.8rem 1rem;
-  border-radius: 10px;
-  background: var(--color-50);
-}
-
-.who-monitors i {
-  color: var(--brand);
+  padding: 0.25rem 0;
 }
 
 .who-documents {

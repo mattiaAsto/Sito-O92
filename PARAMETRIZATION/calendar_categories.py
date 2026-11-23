@@ -18,12 +18,12 @@ ACTIVITY_CATEGORIES = {
     "training_wednesday": {
         "activity_type": "allenamento",
         "label": "Allenamento - Mercoledì",
-        "color": "#A9D18E",
+        "color": "#3E9E6B",
     },
     "training_friday": {
         "activity_type": "allenamento",
         "label": "Allenamento - Venerdì",
-        "color": "#3E9E6B",
+        "color": "#A9D18E",
     },
     "race_ticino": {
         "activity_type": "gara",
