@@ -29,6 +29,10 @@ def create_app(test_config=None):
     csrf.init_app(app)
     cache.init_app(app)
     admin.init_app(app)
+    
+    # Initialize parametrization (load from Python files if needed)
+    from app.parametrization.initialization import initialize_parametrization
+    initialize_parametrization(app)
 
     from app.admin import admin_bp as admin_blueprint
     from app.auth import auth
