@@ -33,6 +33,15 @@ def create_app(test_config=None):
     # Initialize parametrization (load from Python files if needed)
     from app.parametrization.initialization import initialize_parametrization
     initialize_parametrization(app)
+    
+    # Setup Flask-Admin model views
+    with app.app_context():
+        # Rename to avoid shadowing
+        admin_inst = admin
+        db_sess = db.session
+        # Import function without importing the package module
+        from app.admin.setup import setup_admin_views
+        setup_admin_views(admin_inst, db_sess)
 
     from app.admin import admin_bp as admin_blueprint
     from app.auth import auth
