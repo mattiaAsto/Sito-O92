@@ -30,6 +30,7 @@ def create_app(test_config=None):
     cache.init_app(app)
     admin.init_app(app)
 
+    from app.admin import admin_bp as admin_blueprint
     from app.auth import auth
     from app.blog import blog
     from app.calendar import calendar, routes as calendar_routes
@@ -55,6 +56,7 @@ def create_app(test_config=None):
     app.register_blueprint(vans)
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(user, url_prefix="/user")
+    app.register_blueprint(admin_blueprint, url_prefix="/panel")
 
     from app.models import User
 

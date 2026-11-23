@@ -1,0 +1,258 @@
+{% extends "main/base.html" %}
+
+{% block title %}{{ table.name }} - Admin Panel{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('admin_panel.static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+  <div class="admin-container">
+    <!-- Back Button -->
+    <a href="{{ url_for('admin_panel.dashboard') }}" class="admin-btn-back">
+      <i class="fas fa-arrow-left"></i> Torna al Dashboard
+    </a>
+
+    <!-- Header -->
+    <div class="admin-header">
+      <h1><i class="fas fa-table"></i> {{ table.name }}</h1>
+      <p>Dettagli e dati della tabella</p>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="admin-stats-box">
+      <div class="admin-stat-item">
+        <div class="admin-stat-value">{{ table.row_count }}</div>
+        <div class="admin-stat-label">Righe Totali</div>
+      </div>
+      <div class="admin-stat-item">
+        <div class="admin-stat-value">{{ table.columns|length }}</div>
+        <div class="admin-stat-label">Colonne</div>
+      </div>
+      <div class="admin-stat-item">
+        <div class="admin-stat-value">{{ table.primary_keys|length }}</div>
+        <div class="admin-stat-label">Chiavi Primarie</div>
+      </div>
+      <div class="admin-stat-item">
+        <div class="admin-stat-value">{{ table.foreign_keys|length }}</div>
+        <div class="admin-stat-label">Chiavi Esterne</div>
+      </div>
+    </div>
+
+    <!-- Schema Information -->
+    <div class="admin-detail-section">
+      <h3><i class="fas fa-layer-group"></i> Struttura della Tabella</h3>
+      
+      <div class="admin-table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Colonna</th>
+              <th>Tipo</th>
+              <th>Nullable</th>
+              <th>Chiave</th>
+              <th>Default</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for column in table.columns %}
+              <tr>
+                <td>
+                  <code class="admin-table-cell-code">{{ column.name }}</code>
+                </td>
+                <td>
+                  <span class="admin-badge admin-badge-info">
+                    {{ column.type }}
+                  </span>
+                </td>
+                <td>
+                  {% if column.nullable %}
+                    <span class="admin-badge admin-badge-warning">
+                      <i class="fas fa-check"></i> Sì
+                    </span>
+                  {% else %}
+                    <span class="admin-badge admin-badge-danger">
+                      <i class="fas fa-times"></i> No
+                    </span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if column.name in table.primary_keys %}
+                    <span class="admin-badge admin-badge-primary">
+                      <i class="fas fa-key"></i> PK
+                    </span>
+                  {% endif %}
+                  {% set is_fk = false %}
+                  {% for fk in table.foreign_keys %}
+                    {% if column.name in fk.constrained_columns %}
+                      <span class="admin-badge admin-badge-success">
+                        <i class="fas fa-link"></i> FK
+                      </span>
+                      {% set is_fk = true %}
+                    {% endif %}
+                  {% endfor %}
+                  {% if not (column.name in table.primary_keys) and not is_fk %}
+                    —
+                  {% endif %}
+                </td>
+                <td>
+                  {% if column.default %}
+                    <code class="admin-table-cell-code">{{ column.default }}</code>
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Foreign Keys Information -->
+    {% if table.foreign_keys %}
+      <div class="admin-detail-section">
+        <h3><i class="fas fa-link"></i> Relazioni (Foreign Keys)</h3>
+        
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Colonna Locale</th>
+                <th>Tabella Riferita</th>
+                <th>Colonna Riferita</th>
+                <th>Azione Eliminazione</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for fk in table.foreign_keys %}
+                <tr>
+                  <td>
+                    <code class="admin-table-cell-code">
+                      {{ fk.constrained_columns|join(', ') }}
+                    </code>
+                  </td>
+                  <td>
+                    <code class="admin-table-cell-code">{{ fk.referred_table }}</code>
+                  </td>
+                  <td>
+                    <code class="admin-table-cell-code">
+                      {{ fk.referred_columns|join(', ') }}
+                    </code>
+                  </td>
+                  <td>
+                    <span class="admin-badge admin-badge-warning">
+                      {{ fk.ondelete or 'NO ACTION' }}
+                    </span>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Indexes Information -->
+    {% if table.indexes %}
+      <div class="admin-detail-section">
+        <h3><i class="fas fa-bolt"></i> Indici</h3>
+        
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Nome Indice</th>
+                <th>Colonne</th>
+                <th>Unico</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for index in table.indexes %}
+                <tr>
+                  <td>
+                    <code class="admin-table-cell-code">{{ index.name }}</code>
+                  </td>
+                  <td>
+                    <code class="admin-table-cell-code">
+                      {{ index.column_names|join(', ') }}
+                    </code>
+                  </td>
+                  <td>
+                    {% if index.unique %}
+                      <span class="admin-badge admin-badge-success">
+                        <i class="fas fa-check"></i> Sì
+                      </span>
+                    {% else %}
+                      <span class="admin-badge admin-badge-danger">
+                        <i class="fas fa-times"></i> No
+                      </span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Sample Data -->
+    {% if table.rows %}
+      <div class="admin-detail-section">
+        <h3><i class="fas fa-database"></i> Dati di Esempio (Primi 50 record)</h3>
+        
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> 
+          Visualizzazione di anteprima: <%= table.rows|length %> record visualizzati {% if table.row_count > 50 %}su {{ table.row_count }} totali{% endif %}
+        </div>
+
+        <div class="admin-table-container" style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                {% for column in table.columns %}
+                  <th>{{ column.name }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in table.rows %}
+                <tr>
+                  {% for column in table.columns %}
+                    <td>
+                      {% set value = row.get(column.name) %}
+                      {% if value is none %}
+                        <span style="color: #95a5a6; font-style: italic;">NULL</span>
+                      {% elif value is string and value|length > 100 %}
+                        <code class="admin-table-cell-code">{{ value[:100] }}...</code>
+                      {% elif value is string %}
+                        <code class="admin-table-cell-code">{{ value }}</code>
+                      {% else %}
+                        <code class="admin-table-cell-code">{{ value }}</code>
+                      {% endif %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% else %}
+      <div class="admin-detail-section">
+        <h3><i class="fas fa-database"></i> Dati di Esempio</h3>
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> Nessun dato trovato in questa tabella.
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div style="margin-top: 2rem;">
+      <a href="{{ url_for('admin_panel.dashboard') }}" class="admin-btn admin-btn-secondary">
+        <i class="fas fa-arrow-left"></i> Torna al Dashboard
+      </a>
+    </div>
+  </div>
+{% endblock %}

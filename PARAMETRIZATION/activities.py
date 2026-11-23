@@ -17,14 +17,14 @@ Page "Gare" (app/main/routes.py -> gare())
 ACTIVITIES = [
     {
         "tab": "Neve",
-        "title": "Weekend sulla neve",
+        "title": "Fine settimana sulla neve",
         "description": "Discesa a tutta velocità, sci di fondo per scoprire il proprio equilibrio (o cadere con stile) oppure una tranquilla passeggiata con le ciaspole: qui c’è un modo per divertirsi sulla neve per tutti i gusti!",
         "caption": "Brigels-Campra, 2025",
         "image": "brigels_campra_2025.png",
     },
     {
         "tab": "Inizio stagione",
-        "title": "Weekend di inizio stagione",
+        "title": 'Campo "mini" di inizio stagione',
         "description": "Si parte con il piede giusto! Chi è alle prime armi viene preso per mano e accompagnato alla sua prima gara, mentre i veterani possono scaldare le gambe e le bussole. Il tutto in ottima compagnia!",
         "caption": "Tesserete, 2023",
         "image": "tesserete_2023.jpeg",

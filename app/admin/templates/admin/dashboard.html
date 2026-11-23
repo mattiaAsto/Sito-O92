@@ -1,0 +1,67 @@
+{% extends "main/base.html" %}
+
+{% block title %}Admin Panel - Orientisti 92{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('admin_panel.static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+  <div class="admin-container">
+    <!-- Header -->
+    <div class="admin-header">
+      <h1><i class="fas fa-shield-halved"></i> Admin Panel</h1>
+      <p>Gestione completa di tutti i dati del sistema</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="admin-stats-box">
+      {% for table in tables %}
+        <div class="admin-stat-item">
+          <div class="admin-stat-value">{{ table.row_count }}</div>
+          <div class="admin-stat-label">{{ table.name }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Tables Grid -->
+    <h2 class="mb-4" style="color: var(--admin-primary); font-weight: 700;">Tabelle del Database</h2>
+    <div class="admin-cards-grid">
+      {% for table in tables %}
+        <div class="admin-card">
+          <div class="admin-card-icon">
+            <i class="fas fa-table"></i>
+          </div>
+          <h3>{{ table.name }}</h3>
+          <p class="admin-card-label">
+            <strong>Colonne:</strong> {{ table.columns|length }}<br>
+            <strong>Righe:</strong> {{ table.row_count }}
+          </p>
+          <div>
+            {% if table.primary_keys %}
+              <div class="admin-badge admin-badge-primary">
+                <i class="fas fa-key"></i> PK: {{ table.primary_keys|join(', ') }}
+              </div>
+            {% endif %}
+            {% if table.foreign_keys %}
+              <div class="admin-badge admin-badge-info">
+                <i class="fas fa-link"></i> FK: {{ table.foreign_keys|length }}
+              </div>
+            {% endif %}
+          </div>
+          <div style="margin-top: 1rem;">
+            <a href="{{ url_for('admin_panel.table_detail', table_name=table.name) }}" class="admin-card-link">
+              Visualizza Dettagli <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if not tables %}
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> Nessuna tabella trovata nel database.
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
