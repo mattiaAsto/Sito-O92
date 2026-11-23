@@ -59,6 +59,14 @@ def create_app(test_config=None):
     app.register_blueprint(admin_blueprint, url_prefix="/panel")
 
     from app.models import User
+    
+    # Import all parametrization models for database registration
+    from app.parametrization import (
+        Activity, Discipline, CommitteeMember, OtherRole, Monitor, Contact,
+        LinkGroup, Link, Club, Sponsor, Document, DocumentMapping,
+        Setting, ShopMaterial, ShopMaterialPrice, ShopMaterialSize,
+        CalendarCategory
+    )
 
     from app.markdown_render import (
         plain_excerpt,

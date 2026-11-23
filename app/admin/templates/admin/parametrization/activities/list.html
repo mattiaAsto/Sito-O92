@@ -1,0 +1,96 @@
+{% extends "main/base.html" %}
+
+{% block title %}Activities - Admin Parametrization{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>📋 Activities Management</h1>
+        <p>Manage activities and special events for the Attività page</p>
+    </div>
+
+    <div class="admin-nav">
+        <a href="{{ url_for('admin_panel.parametrization_index') }}" class="btn btn-secondary">← Back</a>
+        <a href="{{ url_for('admin_panel.activity_create') }}" class="btn btn-success">+ Create Activity</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Tab Name</th>
+                    <th>Title</th>
+                    <th>Image</th>
+                    <th>Order</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in activities %}
+                    <tr>
+                        <td><strong>{{ activity.tab }}</strong></td>
+                        <td>{{ activity.title[:50] }}...</td>
+                        <td>
+                            {% if activity.image %}
+                                <span class="badge badge-success">✓ {{ activity.image }}</span>
+                            {% else %}
+                                <span class="badge badge-warning">No image</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ activity.order }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_panel.activity_edit', id=activity.id) }}" class="btn btn-primary btn-sm">Edit</a>
+                            <form method="POST" action="{{ url_for('admin_panel.activity_delete', id=activity.id) }}" style="display:inline;" onsubmit="return confirm('Delete this activity?');">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.admin-table-wrapper {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table thead {
+    background: #34495e;
+    color: white;
+}
+
+.admin-table th, .admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.admin-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.admin-table td .btn {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+</style>
+{% endblock %}

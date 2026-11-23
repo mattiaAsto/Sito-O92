@@ -1,0 +1,87 @@
+{% extends "main/base.html" %}
+
+{% block title %}Disciplines - Admin Parametrization{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>⛳ Race Disciplines</h1>
+        <p>Manage race types and descriptions for the Gare page</p>
+    </div>
+
+    <div class="admin-nav">
+        <a href="{{ url_for('admin_panel.parametrization_index') }}" class="btn btn-secondary">← Back</a>
+        <a href="{{ url_for('admin_panel.discipline_create') }}" class="btn btn-success">+ Create Discipline</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Order</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for discipline in disciplines %}
+                    <tr>
+                        <td><strong>{{ discipline.name }}</strong></td>
+                        <td>{{ discipline.description[:50] }}...</td>
+                        <td>{{ discipline.order }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_panel.discipline_edit', id=discipline.id) }}" class="btn btn-primary btn-sm">Edit</a>
+                            <form method="POST" action="{{ url_for('admin_panel.discipline_delete', id=discipline.id) }}" style="display:inline;" onsubmit="return confirm('Delete this discipline?');">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.admin-table-wrapper {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table thead {
+    background: #34495e;
+    color: white;
+}
+
+.admin-table th, .admin-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.admin-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.admin-table td .btn {
+    margin-right: 5px;
+}
+</style>
+{% endblock %}
